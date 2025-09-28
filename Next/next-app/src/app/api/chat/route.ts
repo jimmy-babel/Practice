@@ -1,5 +1,5 @@
 import { createDeepSeek } from '@ai-sdk/deepseek';
-import { createOpenAI, openai } from '@ai-sdk/openai';
+// import { createOpenAI, openai } from '@ai-sdk/openai';
 import { streamText, UIMessage, convertToModelMessages } from 'ai';
 
 // Allow streaming responses up to 30 seconds
@@ -11,11 +11,14 @@ export async function POST(req: Request) {
     const deepseek = createDeepSeek({
       apiKey:process.env.DS_API_KEY
     })
+    console.log('deepseek',deepseek);
+
     // const openai = createOpenAI({
     //   apiKey: process.env.ALI_API_KEY,
     //   baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1", // 基础 URL 只保留域名部分
     // });
-    console.log('openai jimmy',openai);
+    // console.log('openai',openai);
+
     const result = streamText({
       // model: openai('qwen-plus-v1'),
       model: deepseek('deepseek-chat'),

@@ -1,12 +1,34 @@
 "use client"
-import { useChat } from '@ai-sdk/react';
+import { useChat, UIMessage, Chat } from '@ai-sdk/react';
 import { useState, useEffect } from 'react';
 
-export default function Chat() {
+export default function ChatApp() {
+   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState('');
-  const { messages, sendMessage } = useChat();
-    // 监听messages变化，只在变化时打印1次
+
+  // // 1. 自定义fetch函数，手动指定API端点
+  // const customFetch: typeof fetch = async (input, init) => {
+  //   // 将请求目标替换为你的API路径（如：/api/chat）
+  //   const apiUrl = '/api/chat';
+    
+  //   // 调用原生fetch，使用自定义API路径
+  //   return fetch(apiUrl);
+  // };
+
+  // // 2. 创建Chat实例时传入自定义fetch
+  // const chatInstance = new Chat({
+  //   messages: initialMessages,
+  //   fetch: customFetch, // 注入自定义fetch
+  // });
+
+  // // 3. 在useChat中使用配置好的实例
+  // const { messages, sendMessage } = useChat({
+  //   chat: chatInstance,
+  //   resume: true,
+  // });
   
+  const { messages, sendMessage } = useChat();
+
   useEffect(() => {
     console.log('useEffect messages', messages);
     // 若想单独打印新增的最后一条消息，可加判断：
