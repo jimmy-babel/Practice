@@ -1,0 +1,11 @@
+{
+  "name": "test",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {},
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.42",
+    "@ai-sdk/react": "^2.0.59",
+    "ai": "^5.0.59"
+  }
+}
