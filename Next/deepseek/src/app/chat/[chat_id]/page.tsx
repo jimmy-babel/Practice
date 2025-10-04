@@ -4,33 +4,52 @@ import { useChat } from '@ai-sdk/react';
 import { useEffect, useRef, useState } from 'react';
 import EastIcon from '@mui/icons-material/East';
 import { useParams } from 'next/navigation';
-// import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 // import axios from 'axios';
 
 export default function Page() {
-    
     const {chat_id} = useParams()
 
-    // const {data: chat} = useQuery({
-    //     queryKey: ['chat', chat_id],
-    //     queryFn: () => {
-    //         return axios.post(`/api/get-chat`, {
-    //             chat_id: chat_id
-    //         })
-    //     }
-    // })
+    const chat = useQuery({
+        queryKey: ['chat', chat_id],
+        queryFn: async () => {
+            const response = await fetch(`/api/get-chat`, {
+                body:JSON.stringify({
+                    chat_id: chat_id
+                }),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            const data = await response.json()
+            console.log('API get-chat then',data);
+            return data            
+            // return axios.post(`/api/get-chat`, {
+            //     chat_id: chat_id
+            // })
+        }
+    })
 
-    // const {data: previousMessages} = useQuery({
-    //     queryKey: ['messages', chat_id],
-    //     queryFn: () => {
-    //         return axios.post(`/api/get-messages`, {
-    //             chat_id: chat_id,
-    //             chat_user_id: chat?.data?.userId
-    //         })
-    //     },
-    //     enabled: !!chat?.data?.id
-    // })
-
+    const {data: previousMessages} = useQuery({
+        queryKey: ['messages', chat_id],
+        queryFn: async () => {
+            const response = await fetch(`/api/get-messages`, {
+                body:JSON.stringify({
+                    chat_id: chat_id,
+                    chat_user_id:chat?.data?.userId
+                }),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            const data = await response.json()
+            console.log('API get-messages then',data);
+            return data
+        },
+        enabled: !!chat?.data?.id
+    })
     
 
     const [model, setModel] = useState("deepseek-v3")
@@ -42,10 +61,35 @@ export default function Page() {
         body: {
             model: model,
             chat_id: chat_id,
-            // chat_user_id: chat?.data?.userId
+            chat_user_id: chat?.data?.userId
         },
-        // initialMessages: previousMessages?.data
+        initialMessages: previousMessages
     });
+
+    const [initialMessageSent, setInitialMessageSent] = useState(false);
+    const handleFirstMessage = async (model: string) => {
+        // console.log('useChat append:',chat?.data?.title,chat_id,previousMessages?.length)
+        if (chat?.data?.title && previousMessages?.length === 0 && !initialMessageSent) {
+            console.log('useChat append2:',chat_id,previousMessages?.length)
+            setInitialMessageSent(true)
+            await append({
+                role: 'user',
+                content: chat?.data?.title
+            },{
+                body: {  // 自定义参数需要放在body中
+                    model: model,
+                    chat_id: chat_id,
+                    chat_user_id: chat?.data?.userId
+                }
+            })
+        }
+    }
+
+    useEffect(()=> {
+        setModel(chat?.data?.model)
+        // console.log('useEffect',chat?.data?.title, previousMessages);
+        handleFirstMessage(chat?.data?.model)
+    }, [previousMessages])
 
 
 
@@ -55,25 +99,6 @@ export default function Page() {
             endRef?.current?.scrollIntoView({ behavior: 'smooth' })
         }
     }, [messages])
-
-    // const handleFirstMessage = async (model: string) => {
-    //     if (chat?.data?.title && previousMessages?.data?.length === 0) {
-    //         console.log('model', model, chat?.data)
-    //         await append({
-    //             role: 'user',
-    //             content: chat?.data?.title
-    //         }), {
-    //             model: model,
-    //             chat_id: chat_id,
-    //             chat_user_id: chat?.data?.userId
-    //         }
-    //     }
-    // }
-
-    // useEffect(()=> {
-    //     setModel(chat?.data?.model)
-    //     handleFirstMessage(chat?.data?.model)
-    // }, [chat?.data?.title, previousMessages])
 
     return (
         <div className='flex flex-col h-screen justify-between items-center' >
@@ -101,6 +126,25 @@ export default function Page() {
                 <textarea
                     className="w-full rounded-lg p-3 h-30 focus:outline-none"
                     value={input}
+                    onKeyDown={(e) => {
+                    // 当按下Enter且没有按下Shift键时
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        e.preventDefault();
+                        const textarea = e.target as HTMLTextAreaElement;
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        // 在光标位置插入换行符
+                        textarea.value = 
+                        textarea.value.substring(0, start) + 
+                        '\n' + 
+                        textarea.value.substring(end);
+                        // 调整光标位置到换行符后面
+                        textarea.selectionStart = textarea.selectionEnd = start + 1;
+                    } else if(e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                    }
+                    }}
                     onChange={handleInputChange}
                 >
                 </textarea>

@@ -16,7 +16,7 @@ const deepseek = createDeepSeek({
 export async function POST(req: Request) {
   const { messages, model, chat_id, chat_user_id } = await req.json();
 
-  const {userId} = await auth()
+  const userId = process.env.USER_ID
   if (!userId || userId !== chat_user_id) {
     return new Response(JSON.stringify({error: "Unauthorized"}), {status: 401})
   }

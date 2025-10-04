@@ -12,7 +12,7 @@ type Props = {}
 
 const Navibar = (props: Props) => {
 
-  const { user } = useUser()
+  const userId = process.env.NEXT_PUBLIC_USER_ID
   const router = useRouter()
 
   const {data: chats} = useQuery({
@@ -20,7 +20,7 @@ const Navibar = (props: Props) => {
     queryFn: () => {
       return axios.post('/api/get-chats')
     },
-    enabled: !!user?.id
+    enabled: !!userId
   })
 
   const pathname = usePathname()

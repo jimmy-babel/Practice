@@ -1,4 +1,4 @@
-# Next/deepseek项目/2025-09-30
+# Next/deepseek项目/2025-09-30/@clerk、@ai-sdk、@tanstack/react-query、@drizzle-orm、@postgres、DATABASE_URL
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -11,25 +11,66 @@ export default function Page() {
     
     const {chat_id} = useParams()
 
-    const {data: chat} = useQuery({
+    
+    const chat = useQuery({
         queryKey: ['chat', chat_id],
-        queryFn: () => {
-            return axios.post(`/api/get-chat`, {
-                chat_id: chat_id
+        queryFn: async () => {
+            const response = await fetch(`/api/get-chat`, {
+                body:JSON.stringify({
+                    chat_id: chat_id
+                }),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             })
+            const data = await response.json()
+            console.log('API get-chat then',data);
+            return data            
+            // return axios.post(`/api/get-chat`, {
+            //     chat_id: chat_id
+            // })
         }
     })
 
+
+    
     const {data: previousMessages} = useQuery({
         queryKey: ['messages', chat_id],
-        queryFn: () => {
-            return axios.post(`/api/get-messages`, {
-                chat_id: chat_id,
-                chat_user_id: chat?.data?.userId
+        queryFn: async () => {
+            const response = await fetch(`/api/get-messages`, {
+                body:JSON.stringify({
+                    chat_id: chat_id,
+                    chat_user_id:chat?.data?.userId
+                }),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             })
+            const data = await response.json()
+            console.log('API get-messages then',data);
+            return data
         },
         enabled: !!chat?.data?.id
     })
+
+    
+    // const {data: previousMessages} = useQuery({
+    //     queryKey: ['messages', chat_id],
+    //     queryFn: () => {
+    //         return axios.post(`/api/get-messages`, {
+    //             chat_id: chat_id,
+    //             chat_user_id: chat?.data?.userId
+    //         }).then(res=>{
+    //             console.log('API get-messages then',res);
+    //             return res
+    //         })
+    //     },
+    //     enabled: !!chat?.data?.id
+    // })
+
+    // console.log('API get-messages2 then',previousMessages);
 
     
 
@@ -44,7 +85,7 @@ export default function Page() {
             chat_id: chat_id,
             chat_user_id: chat?.data?.userId
         },
-        initialMessages: previousMessages?.data
+        initialMessages: previousMessages
     });
 
 
@@ -57,7 +98,7 @@ export default function Page() {
     }, [messages])
 
     const handleFirstMessage = async (model: string) => {
-        if (chat?.data?.title && previousMessages?.data?.length === 0) {
+        if (chat?.data?.title && previousMessages?.length === 0) {
             console.log('model', model, chat?.data)
             await append({
                 role: 'user',

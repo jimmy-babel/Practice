@@ -19,7 +19,7 @@ export default function Home() {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  const {user} = useUser()
+  // const {user} = useUser()
 
   // Mutations
   const {mutate: createChat} = useMutation({
@@ -40,10 +40,10 @@ export default function Home() {
       return 
     }
     
-    if (!user) {
-      router.push("/sign-in")
-      return 
-    }
+    // if (!user) {
+    //   router.push("/sign-in")
+    //   return 
+    // }
 
     createChat()
 

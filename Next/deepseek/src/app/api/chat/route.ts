@@ -1,5 +1,5 @@
 
-// import { createMessage } from '@/db';
+import { createMessage } from '@/db';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { auth } from '@clerk/nextjs/server';
 import { streamText } from 'ai';
@@ -14,23 +14,26 @@ const deepseek = createDeepSeek({
 
 export async function POST(req: Request) {
   const { messages, model, chat_id, chat_user_id } = await req.json();
-
+  // console.log('API CHAT',messages,model,chat_id,chat_user_id);
+  const userId = process.env.USER_ID
   // const {userId} = await auth()
-  // if (!userId || userId !== chat_user_id) {
-  //   return new Response(JSON.stringify({error: "Unauthorized"}), {status: 401})
-  // }
+  if (!userId || userId !== chat_user_id) {
+    return new Response(JSON.stringify({error: "Unauthorized"}), {status: 401})
+  }
 
   // 存入用户消息
-  // const lastMessage = messages[messages.length - 1]
-  // await createMessage(chat_id, lastMessage.content, lastMessage.role)
+  const lastMessage = messages[messages.length - 1]
+  await createMessage(chat_id, lastMessage.content, lastMessage.role)
   
   const result = streamText({
     model: deepseek('deepseek-v3'),
     system: 'You are a helpful assistant.',
     messages,
-    // onFinish: async(result) => {
-    //   await createMessage(chat_id, result.text, 'assistant')
-    // }
+    onFinish: async(result) => {
+      // console.log('API CHAT STEAMTEXT ONFINISH',result);
+      // 存入AI回复的内容
+      await createMessage(chat_id, result.text, 'assistant')
+    }
   })
 
   return result.toDataStreamResponse();

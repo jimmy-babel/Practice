@@ -5,7 +5,7 @@ import { unauthorized } from "next/navigation"
 export async function POST(req: Request) {
     const {chat_id} = await req.json()
 
-    const { userId } = await auth()
+    const userId = process.env.USER_ID
     if (!userId) {
         return new Response(JSON.stringify({error: 'unauthorized'}), {
             status: 401
