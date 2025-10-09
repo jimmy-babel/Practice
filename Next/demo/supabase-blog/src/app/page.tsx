@@ -10,6 +10,8 @@ export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
 
+  console.log('PAGE HOME',posts,loading,user,userProfile);
+
   useEffect(() => {
     let mounted = true
 
@@ -42,6 +44,7 @@ export default function Home() {
     // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('监听认证状态变化 onAuthStateChange',event,session);
         if (!mounted) return
         
         if (event === 'SIGNED_IN' && session) {
@@ -53,7 +56,7 @@ export default function Home() {
               .select('*')
               .eq('id', session.user.id)
               .single()
-            
+            console.log('数据库select * from profiles',profile,error);
             setUserProfile(!error && profile ? profile : null)
           } catch (error) {
             console.error('获取用户配置时出错:', error)
@@ -102,6 +105,7 @@ export default function Home() {
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
+    console.log('singOut登出',error);
     if (!error) {
       setUser(null)
       setUserProfile(null)
@@ -111,6 +115,7 @@ export default function Home() {
 
   const fetchPosts = async () => {
     try {
+      console.log('fetchPosts');
       // 先获取文章数据
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
@@ -118,6 +123,7 @@ export default function Home() {
         .eq('published', true)
         .order('created_at', { ascending: false })
 
+      console.log('fetchPosts then',postsData,postsError);
       if (postsError) {
         console.error('获取文章时出错:', postsError)
         setLoading(false)

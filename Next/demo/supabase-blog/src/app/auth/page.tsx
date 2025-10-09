@@ -66,6 +66,13 @@ export default function Auth() {
     }
   }
 
+  const handleGitHubLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+    });
+    if (error) console.error('GitHub 登录失败:', error);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -182,6 +189,9 @@ export default function Auth() {
               </div>
             </div>
 
+            <div className='mt-6'>
+              <button className='cursor-pointer w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50' onClick={handleGitHubLogin}>用 GitHub 登录</button>
+            </div>
             <div className="mt-6">
               <Link
                 href="/"
