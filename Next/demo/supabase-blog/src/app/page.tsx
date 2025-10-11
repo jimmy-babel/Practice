@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase, Post } from '@/lib/supabase'
-
+import Profile from "@/components/profile";
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -245,6 +245,10 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      <div className='content-box'>
+        <Profile></Profile>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
