@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         hostname: 'devimgtest.innourl.com', // 核心：图片的域名
         pathname: '/**', // 匹配该域名下所有路径（** 是通配符）
       },
+      {
+        protocol: 'https', 
+        hostname: 'file.poetize.cn', 
+        pathname: '/**', 
+      },
     ],
   },
 };

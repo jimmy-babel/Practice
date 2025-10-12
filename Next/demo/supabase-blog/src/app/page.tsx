@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase, Post } from '@/lib/supabase'
 import Profile from "@/components/profile";
+import SetLayout from "@/components/set-layout";
+import Nav from "@/components/nav";
+import Image from 'next/image';
+
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -188,150 +192,168 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-3xl font-bold text-gray-900">我的博客</h1>
-            </div>
-            <nav className="flex items-center space-x-4">
-              {user ? (
-                // 已登录状态
-                <>
-                  <Link 
-                    href="/write" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    写文章
-                  </Link>
-                  <div className="flex items-center space-x-3">
-                    {/* 用户头像 */}
-                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                      {userProfile?.full_name?.[0] || userProfile?.username?.[0] || user?.email?.[0] || 'U'}
-                    </div>
-                    {/* 用户名 */}
-                    <span className="text-sm text-gray-700">
-                      {userProfile?.full_name || userProfile?.username || user?.email}
-                    </span>
-                    {/* 登出按钮 */}
-                    <button
-                      onClick={handleSignOut}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      登出
-                    </button>
-                  </div>
-                </>
-              ) : (
-                // 未登录状态
-                <>
-                  <Link 
-                    href="/auth" 
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    登录
-                  </Link>
-                  <Link 
-                    href="/write" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    写文章
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
+    <SetLayout header={<Nav />} footer={<div>底部栏</div>} pageScroll safeArea>
+      <div className='w-full fixed h-[30vh] left-0 top-0 z-[-1] header-box'>
+        <div className="w-full h-full relative">
+          <Image
+            fill
+            className="w-full h-full object-cover"
+            src="/blog-bg.webp"
+            alt=""
+          />
         </div>
-      </header>
-
+      </div>
+      <div className='w-full h-[30vh]'></div>
       <div className='content-box'>
         <Profile></Profile>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Articles */}
-          <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">最新文章</h2>
-            
-            {posts.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-gray-500 text-lg">还没有发布的文章</div>
-                <p className="text-gray-400 mt-2">开始写第一篇文章吧！</p>
-                <Link 
-                  href="/write"
-                  className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
-                >
-                  写文章
-                </Link>
+      
+      <div style={{display:"none"}} className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div className="flex items-center">
+                <h1 className="text-3xl font-bold text-gray-900">我的博客</h1>
               </div>
-            ) : (
-              <div className="space-y-8">
-                {posts.map((post) => (
-                  <article key={post.id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                                         <div className="flex items-center mb-4">
-                       <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                         {post.profiles?.full_name?.[0] || post.profiles?.username?.[0] || '作'}
-                       </div>
-                       <div className="ml-3">
-                         <p className="text-sm font-medium text-gray-900">
-                           {post.profiles?.full_name || post.profiles?.username || '作者'}
-                         </p>
-                         <p className="text-sm text-gray-500">
-                           {new Date(post.created_at).toLocaleDateString('zh-CN')}
-                         </p>
-                       </div>
-                     </div>
-                    
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                      <Link href={`/post/${post.slug}`} className="hover:text-blue-600">
-                        {post.title}
-                      </Link>
-                    </h3>
-                    
-                    {post.excerpt && (
-                      <p className="text-gray-600 mb-4 line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                    )}
-                    
+              <nav className="flex items-center space-x-4">
+                {user ? (
+                  // 已登录状态
+                  <>
                     <Link 
-                      href={`/post/${post.slug}`}
-                      className="text-blue-600 hover:text-blue-800 font-medium"
+                      href="/write" 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                     >
-                      阅读更多 →
+                      写文章
                     </Link>
-                  </article>
-                ))}
-              </div>
-            )}
+                    <div className="flex items-center space-x-3">
+                      {/* 用户头像 */}
+                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                        {userProfile?.full_name?.[0] || userProfile?.username?.[0] || user?.email?.[0] || 'U'}
+                      </div>
+                      {/* 用户名 */}
+                      <span className="text-sm text-gray-700">
+                        {userProfile?.full_name || userProfile?.username || user?.email}
+                      </span>
+                      {/* 登出按钮 */}
+                      <button
+                        onClick={handleSignOut}
+                        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                      >
+                        登出
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  // 未登录状态
+                  <>
+                    <Link 
+                      href="/auth" 
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      登录
+                    </Link>
+                    <Link 
+                      href="/write" 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      写文章
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </div>
           </div>
+        </header>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">关于博客</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                这是一个基于 Supabase 构建的现代博客系统，支持用户注册、文章发布、评论等功能。
-                使用 Next.js + TypeScript + Tailwind CSS 技术栈。
-              </p>
+        <div className='content-box'>
+          <Profile></Profile>
+        </div>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Articles */}
+            <div className="lg:col-span-2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">最新文章</h2>
+              
+              {posts.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-500 text-lg">还没有发布的文章</div>
+                  <p className="text-gray-400 mt-2">开始写第一篇文章吧！</p>
+                  <Link 
+                    href="/write"
+                    className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+                  >
+                    写文章
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {posts.map((post) => (
+                    <article key={post.id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+                                          <div className="flex items-center mb-4">
+                        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                          {post.profiles?.full_name?.[0] || post.profiles?.username?.[0] || '作'}
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">
+                            {post.profiles?.full_name || post.profiles?.username || '作者'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(post.created_at).toLocaleDateString('zh-CN')}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                        <Link href={`/post/${post.slug}`} className="hover:text-blue-600">
+                          {post.title}
+                        </Link>
+                      </h3>
+                      
+                      {post.excerpt && (
+                        <p className="text-gray-600 mb-4 line-clamp-3">
+                          {post.excerpt}
+                        </p>
+                      )}
+                      
+                      <Link 
+                        href={`/post/${post.slug}`}
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        阅读更多 →
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">统计信息</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">总文章数</span>
-                  <span className="font-medium">{posts.length}</span>
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">关于博客</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  这是一个基于 Supabase 构建的现代博客系统，支持用户注册、文章发布、评论等功能。
+                  使用 Next.js + TypeScript + Tailwind CSS 技术栈。
+                </p>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">统计信息</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">总文章数</span>
+                    <span className="font-medium">{posts.length}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SetLayout>
   )
 }
