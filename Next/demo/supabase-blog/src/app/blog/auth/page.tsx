@@ -1,6 +1,6 @@
 'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState,useEffect } from 'react'
+import { useRouter,useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
@@ -12,6 +12,9 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams();
+  const fromAccount = searchParams.get('fromAccount');
+  console.log('fromAccount',fromAccount);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +33,7 @@ export default function Auth() {
           setMessage(`登录失败: ${error.message}`)
         } else {
           setMessage('登录成功！')
-          router.push('/')
+          router.push(`/blog/${fromAccount}`)
         }
       } else {
         // 注册
@@ -68,6 +71,9 @@ export default function Auth() {
   const handleGitHubLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
+      options: {
+        redirectTo: 'http://localhost:3000/blog/auth' // 授权后最终跳转的页面
+      }
     });
     if (error) console.error('GitHub 登录失败:', error);
   };
@@ -76,9 +82,6 @@ export default function Auth() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          {/* <Link href="/" className="text-3xl font-bold text-gray-900 hover:text-blue-600">
-            我的博客
-          </Link> */}
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             {isLogin ? '登录账户' : '创建账户'}
           </h2>
@@ -188,12 +191,12 @@ export default function Auth() {
               </div>
             </div>
 
-            <div className='mt-6'>
+            {/* <div className='mt-6'>
               <button className='cursor-pointer w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50' onClick={handleGitHubLogin}>用 GitHub 登录</button>
-            </div>
+            </div> */}
             <div className="mt-6">
               <Link
-                href="/"
+                href={`/blog/${fromAccount}`}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
               >
                 返回首页

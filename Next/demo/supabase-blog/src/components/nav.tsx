@@ -18,7 +18,7 @@ const nav = (props: Props) => {
     { name: "音画手记", url: "/blog/jimmy/muvie" },
     { name: "问AI", url: "/blog/jimmy/askai" },
     { name: "留言", url: "/blog/jimmy/message" },
-    { name: "登录", url: "/blog" },
+    { name: "登录", url: "/blog/auth",query:{fromAccount:'jimmy'} },
     { name: "后台管理", url: "/blog/jimmy/admin" },
   ];
   
@@ -66,7 +66,7 @@ const nav = (props: Props) => {
           <div className="flex-1 flex items-center justify-end">
             {navList.map((item, index) => (
               <div key={index} className="px-2 flex items-center">
-                <Link href={item.url}>{item.name}</Link>
+                <Link href={{pathname:item.url,query:item.query||{}}}>{item.name}</Link>
               </div>
             ))}
           </div>
