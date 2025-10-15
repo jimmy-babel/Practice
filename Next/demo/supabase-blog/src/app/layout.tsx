@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { ConfigProvider } from 'antd';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,12 +13,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const customTheme = {
+    token:{
+      // borderRadiusLG:12
+    },
+    components: {
+      Card: {
+        bodyPadding:0,
+        borderRadius:0,
+      },
+    },
+  };
   return (
     <html lang="en">
       <body
         className={`antialiased`}
       >
-        {children}
+        <AntdRegistry>
+          <ConfigProvider theme={customTheme}>
+            {children}
+          </ConfigProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

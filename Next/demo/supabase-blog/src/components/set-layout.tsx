@@ -7,6 +7,8 @@ interface RootLayoutProps {
   screenPage?: boolean;
   pageScroll?: boolean;
   safeArea?: boolean;
+  isMedia?: boolean;
+  extraClass : String,
   boxStyle?: React.CSSProperties;
 }
 
@@ -18,19 +20,21 @@ export default function SetLayout({
   pageScroll = false,
   safeArea = false,
   boxStyle,
+  extraClass = "",
 }: RootLayoutProps) {
   return (
     <div
       className={`
-        flex flex-col w-full
+        flex flex-col w-full m-auto
         ${screenPage ? "h-screen" : ""}
         ${pageScroll ? "min-h-screen" : ""}
+        ${extraClass}
       `}
       style={boxStyle}
     >
       {header && (
         <div
-          className={`shrink-0 w-full ${pageScroll ? "sticky left-0 top-0" : ""}`}
+          className={`shrink-0 w-full ${pageScroll ? "sticky z-[1] left-0 top-0" : ""}`}
         >
           {header}
         </div>
