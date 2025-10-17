@@ -8,7 +8,7 @@ interface RootLayoutProps {
   pageScroll?: boolean;
   safeArea?: boolean;
   isMedia?: boolean;
-  extraClass : String,
+  extraClass?: string;
   boxStyle?: React.CSSProperties;
 }
 
@@ -27,7 +27,7 @@ export default function SetLayout({
       className={`
         flex flex-col w-full m-auto
         ${screenPage ? "h-screen" : ""}
-        ${pageScroll ? "min-h-screen" : ""}
+        ${pageScroll ? "min-h-[70vh]" : ""}
         ${extraClass}
       `}
       style={boxStyle}

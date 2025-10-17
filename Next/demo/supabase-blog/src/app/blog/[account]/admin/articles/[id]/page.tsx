@@ -1,11 +1,14 @@
 'use client'
-
 import { useState, useEffect } from 'react'
+import React from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-
-export default function Write() {
+interface Props {
+  params: Promise<{ account: string, id:string }>; //动态路由 [account] 对应的参数
+}
+export default function ArticleEdit({params}:Props){
+  const { account, id } = React.use(params);
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [excerpt, setExcerpt] = useState('')
@@ -15,38 +18,37 @@ export default function Write() {
   const [userProfile, setUserProfile] = useState<any>(null)
   const [message, setMessage] = useState('')
   const router = useRouter()
+  console.log('PAGE ArticleEdit',account,id,title,excerpt,published,user,userProfile,message,content);
 
   useEffect(() => {
     checkUser()
   }, [])
 
+  // 检查用户登录状态
   const checkUser = async () => {
-    // const { data: { user } } = await supabase.auth.getUser()
-    // if (!user) {
-    //   router.push('/auth')
-    // } else {
-    //   setUser(user)
+    console.log('supabase.auth.getUser');
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      console.log('未登录');
+      router.push('/blog/auth')
+    } else {
+      console.log('已登录',user);
+      setUser(user)
+      // 获取用户配置信息
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
       
-    //   // 获取用户配置信息
-    //   const { data: profile, error } = await supabase
-    //     .from('profiles')
-    //     .select('*')
-    //     .eq('id', user.id)
-    //     .single()
-      
-    //   if (!error && profile) {
-    //     setUserProfile(profile)
-    //   }
-    // }
-  }
-
-  const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (!error) {
-      router.push('/')
+    console.log('supabase.auth.getUser then',profile);
+      if (!error && profile) {
+        setUserProfile(profile)
+      }
     }
   }
 
+  // 文章标题生成 slug
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
@@ -55,6 +57,7 @@ export default function Write() {
       .trim()
   }
 
+  // 提交文章
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
@@ -65,6 +68,7 @@ export default function Write() {
     try {
       const slug = generateSlug(title)
       
+      console.log('supabase select from posts',slug);
       // 检查 slug 是否已存在
       const { data: existingPost } = await supabase
         .from('posts')
@@ -72,30 +76,32 @@ export default function Write() {
         .eq('slug', slug)
         .single()
 
+      console.log('supabase select from posts then',existingPost);
       if (existingPost) {
         setMessage('文章标题已存在，请使用不同的标题')
         setLoading(false)
         return
       }
-
+      let insertParams = {
+        title,
+        content,
+        excerpt: excerpt || content.substring(0, 200),
+        slug,
+        published,
+        user_id: user.id,
+      }
+      console.log('supabase insert posts',insertParams);
       const { data, error } = await supabase
         .from('posts')
-        .insert({
-          title,
-          content,
-          excerpt: excerpt || content.substring(0, 200),
-          slug,
-          published,
-          user_id: user.id,
-        })
+        .insert(insertParams)
         .select()
-
+      console.log('supabase insert posts then',data,error);
       if (error) {
         setMessage(`发布失败: ${error.message}`)
       } else {
         setMessage('文章发布成功！')
         setTimeout(() => {
-          router.push('/')
+          router.push(`/blog/${account}/admin/articles`)
         }, 1500)
       }
     } catch (error) {
@@ -105,59 +111,20 @@ export default function Write() {
     }
   }
 
-  // if (!user) { //登录流程暂时屏蔽
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-  //       <div className="text-center">
-  //         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-  //         <p className="mt-4 text-gray-600">检查登录状态...</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  // 等待检查登录状态
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">检查登录状态...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Link href="/" className="text-3xl font-bold text-gray-900 hover:text-blue-600">
-                我的博客
-              </Link>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Link 
-                href="/" 
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                返回首页
-              </Link>
-              {user && (
-                <div className="flex items-center space-x-3">
-                  {/* 用户头像 */}
-                  <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                    {userProfile?.full_name?.[0] || userProfile?.username?.[0] || user?.email?.[0] || 'U'}
-                  </div>
-                  {/* 用户名 */}
-                  <span className="text-sm text-gray-700">
-                    {userProfile?.full_name || userProfile?.username || user?.email}
-                  </span>
-                  {/* 登出按钮 */}
-                  <button
-                    onClick={handleSignOut}
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    登出
-                  </button>
-                </div>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">

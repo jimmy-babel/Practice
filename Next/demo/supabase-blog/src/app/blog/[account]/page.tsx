@@ -1,24 +1,33 @@
 'use client'
+import React from 'react';
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { supabase, Post } from '@/lib/supabase'
+import Link from 'next/link'
 import Profile from "@/components/profile";
 import SetLayout from "@/components/set-layout";
-import Nav from "@/components/nav";
-import Image from 'next/image';
+import List from "@/app/blog/[account]/articles/components/list";
 
-export default function Blog() {
-  const [posts, setPosts] = useState<Post[]>([])
+interface Props {
+  params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
+}
+// 博客首页 博主身份识别
+export default function Blog({ params }: Props) {
+  const { account } = React.use(params);
+  const [posts, setPosts] = useState<Post[]>([{},{},{},{},{}] as Post[])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
   const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`
-  console.log('PAGE HOME',posts,loading,user,userProfile);
+  console.log('PAGE Blog',posts,loading,user,userProfile);
+  account && localStorage.setItem('account', account);
+
 
   useEffect(() => {
     let mounted = true
 
+    // 初始化应用，检查用户状态 -> 获取文章数据
     const initializeApp = async () => {
+      console.log('initializeApp');
       try {
         // 先检查用户状态
         await checkUser()
@@ -47,19 +56,20 @@ export default function Blog() {
     // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('监听认证状态变化 onAuthStateChange',event,session);
+        console.log('supabase.auth.onAuthStateChange 监听认证状态变化',event,session);
         if (!mounted) return
         
         if (event === 'SIGNED_IN' && session) {
           setUser(session.user)
           try {
+            console.log('supabase select from profiles');
             // 获取用户配置信息
             const { data: profile, error } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .single()
-            console.log('数据库select * from profiles',profile,error);
+            console.log('supabase select from profiles then',profile,error);
             setUserProfile(!error && profile ? profile : null)
           } catch (error) {
             console.error('获取用户配置时出错:', error)
@@ -72,33 +82,38 @@ export default function Blog() {
       }
     )
 
-    setPosts([{},{},{},{},{},{},{},{}] as Post[])
-
     return () => {
       mounted = false
       subscription.unsubscribe()
     }
   }, [])
 
+  // 检查用户登录状态
   const checkUser = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      
+      console.log('checkUser');
+      console.log('supabase.auth.getUser');
+      const { data } = await supabase.auth.getUser()
+      let user = data?.user;
+      console.log('supabase.auth.getUser then',user,data);
       if (user) {
+        console.log('已登录',user);
+        setUser(user)
+        console.log('supabase select from profiles');
         // 获取用户配置信息
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
-        
+        console.log('supabase select from profiles then',profile,error);
         if (!error && profile) {
           setUserProfile(profile)
         } else {
           setUserProfile(null)
         }
       } else {
+        console.log('未登录',data);
         setUserProfile(null)
       }
     } catch (error) {
@@ -109,8 +124,10 @@ export default function Blog() {
   }
 
   const handleSignOut = async () => {
+    console.log('handleSignOut');
+    console.log('supabase.auth.signOut');
     const { error } = await supabase.auth.signOut()
-    console.log('singOut登出',error);
+    console.log('supabase.auth.signOut then',error);
     if (!error) {
       setUser(null)
       setUserProfile(null)
@@ -118,17 +135,18 @@ export default function Blog() {
     }
   }
 
+  // 获取文章数据并关联作者信息
   const fetchPosts = async () => {
     try {
       console.log('fetchPosts');
+      console.log('supabase select from posts');
       // 先获取文章数据
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
         .select('*')
         .eq('published', true)
         .order('created_at', { ascending: false })
-
-      console.log('fetchPosts then',postsData,postsError);
+      console.log('supabase select from posts then',postsData,postsError);
       if (postsError) {
         console.error('获取文章时出错:', postsError)
         setLoading(false)
@@ -151,12 +169,14 @@ export default function Blog() {
         return
       }
 
+      console.log('supabase select from profiles');
       // 获取用户配置信息
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .in('id', userIds)
 
+      console.log('supabase select from profiles then',profilesData, profilesError);
       if (profilesError) {
         console.error('获取用户配置时出错:', profilesError)
         // 即使profiles出错，也要显示文章
@@ -168,7 +188,7 @@ export default function Blog() {
       // 合并数据
       const postsWithProfiles = postsData.map(post => ({
         ...post,
-        profiles: profilesData?.find(profile => profile.id === post.user_id) || null
+        profiles: profilesData?.find(profile => profile.id === post.user_id) || null //作者信息 //profile.id === post.user_id
       }))
 
       setPosts(postsWithProfiles)
@@ -196,27 +216,15 @@ export default function Blog() {
   return (
     // JIMMY1
     <SetLayout extraClass={extraClass} pageScroll safeArea>
-      <Nav />
-      
-      <div className='w-full h-[30vh]'></div>
-      <div className='w-full absolute h-[30vh] left-0 top-0 z-[-1] header-box'>
-        <div className="w-full h-full relative">
-          <Image
-            fill
-            className="w-full h-full object-cover"
-            src="/blog-bg.webp"
-            alt=""
-          />
-        </div>
-      </div>
-      
+
       <div className='content-box pt-5'>
         <div className='flex justify-between flex-wrap'>
-          <div className='profile-box w-[25%] min-w-[250px] pr-5 pb-5'>
+          <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
             <Profile></Profile>
           </div>
           <div className='blog-list-box flex-1'>
-            {posts.map((post,index) => (
+            <List listData={posts}></List>
+            {/* {posts.map((post,index) => (
               <article key={post.id} className="mb-5 bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center mb-4">
                   <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
@@ -251,7 +259,7 @@ export default function Blog() {
                   阅读更多 →
                 </Link>
               </article>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>
@@ -339,42 +347,6 @@ export default function Blog() {
                 </div>
               ) : (
                 <div className="space-y-8">
-                  {/* {posts.map((post) => (
-                    <article key={post.id} className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                                          <div className="flex items-center mb-4">
-                        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                          {post.profiles?.full_name?.[0] || post.profiles?.username?.[0] || '作'}
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">
-                            {post.profiles?.full_name || post.profiles?.username || '作者'}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {new Date(post.created_at).toLocaleDateString('zh-CN')}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                        <Link href={`/post/${post.slug}`} className="hover:text-blue-600">
-                          {post.title}
-                        </Link>
-                      </h3>
-                      
-                      {post.excerpt && (
-                        <p className="text-gray-600 mb-4 line-clamp-3">
-                          {post.excerpt}
-                        </p>
-                      )}
-                      
-                      <Link 
-                        href={`/post/${post.slug}`}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        阅读更多 →
-                      </Link>
-                    </article>
-                  ))} */}
                 </div>
               )}
             </div>

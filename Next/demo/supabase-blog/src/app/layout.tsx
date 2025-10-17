@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider } from 'antd';
+import Nav from "@/components/nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <AntdRegistry>
           <ConfigProvider theme={customTheme}>
+            <Nav></Nav>
             {children}
           </ConfigProvider>
         </AntdRegistry>

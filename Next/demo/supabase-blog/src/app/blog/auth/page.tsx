@@ -1,6 +1,6 @@
 'use client'
 import { useState,useEffect } from 'react'
-import { useRouter,useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
@@ -12,9 +12,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
-  const searchParams = useSearchParams();
-  const fromAccount = searchParams.get('fromAccount');
-  console.log('fromAccount',fromAccount);
+  const account = localStorage.getItem('account');
+  console.log('PAGE Auth',isLogin,account,email,fullName,password,message);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,25 +22,27 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        // 登录
+        console.log('登录');
+        console.log('supabase.auth.signInWithPassword',email,password);
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
-        
+        console.log('supabase.auth.signInWithPassword then:',error?.message);
         if (error) {
           setMessage(`登录失败: ${error.message}`)
         } else {
           setMessage('登录成功！')
-          router.push(`/blog/${fromAccount}`)
+          router.push(`/blog/${account}`)
         }
       } else {
-        // 注册
+        console.log('注册');
+        console.log('supabase.auth.signUp',email,password);
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
         })
-        
+        console.log('supabase.auth.signUp then',data,error?.message);
         if (error) {
           setMessage(`注册失败: ${error.message}`)
         } else if (data.user) {
@@ -68,15 +69,15 @@ export default function Auth() {
     }
   }
 
-  const handleGitHubLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: 'http://localhost:3000/blog/auth' // 授权后最终跳转的页面
-      }
-    });
-    if (error) console.error('GitHub 登录失败:', error);
-  };
+  // const handleGitHubLogin = async () => {
+  //   const { error } = await supabase.auth.signInWithOAuth({
+  //     provider: 'github',
+  //     options: {
+  //       redirectTo: 'http://localhost:3000/blog/auth' // 授权后最终跳转的页面
+  //     }
+  //   });
+  //   if (error) console.error('GitHub 登录失败:', error);
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -196,7 +197,7 @@ export default function Auth() {
             </div> */}
             <div className="mt-6">
               <Link
-                href={`/blog/${fromAccount}`}
+                href={`/blog/${account}`}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
               >
                 返回首页
