@@ -10,7 +10,7 @@ import List from "@/app/blog/[account]/articles/components/list";
 interface Props {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
-// 博客首页 博主身份识别
+// 首页
 export default function Blog({ params }: Props) {
   const { account } = React.use(params);
   const [posts, setPosts] = useState<Post[]>([{},{},{},{},{}] as Post[])
@@ -19,10 +19,10 @@ export default function Blog({ params }: Props) {
   const [userProfile, setUserProfile] = useState<any>(null)
   const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`
   console.log('PAGE Blog',posts,loading,user,userProfile);
-  account && localStorage.setItem('account', account);
 
 
   useEffect(() => {
+    account && localStorage.setItem('account', account);
     let mounted = true
 
     // 初始化应用，检查用户状态 -> 获取文章数据

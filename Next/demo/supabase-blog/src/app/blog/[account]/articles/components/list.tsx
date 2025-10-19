@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {Post} from '@/lib/supabase';
 import Link from 'next/link'
 type Props = {
@@ -7,6 +7,11 @@ type Props = {
 
 const List = (props: Props) => {
   const {listData} = props;
+  const [account,setAccount] = useState<string|null>(null);
+  useEffect(()=>{
+    setAccount(localStorage.getItem('account'));
+    console.log('CMPT List',account,localStorage.getItem('account'));
+  },[])
   return (
     // <div>
     //   {props.listData.map(item => (
@@ -44,7 +49,7 @@ const List = (props: Props) => {
           )}
           
           <Link 
-            href={`/post/${post.slug}`}
+            href={`/blog/${account}/articles/${post.slug||0}`}
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
             阅读更多 →

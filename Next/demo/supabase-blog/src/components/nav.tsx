@@ -1,7 +1,7 @@
 'use client';
-import React, { useState,useEffect } from "react";
-import Link from 'next/link';
+import React, { useState,useEffect, useRef } from "react";
 import { useParams, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 
 type Props = {
@@ -10,24 +10,39 @@ type Props = {
   account?:string
 };
 
-const nav = ({isPlace,account,isHeaderBg=true}: Props) => {
+const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
   // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
+  const [navList,setNavList] = useState<Array<{name:string,url:string}>>([]);
   const params = useParams(); //监听params变化
   const pathname = usePathname(); //监听路由变化
-  const curAccount = params.account || account || localStorage.getItem('account');
-  console.log('curAccount',curAccount);
-  //会一直触发 待优化 // console.log('nav watch',curAccount,params,pathname,); 
-  const navList = [
-    { name: "首页", url: `/blog/${curAccount}` },
-    { name: "博客记录", url: `/blog/${curAccount}/articles` },
-    { name: "生活定格", url: `/blog/${curAccount}/life` },
-    { name: "音画手记", url: `/blog/${curAccount}/muvie` },
-    { name: "问AI", url: `/blog/${curAccount}/askai` },
-    { name: "留言", url: `/blog/${curAccount}/message` },
-    { name: "登录", url: `/blog/auth` },
-    { name: "后台管理", url: `/blog/${curAccount}/admin` },
-  ];
+  const showBgRef = useRef(showBg);
+
+  // 给scroll闭包函数使用showBgRef.current
+  useEffect(() => {
+    showBgRef.current = showBg;
+  }, [showBg]);
+
+  // params.account转换string
+  useEffect(() => {
+    const processedParamsAccount = Array.isArray(params.account) 
+      ? params.account[0] 
+      : params.account;
+    // const curAccount = (params.account || account || localStorage.getItem('account') || "") as string; //params.account不转换的话就需要as断言
+    const curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
+    console.log('curAccount',curAccount,pathname,params,);
+    curAccount && setNavList([
+      { name: "首页", url: `/blog/${curAccount}` },
+      { name: "博客记录", url: `/blog/${curAccount}/articles` },
+      { name: "生活定格", url: `/blog/${curAccount}/life` },
+      { name: "音画手记", url: `/blog/${curAccount}/muvie` },
+      { name: "问AI", url: `/blog/${curAccount}/askai` },
+      { name: "留言", url: `/blog/${curAccount}/message` },
+      { name: "登录", url: `/blog/auth` },
+      { name: "后台管理", url: `/blog/${curAccount}/admin` },
+    ]);
+  },[params.account,account])
+
   const commonBg = '/blog-bg.webp';
   const HeaderBg = React.useMemo(() => {
     return (
@@ -50,10 +65,11 @@ const nav = ({isPlace,account,isHeaderBg=true}: Props) => {
   }, [commonBg,isHeaderBg]);
   useEffect(() => {
     const handleScroll = () => {
+      const currentShowBg = showBgRef.current;
       if (window.scrollY > 60) {
-        !showBg && setShowBg(true); // 总滑动超60像素时，backdrop背景
+        !currentShowBg && setShowBg(true); //这里如果用showBg,会因为闭包的问题导致showBg一直不变  //总滑动超60像素时，backdrop背景
       } else {
-        showBg && setShowBg(false); // 总滑动小于60像素时，去掉backdrop效果
+        currentShowBg && setShowBg(false); //这里如果用showBg,会因为闭包的问题导致showBg一直不变  // 总滑动小于60像素时，去掉backdrop效果
       }
     };
 
@@ -84,4 +100,4 @@ const nav = ({isPlace,account,isHeaderBg=true}: Props) => {
   );
 };
 
-export default nav;
+export default Nav;
