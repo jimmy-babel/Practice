@@ -4,6 +4,7 @@ import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { supabase } from '@/lib/supabase'
 type Props = {
   isPlace?:boolean,
   isHeaderBg?:boolean,
@@ -17,30 +18,67 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
   const params = useParams(); //监听params变化
   const pathname = usePathname(); //监听路由变化
   const showBgRef = useRef(showBg);
+  const [curAccount,setCurAccount] = useState<string>('');
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // 给scroll闭包函数使用showBgRef.current
   useEffect(() => {
     showBgRef.current = showBg;
   }, [showBg]);
 
+  
+  // 检查用户登录状态
+  const checkUser = async () => {
+    try {
+      console.log('checkUser');
+      console.log('supabase.auth.getUser');
+      const { data } = await supabase.auth.getUser()
+      let user = data?.user;
+      console.log('supabase.auth.getUser then',user,data);
+      if (user) {
+        console.log('已登录',user);
+        console.log('supabase select from profiles');
+        // 获取用户配置信息
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        console.log('supabase select from profiles then',profile,error);
+        setUserProfile(profile)
+      } else {
+        console.log('未登录',data);
+        setUserProfile(null)
+      }
+    } catch (error) {
+      console.error('检查用户状态时出错:', error)
+      setUserProfile(null)
+    }
+  }
+  useEffect(()=>{
+    checkUser();
+  },[])
   // params.account转换string
   useEffect(() => {
     const processedParamsAccount = Array.isArray(params.account) 
       ? params.account[0] 
       : params.account;
     // const curAccount = (params.account || account || localStorage.getItem('account') || "") as string; //params.account不转换的话就需要as断言
-    const curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
-    console.log('curAccount',curAccount,pathname,params,);
-    curAccount && setNavList([
-      { name: "首页", url: `/blog/${curAccount}` },
-      { name: "博客记录", url: `/blog/${curAccount}/articles` },
-      { name: "生活定格", url: `/blog/${curAccount}/life` },
-      { name: "音画手记", url: `/blog/${curAccount}/muvie` },
-      { name: "问AI", url: `/blog/${curAccount}/askai` },
-      { name: "留言", url: `/blog/${curAccount}/message` },
-      { name: "登录", url: `/blog/auth` },
-      { name: "后台管理", url: `/blog/${curAccount}/admin` },
-    ]);
+    const _curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
+    if(_curAccount){
+      setCurAccount(_curAccount);
+      console.log('curAccount',_curAccount,pathname,params,);
+      setNavList([
+        { name: "首页", url: `/blog/${_curAccount}` },
+        { name: "博客记录", url: `/blog/${_curAccount}/articles` },
+        { name: "生活定格", url: `/blog/${_curAccount}/life` },
+        { name: "音画手记", url: `/blog/${_curAccount}/muvie` },
+        { name: "问AI", url: `/blog/${_curAccount}/askai` },
+        { name: "留言", url: `/blog/${_curAccount}/message` },
+        { name: "登录", url: `/blog/auth` },
+        { name: "后台管理", url: `/blog/${_curAccount}/admin` },
+      ]);
+    }
   },[params.account,account])
 
   const commonBg = '/blog-bg.webp';
@@ -83,7 +121,10 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
     <>
       <div className={`nav-box fixed z-[10] left-0 top-0 w-full pl-5 pr-5  ${showBg?'text-black text-shadow-[0px_0px_6px_rgba(255,255,255,1)]':'text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]'}`}>
         <div className="flex justify-between items-center relative h-[60px] w-full z-[2]">
-          <div>WELCOME BLOG</div>
+          {curAccount.toUpperCase()?<div>
+            {userProfile?.full_name?<div>Hello,{userProfile.full_name}</div>:null}
+            {userProfile?.full_name.toUpperCase() != curAccount.toUpperCase() ? <div>WELCOME {curAccount.toUpperCase()} BLOG</div>:null}
+          </div>:null}
           <div className="flex-1 flex items-center justify-end">
             {navList.map((item, index) => (
               <div key={index} className="px-2 flex items-center">
