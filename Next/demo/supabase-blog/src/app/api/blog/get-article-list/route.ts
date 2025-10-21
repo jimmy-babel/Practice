@@ -3,48 +3,46 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
   try {
-    const {userId} = await req.json();
+    const url = new URL(req.url); //GET请求获取URL
+    const blogger = url.searchParams.get('blogger'); // GET获取查询参数中的blogger
+
+    // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
+    if (!blogger) {
+      return NextResponse.json({ error: '缺少 blogger 参数' }, { status: 400 });
+    }
+    
+    // 获取博主信息
+    const { data: bloggerData, error: bloggerError } = await supabase
+      .from('profiles')
+      .select('*')
+      .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
+      .single()
+
+    if (bloggerError) {
+      return NextResponse.json({ msg: '获取博主信息出错', error:bloggerError }, { status: 500 });
+    }
+
+    const { avatar_url,full_name,username }=bloggerData;
+
     // 获取文章数据
+    // console.log('supabase select from articles');
     const { data: articlesData, error: articlesError } = await supabase
       .from('articles')
       .select('*')
       .eq('published', true)
-      .eq('user_id', userId)
+      .eq('user_id', bloggerData?.id)
       .order('created_at', { ascending: false });
 
+    // console.log('supabase select from articles then:',articlesData,articlesError);
     if (articlesError) {
-      return NextResponse.json({ error: '获取文章时出错' }, { status: 500 });
+      return NextResponse.json({ msg: '获取文章时出错', error:articlesError }, { status: 500 });
     }
 
     if (!articlesData || articlesData.length === 0) {
-      return NextResponse.json({ list: [] }, { status: 200 });
+      return NextResponse.json({ data: [], bloggerData:{avatar_url,full_name,username} }, { status: 200 });
     }
 
-    // 获取所有作者的 user_id
-    // const userIds = [...new Set(articlesData.map(article => article.user_id).filter(Boolean))];
-
-    // // 获取用户配置信息
-    // const { data: profilesData, error: profilesError } = await supabase
-    //   .from('profiles')
-    //   .select('*')
-    //   .in('id', userIds);
-
-    // if (profilesError) {
-    //   return NextResponse.json({ error: '获取用户配置时出错' }, { status: 500 });
-    // }
-    // // const bloggerUser = profilesData?.find(profile => profile.full_name?.toUpperCase() === blogger.toUpperCase())?.id;
-    // const bloggerUser = profilesData?.find(profile => profile.id == userId);
-    // // 合并数据
-    // const articlesWithProfiles = articlesData.filter(fArticle => fArticle.user_id == bloggerUser.id).map(mArticle => ({
-    //   ...mArticle,
-    //   profiles: bloggerUser || null,
-    //   bloggerUser: bloggerUser || null,
-    // }));
-
-    // return NextResponse.json({ posts: articlesWithProfiles }, { status: 200 });
-
-    return NextResponse.json({ list:articlesData }, { status: 200 });
-
+    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username} }, { status: 200 });
 
   } catch (error) {
     console.error('获取文章时出错:', error);

@@ -55,11 +55,9 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
       setUserProfile(null)
     }
   }
-  useEffect(()=>{
-    checkUser();
-  },[])
-  // params.account转换string
+  
   useEffect(() => {
+    // params.account转换string
     const processedParamsAccount = Array.isArray(params.account) 
       ? params.account[0] 
       : params.account;
@@ -78,6 +76,7 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
         { name: "登录", url: `/blog/auth` },
         { name: "后台管理", url: `/blog/${_curAccount}/admin` },
       ]);
+      checkUser();
     }
   },[params.account,account])
 
@@ -121,9 +120,10 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
     <>
       <div className={`nav-box fixed z-[10] left-0 top-0 w-full pl-5 pr-5  ${showBg?'text-black text-shadow-[0px_0px_6px_rgba(255,255,255,1)]':'text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]'}`}>
         <div className="flex justify-between items-center relative h-[60px] w-full z-[2]">
+          {/* <div>{userProfile?.full_name},{curAccount}</div> */}
+
           {curAccount.toUpperCase()?<div>
-            {userProfile?.full_name?<div>Hello,{userProfile.full_name}</div>:null}
-            {userProfile?.full_name.toUpperCase() != curAccount.toUpperCase() ? <div>WELCOME {curAccount.toUpperCase()} BLOG</div>:null}
+            {userProfile?.full_name.toUpperCase() != curAccount.toUpperCase() ? <div>WELCOME {curAccount.toUpperCase()} BLOG</div> : <div>Hello,{userProfile.full_name}</div>}
           </div>:null}
           <div className="flex-1 flex items-center justify-end">
             {navList.map((item, index) => (

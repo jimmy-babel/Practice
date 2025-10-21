@@ -13,12 +13,12 @@ interface Props {
 // 首页
 export default function Blog({ params }: Props) {
   const { account } = React.use(params);
-  const [posts, setPosts] = useState<Post[]>([{},{},{},{},{}] as Post[])
+  const [articles, setArticles] = useState<Post[]>([] as Post[])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
   const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`
-  console.log('PAGE Blog',posts,loading,user,userProfile);
+  console.log('PAGE Blog',articles,loading,user,userProfile);
 
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function Blog({ params }: Props) {
         await checkUser()
         // 然后获取文章数据
         if (mounted) {
-          await fetchPosts()
+          await fetchArticleList()
         }
       } catch (error) {
         console.error('初始化应用时出错:', error)
@@ -136,70 +136,25 @@ export default function Blog({ params }: Props) {
   }
 
   // 获取文章数据并关联作者信息
-  const fetchPosts = async () => {
+  const fetchArticleList = async () => {
     try {
-      console.log('fetchPosts');
-      console.log('supabase select from posts');
-      // 先获取文章数据
-      const { data: postsData, error: postsError } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false })
-      console.log('supabase select from posts then',postsData,postsError);
-      if (postsError) {
-        console.error('获取文章时出错:', postsError)
-        setLoading(false)
-        return
+      console.log('api get-article-list');
+      const response = await fetch(`/api/blog/get-article-list?blogger=${account}`);
+      const result = await response.json();
+      console.log('/api/blog/get-article-list then',result,response);
+      if (response.ok) {
+        setArticles(result.data);
+      } else {
+        console.error('获取文章时出错:', result.error);
+        setArticles([]);
       }
-
-      if (!postsData || postsData.length === 0) {
-        // setPosts([]) //JIMMY 暂时注释掉
-        setLoading(false)
-        return
-      }
-
-      // 获取所有作者的 user_id
-      const userIds = [...new Set(postsData.map(post => post.user_id).filter(Boolean))]
-      
-      if (userIds.length === 0) {
-        // 如果没有用户ID，直接设置文章数据
-        setPosts(postsData.map(post => ({ ...post, profiles: null })))
-        setLoading(false)
-        return
-      }
-
-      console.log('supabase select from profiles');
-      // 获取用户配置信息
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .in('id', userIds)
-
-      console.log('supabase select from profiles then',profilesData, profilesError);
-      if (profilesError) {
-        console.error('获取用户配置时出错:', profilesError)
-        // 即使profiles出错，也要显示文章
-        setPosts(postsData.map(post => ({ ...post, profiles: null })))
-        setLoading(false)
-        return
-      }
-
-      // 合并数据
-      const postsWithProfiles = postsData.map(post => ({
-        ...post,
-        profiles: profilesData?.find(profile => profile.id === post.user_id) || null //作者信息 //profile.id === post.user_id
-      }))
-
-      setPosts(postsWithProfiles)
     } catch (error) {
-      console.error('获取文章时出错:', error)
-      // 发生任何错误都要停止加载状态
-      setPosts([])
+      console.error('获取文章时出错:', error);
+      setArticles([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -214,7 +169,6 @@ export default function Blog({ params }: Props) {
 
   // HTML部分
   return (
-    // JIMMY1
     <SetLayout extraClass={extraClass} pageScroll safeArea>
 
       <div className='content-box pt-5'>
@@ -223,156 +177,9 @@ export default function Blog({ params }: Props) {
             <Profile></Profile>
           </div>
           <div className='blog-list-box flex-1'>
-            <List listData={posts}></List>
-            {/* {posts.map((post,index) => (
-              <article key={post.id} className="mb-5 bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center mb-4">
-                  <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                    {post.profiles?.full_name?.[0] || post.profiles?.username?.[0] || '作'}
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">
-                      {post.profiles?.full_name || post.profiles?.username || '作者'}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(post.created_at).toLocaleDateString('zh-CN')}
-                    </p>
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  <Link href={`/post/${post.slug}`} className="hover:text-blue-600">
-                    {post.title}
-                  </Link>
-                </h3>
-                
-                {post.excerpt && (
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                )}
-                
-                <Link 
-                  href={`/post/${post.slug}`}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  阅读更多 →
-                </Link>
-              </article>
-            ))} */}
+            <List listData={articles}></List>
           </div>
         </div>
-      </div>
-
-      {/* JIMMY2 */}
-      <div style={{display:"none"}} className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center">
-                <h1 className="text-3xl font-bold text-gray-900">我的博客</h1>
-              </div>
-              <nav className="flex items-center space-x-4">
-                {user ? (
-                  // 已登录状态
-                  <>
-                    <Link 
-                      href="/write" 
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      写文章
-                    </Link>
-                    <div className="flex items-center space-x-3">
-                      {/* 用户头像 */}
-                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                        {userProfile?.full_name?.[0] || userProfile?.username?.[0] || user?.email?.[0] || 'U'}
-                      </div>
-                      {/* 用户名 */}
-                      <span className="text-sm text-gray-700">
-                        {userProfile?.full_name || userProfile?.username || user?.email}
-                      </span>
-                      {/* 登出按钮 */}
-                      <button
-                        onClick={handleSignOut}
-                        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                      >
-                        登出
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  // 未登录状态
-                  <>
-                    <Link 
-                      href="/auth" 
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      登录
-                    </Link>
-                    <Link 
-                      href="/write" 
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      写文章
-                    </Link>
-                  </>
-                )}
-              </nav>
-            </div>
-          </div>
-        </header>
-
-        <div className='content-box'>
-          <Profile></Profile>
-        </div>
-
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Articles */}
-            <div className="lg:col-span-2">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">最新文章</h2>
-              
-              {posts.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-gray-500 text-lg">还没有发布的文章</div>
-                  <p className="text-gray-400 mt-2">开始写第一篇文章吧！</p>
-                  <Link 
-                    href="/write"
-                    className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
-                  >
-                    写文章
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                </div>
-              )}
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">关于博客</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  这是一个基于 Supabase 构建的现代博客系统，支持用户注册、文章发布、评论等功能。
-                  使用 Next.js + TypeScript + Tailwind CSS 技术栈。
-                </p>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">统计信息</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">总文章数</span>
-                    <span className="font-medium">{posts.length}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
       </div>
     </SetLayout>
   )
