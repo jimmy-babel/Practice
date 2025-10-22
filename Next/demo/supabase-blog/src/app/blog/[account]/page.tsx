@@ -90,37 +90,51 @@ export default function Blog({ params }: Props) {
 
   // 检查用户登录状态
   const checkUser = async () => {
+    
     try {
-      console.log('checkUser');
-      console.log('supabase.auth.getUser');
-      const { data } = await supabase.auth.getUser()
-      let user = data?.user;
-      console.log('supabase.auth.getUser then',user,data);
-      if (user) {
-        console.log('已登录',user);
-        setUser(user)
-        console.log('supabase select from profiles');
-        // 获取用户配置信息
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        console.log('supabase select from profiles then',profile,error);
-        if (!error && profile) {
-          setUserProfile(profile)
-        } else {
-          setUserProfile(null)
-        }
+      console.log('/api/login/check');
+      const response = await fetch(`/api/login/check`);
+      const result = await response.json();
+      console.log('/api/login/check then',result,response);
+      if (response.ok) {
+        console.log('checkUser',result);
       } else {
-        console.log('未登录',data);
-        setUserProfile(null)
+        console.error('checkUser出错:', result.error);
       }
     } catch (error) {
-      console.error('检查用户状态时出错:', error)
-      setUser(null)
-      setUserProfile(null)
+      console.error('checkUser出错:', error);
     }
+    // try {
+    //   console.log('checkUser');
+    //   console.log('supabase.auth.getUser');
+    //   const { data } = await supabase.auth.getUser()
+    //   let user = data?.user;
+    //   console.log('supabase.auth.getUser then',user,data);
+    //   if (user) {
+    //     console.log('已登录',user);
+    //     setUser(user)
+    //     console.log('supabase select from profiles');
+    //     // 获取用户配置信息
+    //     const { data: profile, error } = await supabase
+    //       .from('profiles')
+    //       .select('*')
+    //       .eq('id', user.id)
+    //       .single()
+    //     console.log('supabase select from profiles then',profile,error);
+    //     if (!error && profile) {
+    //       setUserProfile(profile)
+    //     } else {
+    //       setUserProfile(null)
+    //     }
+    //   } else {
+    //     console.log('未登录',data);
+    //     setUserProfile(null)
+    //   }
+    // } catch (error) {
+    //   console.error('检查用户状态时出错:', error)
+    //   setUser(null)
+    //   setUserProfile(null)
+    // }
   }
 
   const handleSignOut = async () => {

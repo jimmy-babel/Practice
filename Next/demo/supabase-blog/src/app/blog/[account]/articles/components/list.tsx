@@ -6,7 +6,6 @@ type Props = {
   bloggerData:{
     full_name:string,
     username:string,
-
   }
 }
 
@@ -18,12 +17,6 @@ const List = (props: Props) => {
     console.log('CMPT List',account,localStorage.getItem('account'));
   },[])
   return (
-    // <div>
-    //   {props.listData.map(item => (
-    //     <div key={item.id}>{item.title||"测试"}</div>
-    //   ))}
-    // </div>
-    
     <div className='blog-list-box flex-1'>
       {listData.map((item,index) => (
         <article key={item.id} className="mb-5 bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
