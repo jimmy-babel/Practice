@@ -15,10 +15,9 @@ export default function Blog({ params }: Props) {
   const { account } = React.use(params);
   const [articles, setArticles] = useState<Post[]>([] as Post[])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
   const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`
-  console.log('PAGE Blog',articles,loading,user,userProfile);
+  console.log('PAGE Blog',articles,loading,userProfile);
 
 
   useEffect(() => {
@@ -60,23 +59,8 @@ export default function Blog({ params }: Props) {
         if (!mounted) return
         
         if (event === 'SIGNED_IN' && session) {
-          setUser(session.user)
-          try {
-            console.log('supabase select from profiles');
-            // 获取用户配置信息
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-            console.log('supabase select from profiles then',profile,error);
-            setUserProfile(!error && profile ? profile : null)
-          } catch (error) {
-            console.error('获取用户配置时出错:', error)
-            setUserProfile(null)
-          }
+          
         } else if (event === 'SIGNED_OUT') {
-          setUser(null)
           setUserProfile(null)
         }
       }
@@ -90,72 +74,36 @@ export default function Blog({ params }: Props) {
 
   // 检查用户登录状态
   const checkUser = async () => {
-    
-    try {
-      console.log('/api/login/check');
-      const response = await fetch(`/api/login/check`);
-      const result = await response.json();
-      console.log('/api/login/check then',result,response);
-      if (response.ok) {
-        console.log('checkUser',result);
-      } else {
-        console.error('checkUser出错:', result.error);
+    const response = await fetch(`/api/login/check`);
+    const {data,msg} = await response.json();
+    console.log('api: /login/check then',response);
+    if (response.ok) {
+      if(data.isLogin){
+        setUserProfile(data||null)
       }
-    } catch (error) {
-      console.error('checkUser出错:', error);
+    } else {
+      console.error('checkUser出错:',msg);
     }
-    // try {
-    //   console.log('checkUser');
-    //   console.log('supabase.auth.getUser');
-    //   const { data } = await supabase.auth.getUser()
-    //   let user = data?.user;
-    //   console.log('supabase.auth.getUser then',user,data);
-    //   if (user) {
-    //     console.log('已登录',user);
-    //     setUser(user)
-    //     console.log('supabase select from profiles');
-    //     // 获取用户配置信息
-    //     const { data: profile, error } = await supabase
-    //       .from('profiles')
-    //       .select('*')
-    //       .eq('id', user.id)
-    //       .single()
-    //     console.log('supabase select from profiles then',profile,error);
-    //     if (!error && profile) {
-    //       setUserProfile(profile)
-    //     } else {
-    //       setUserProfile(null)
-    //     }
-    //   } else {
-    //     console.log('未登录',data);
-    //     setUserProfile(null)
-    //   }
-    // } catch (error) {
-    //   console.error('检查用户状态时出错:', error)
-    //   setUser(null)
-    //   setUserProfile(null)
-    // }
   }
 
-  const handleSignOut = async () => {
-    console.log('handleSignOut');
-    console.log('supabase.auth.signOut');
-    const { error } = await supabase.auth.signOut()
-    console.log('supabase.auth.signOut then',error);
-    if (!error) {
-      setUser(null)
-      setUserProfile(null)
-      // 可选：显示退出成功消息
-    }
-  }
+  // const handleSignOut = async () => {
+  //   console.log('handleSignOut');
+  //   console.log('supabase.auth.signOut');
+  //   const { error } = await supabase.auth.signOut()
+  //   console.log('supabase.auth.signOut then',error);
+  //   if (!error) {
+  //     setUserProfile(null)
+  //     // 可选：显示退出成功消息
+  //   }
+  // }
 
   // 获取文章数据并关联作者信息
   const fetchArticleList = async () => {
     try {
-      console.log('api get-article-list');
+      console.log('api: get-article-list');
       const response = await fetch(`/api/blog/get-article-list?blogger=${account}`);
       const result = await response.json();
-      console.log('/api/blog/get-article-list then',result,response);
+      console.log('api: /blog/get-article-list then',result,response);
       if (response.ok) {
         setArticles(result.data);
       } else {
@@ -191,7 +139,7 @@ export default function Blog({ params }: Props) {
             <Profile></Profile>
           </div>
           <div className='blog-list-box flex-1'>
-            <List listData={articles}></List>
+            <List listData={articles} bloggerData={userProfile}></List>
           </div>
         </div>
       </div>

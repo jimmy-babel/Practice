@@ -30,15 +30,16 @@ export default function Auth() {
       if (isLogin) {
         console.log('登录');
         console.log('supabase.auth.signInWithPassword',email,password);
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data,error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
-        console.log('supabase.auth.signInWithPassword then:',error?.message);
+        console.log('supabase.auth.signInWithPassword then:',data,error?.message);
         if (error) {
           setMessage(`登录失败: ${error.message}`)
         } else {
-          setMessage('登录成功！')
+          setMessage('登录成功！');
+          console.log('登录成功',data,data?.session);
           router.push(`/blog/${account}`)
         }
       } else {

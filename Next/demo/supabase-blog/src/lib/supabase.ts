@@ -1,12 +1,26 @@
-import { createClient } from '@supabase/supabase-js'
+// 替换引入：使用@supabase/ssr的createBrowserClient（浏览器环境专用）
+import { createBrowserClient } from '@supabase/ssr';
+// 保留类型定义
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// 初始化客户端：使用createBrowserClient，自动处理浏览器Cookie（包括auth-token和refresh-token）
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
-// 类型定义
+// 类型定义保持不变（无需修改）
 export interface Post {
+  id: string
+  title: string
+  content: string
+  excerpt?: string
+  published: boolean
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface article {
   id: string
   title: string
   content: string
@@ -21,23 +35,6 @@ export interface Post {
   //   full_name: string
   //   avatar_url?: string
   // }
-}
-
-export interface article {
-  id: string
-  title: string
-  content: string
-  excerpt?: string
-  slug: string
-  published: boolean
-  user_id: string
-  created_at: string
-  updated_at: string
-  profiles?: {
-    username: string
-    full_name: string
-    avatar_url?: string
-  }
 }
 
 export interface Profile {
@@ -61,4 +58,4 @@ export interface Comment {
     full_name: string
     avatar_url?: string
   }
-} 
+}

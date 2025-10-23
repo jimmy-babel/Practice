@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 interface Props {
   params: Promise<{ account: string, id:string }>; //动态路由 [account] 对应的参数
 }
@@ -14,92 +13,112 @@ export default function ArticleEdit({params}:Props){
   const [excerpt, setExcerpt] = useState('')
   const [published, setPublished] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  // const [login, setLogin] = useState<any>(null)
+  // const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
   const [message, setMessage] = useState('')
   const router = useRouter()
-  console.log('PAGE ArticleEdit',account,id,title,excerpt,published,user,userProfile,message,content);
+  console.log('PAGE ADMIN ArticleEdit',account,id,title,excerpt,published,userProfile,message,content);
 
   useEffect(() => {
     checkUser()
   }, [])
-
+  
   // 检查用户登录状态
   const checkUser = async () => {
-    console.log('supabase.auth.getUser');
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      console.log('未登录');
-      router.push('/blog/auth')
-    } else {
-      console.log('已登录',user);
-      setUser(user)
-      // 获取用户配置信息
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      
-    console.log('supabase.auth.getUser then',profile);
-      if (!error && profile) {
-        setUserProfile(profile)
+    const response = await fetch(`/api/login/check`);
+    const {data,msg} = await response.json();
+    console.log('api: /login/check then',data);
+    if (response.ok) {
+      if(!data.isLogin){
+        console.log('未登录');
+        router.push('/blog/auth');
+      }else{
+        console.log('已登录');
+        setUserProfile(data);
       }
+    } else {
+      console.error('checkUser出错:', msg);
+      router.push('/blog/auth')
     }
   }
 
   // 文章标题生成 slug
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '') // 移除特殊字符
-      .replace(/\s+/g, '-') // 空格替换为横线
-      .trim()
-  }
+  // const generateSlug = (title: string) => {
+  //   return title
+  //     .toLowerCase()
+  //     .replace(/[^\w\s-]/g, '') // 移除特殊字符
+  //     .replace(/\s+/g, '-') // 空格替换为横线
+  //     .trim()
+  // }
 
   // 提交文章
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!userProfile?.isLogin) return
 
     setLoading(true)
     setMessage('')
 
     try {
-      const slug = generateSlug(title)
+      // const slug = generateSlug(title)
       
-      console.log('supabase select from posts',slug);
-      // 检查 slug 是否已存在
-      const { data: existingPost } = await supabase
-        .from('posts')
-        .select('id')
-        .eq('slug', slug)
-        .single()
+      // console.log('supabase select from posts',slug);
+      // // 检查 slug 是否已存在
+      // const { data: existingPost } = await supabase
+      //   .from('posts')
+      //   .select('id')
+      //   .eq('slug', slug)
+      //   .single()
 
-      console.log('supabase select from posts then',existingPost);
-      if (existingPost) {
-        setMessage('文章标题已存在，请使用不同的标题')
-        setLoading(false)
-        return
-      }
-      let insertParams = {
+      // console.log('supabase select from posts then',existingPost);
+      // if (existingPost) {
+      //   setMessage('文章标题已存在，请使用不同的标题')
+      //   setLoading(false)
+      //   return
+      // }
+      // let insertParams = {
+      //   title,
+      //   content,
+      //   excerpt: excerpt || content.substring(0, 200),
+      //   slug,
+      //   published,
+      //   user_id: user.id,
+      // }
+      // console.log('supabase insert posts',insertParams);
+      // const { data, error } = await supabase
+      //   .from('posts')
+      //   .insert(insertParams)
+      //   .select()
+      // console.log('supabase insert posts then',data,error);
+      // if (error) {
+      //   setMessage(`发布失败: ${error.message}`)
+      // } else {
+      //   setMessage('文章发布成功！')
+      //   setTimeout(() => {
+      //     router.push(`/blog/${account}/admin/articles`)
+      //   }, 1500)
+      // }
+      let params = {
+        id,
         title,
         content,
         excerpt: excerpt || content.substring(0, 200),
-        slug,
         published,
-        user_id: user.id,
+        user_id: userProfile?.id,
       }
-      console.log('supabase insert posts',insertParams);
-      const { data, error } = await supabase
-        .from('posts')
-        .insert(insertParams)
-        .select()
-      console.log('supabase insert posts then',data,error);
-      if (error) {
-        setMessage(`发布失败: ${error.message}`)
-      } else {
-        setMessage('文章发布成功！')
+      console.log('api: admin/article-edit',params);
+      const response = await fetch(`/api/admin/article-edit`, {
+        body:JSON.stringify(params),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      const {data,msg,error} = await response.json();
+      console.log('api: admin/article-edit then',data,msg,error);
+      setMessage(msg);
+      if(data>0){
         setTimeout(() => {
           router.push(`/blog/${account}/admin/articles`)
         }, 1500)
@@ -112,7 +131,7 @@ export default function ArticleEdit({params}:Props){
   }
 
   // 等待检查登录状态
-  if (!user) {
+  if (!userProfile?.isLogin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

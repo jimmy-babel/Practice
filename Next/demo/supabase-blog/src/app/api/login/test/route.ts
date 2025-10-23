@@ -1,16 +1,11 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
   try {
-    // 等待 cookies() 的结果
-    const resolvedCookies = await cookies();
-
-    // 创建服务端 Supabase 客户端
-    const supabase = createServerComponentClient({
-      cookies: () => Promise.resolve(resolvedCookies),
-    });
+  // Route handler: 将 next/headers 的 cookies 函数直接传入
+  const supabase = createRouteHandlerClient({ cookies });
 
     const { data } = await supabase.auth.getUser();
     console.log('看看getUser', data);

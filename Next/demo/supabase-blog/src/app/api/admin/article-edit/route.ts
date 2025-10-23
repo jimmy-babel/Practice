@@ -11,9 +11,9 @@ export async function POST(req: Request) {
         .select()
   
       if (error) {
-        return NextResponse.json({ error: '新增文章时出错' }, { status: 500 });
+        return NextResponse.json({ msg: '新增文章时出错',error }, { status: 500 });
       }
-      return NextResponse.json({ data:data?.[0]?.id }, { status: 200 });
+      return NextResponse.json({ data:data?.[0]?.id, msg:"文章新增成功"}, { status: 200 });
     }else{
       const { data, error } = await supabase
         .from('articles')
@@ -22,9 +22,9 @@ export async function POST(req: Request) {
         .select()
         
       if (error) {
-        return NextResponse.json({ error: '编辑文章时出错' }, { status: 500 });
+        return NextResponse.json({ msg: '编辑文章时出错',error }, { status: 500 });
       }
-      return NextResponse.json({ data:data?.[0]?.id }, { status: 200 });
+      return NextResponse.json({ data:data?.[0]?.id, msg:"文章编辑成功" }, { status: 200 });
     }
 
 
