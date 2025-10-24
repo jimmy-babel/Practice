@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider } from 'antd';
 import Nav from "@/components/nav";
+import SetLayout from "@/components/set-layout"
 import "./globals.css";
 // export const metadata: Metadata = {
 //   title: "Jimmy Blog",
@@ -21,6 +22,7 @@ export default function RootLayout({
       // borderRadiusLG:12
     },
     components: {
+      
       Card: {
         bodyPadding:0,
         borderRadius:0,
@@ -37,6 +39,7 @@ export default function RootLayout({
               <SessionContextProvider supabaseClient={supabase}>
                 <Nav></Nav>
                 {children}
+                {/* <SetLayout></SetLayout> */}
               </SessionContextProvider>
             </ConfigProvider>
           </AntdRegistry>

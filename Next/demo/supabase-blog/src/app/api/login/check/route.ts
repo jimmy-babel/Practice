@@ -10,20 +10,23 @@ export async function GET(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       // { cookies: { get: (name) => cookieStore.get(name)?.value } }
       {
-          cookies: {
+        cookies: {
           // 读取Cookie：严格返回string或undefined
-          get: (name: string) => {
-            const cookie = cookieStore.get(name);
-            return cookie ? cookie.value : undefined;
-          },
-          // 设置Cookie：严格接收name、value、options
-          set: (name: string, value: string, options: CookieOptions) => {
-            cookieStore.set({ name, value, ...options });
-          },
-          // 删除Cookie：严格接收name和options
-          remove: (name: string, options: CookieOptions) => {
-            cookieStore.delete({ name, ...options });
-          },
+          // get: (name: string) => {
+          //   const cookie = cookieStore.get(name);
+          //   return cookie ? cookie.value : undefined;
+          // },
+          // // 设置Cookie：严格接收name、value、options
+          // set: (name: string, value: string, options: CookieOptions) => {
+          //   cookieStore.set({ name, value, ...options });
+          // },
+          // // 删除Cookie：严格接收name和options
+          // remove: (name: string, options: CookieOptions) => {
+          //   cookieStore.delete({ name, ...options });
+          // },
+          
+          getAll: cookieStore.getAll, // 获取所有 Cookie
+          // setAll: cookieStore.setAll, // 设置多个 Cookie（支持批量操作）
         },
         cookieEncoding: 'raw', // 显式指定编码方式（推荐raw，避免默认base64url的潜在问题）
       }

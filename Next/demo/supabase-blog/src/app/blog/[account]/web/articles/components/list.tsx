@@ -48,7 +48,7 @@ const List = (props: Props) => {
           )}
           
           <Link 
-            href={`/blog/${account}/articles/${item.id||0}`}
+            href={`/blog/${account}/web/articles/${item.id||0}`}
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
             查看详情 →

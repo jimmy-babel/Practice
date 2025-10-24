@@ -1,9 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import List from "@/app/blog/[account]/articles/components/list";
 import {Post} from '@/lib/supabase';
-import SetLayout from '@/components/set-layout';
 interface Props {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
@@ -14,7 +12,7 @@ export default function Articles({params}:Props){
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
   const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`;
-  console.log('PAGE ADMIN Articles',account);
+  console.log('PAGE ADMIN 首页',account);
   
   useEffect(() => {
     account && localStorage.setItem('account', account);
@@ -80,7 +78,7 @@ export default function Articles({params}:Props){
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="h-[100%] bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">加载中...</p>
@@ -89,11 +87,9 @@ export default function Articles({params}:Props){
     )
   }
   return (
-    <SetLayout extraClass={extraClass} pageScroll safeArea>
-      <div className="list-box pt-5">
-        后台首页
-      </div>
-    </SetLayout>
+    <div className="list-box pt-5">
+      后台首页
+    </div>
   )
 
 }

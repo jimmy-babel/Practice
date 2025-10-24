@@ -18,7 +18,7 @@ export default function ArticleEdit({params}:Props){
   const [userProfile, setUserProfile] = useState<any>(null)
   const [message, setMessage] = useState('')
   const router = useRouter()
-  console.log('PAGE ADMIN ArticleEdit',account,id,title,excerpt,published,userProfile,message,content);
+  console.log('PAGE ADMIN ArticleDetail',account,id,title,excerpt,published,userProfile,message,content);
 
   useEffect(() => {
     checkUser()
@@ -133,7 +133,7 @@ export default function ArticleEdit({params}:Props){
   // 等待检查登录状态
   if (!userProfile?.isLogin) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className=" bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">检查登录状态...</p>
@@ -143,7 +143,7 @@ export default function ArticleEdit({params}:Props){
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className=" bg-gray-50">
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">

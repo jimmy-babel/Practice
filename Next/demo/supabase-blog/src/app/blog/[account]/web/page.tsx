@@ -5,7 +5,7 @@ import { supabase, Post } from '@/lib/supabase'
 import Link from 'next/link'
 import Profile from "@/components/profile";
 import SetLayout from "@/components/set-layout";
-import List from "@/app/blog/[account]/articles/components/list";
+import List from "@/app/blog/[account]/web/articles/components/list";
 
 interface Props {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
@@ -16,8 +16,9 @@ export default function Blog({ params }: Props) {
   const [articles, setArticles] = useState<Post[]>([] as Post[])
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
-  const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`
-  console.log('PAGE Blog',articles,loading,userProfile);
+  // const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`;
+  const boxStyle = {minHeight:'70vh'}
+  console.log('PAGE Blog 首页',articles,loading,userProfile);
 
 
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function Blog({ params }: Props) {
   const checkUser = async () => {
     const response = await fetch(`/api/login/check`);
     const {data,msg} = await response.json();
-    console.log('api: /login/check then',response);
+    console.log('api: /login/check then',data,msg);
     if (response.ok) {
       if(data.isLogin){
         setUserProfile(data||null)
@@ -120,7 +121,7 @@ export default function Blog({ params }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className=" bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">加载中...</p>
@@ -131,18 +132,19 @@ export default function Blog({ params }: Props) {
 
   // HTML部分
   return (
-    <SetLayout extraClass={extraClass} pageScroll safeArea>
+      // <SetLayout extraClass={extraClass} boxStyle={boxStyle} pageScroll safeArea>
+    // <SetLayout extraClass={extraClass} pageScroll safeArea>
 
-      <div className='content-box pt-5'>
-        <div className='flex justify-between flex-wrap'>
-          <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
-            <Profile></Profile>
-          </div>
-          <div className='blog-list-box flex-1'>
-            <List listData={articles} bloggerData={userProfile}></List>
-          </div>
+    <div className='content-box pt-5'>
+      <div className='flex justify-between flex-wrap'>
+        <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
+          <Profile></Profile>
+        </div>
+        <div className='blog-list-box flex-1'>
+          <List listData={articles} bloggerData={userProfile}></List>
         </div>
       </div>
-    </SetLayout>
+    </div>
+    // </SetLayout>
   )
 }

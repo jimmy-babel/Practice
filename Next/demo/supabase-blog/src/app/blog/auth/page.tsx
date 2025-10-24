@@ -3,6 +3,7 @@ import { useState,useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import HeaderContent from '@/components/header-content';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
@@ -54,10 +55,9 @@ export default function Auth() {
           setMessage(`注册失败: ${error.message}`)
         } else if (data.user) {
           console.log('注册成功 创建用户配置');
-          // 版本1
           let insertParams = {
             id: data.user.id,
-            full_name: fullName,
+            full_name: fullName, //用户填写的name
             username: email.split('@')[0], // 使用邮箱前缀作为用户名
           };
           console.log('supabase insert profiles',insertParams);
@@ -73,90 +73,6 @@ export default function Auth() {
           
           setMessage('注册成功！请前往邮箱验证链接点击后再次登录')
 
-          // 版本2
-          // // 先获取会话，确保认证状态
-          // const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-          // console.log('supabase.auth.getSession',sessionData,sessionError);
-          // if (sessionError) {
-          //   console.error('获取会话失败:', sessionError);
-          //   setMessage('注册成功，但创建用户配置失败，请稍后重试。');
-          //   return;
-          // }
-          
-          // if (sessionData.session) {
-          //   // 会话存在，执行插入
-          //   const { error: profileError } = await supabase
-          //     .from('profiles')
-          //     .insert(insertParams);
-            
-          //   console.log('supabase insert profiles then:', profileError);
-          //   if (profileError) {
-          //     console.error('创建用户配置失败:', profileError);
-          //     setMessage('注册成功，但创建用户配置失败，请稍后重试。');
-          //   } else {
-          //     setMessage('注册成功！请检查邮箱验证链接。');
-          //   }
-          // } else {
-          //   console.error('会话不存在，无法创建用户配置');
-          //   setMessage('注册成功，但创建用户配置失败，请稍后重试。');
-          // }
-
-          // 版本3
-          // 1. 检查邮箱是否已注册
-          //   const { data: existingUser, error: userError } = await supabase.auth.getUserByEmail(email);
-            
-          //   if (userError) {
-          //     console.error('查询用户失败：', userError);
-          //     setMessage('系统错误，请重试');
-          //     return;
-          //   }
-
-          //   let userId: string | null = null;
-
-          //   if (existingUser.user) {
-          //     // 2. 邮箱已注册：复用已有用户的 UID
-          //     userId = existingUser.user.id;
-          //     console.log('邮箱已注册，使用已有 UID：', userId);
-          //   } else {
-          //     // 3. 邮箱未注册：调用 signUp 创建新用户
-          //     const { data: newUser, error: signUpError } = await supabase.auth.signUp({
-          //       email,
-          //       password,
-          //     });
-
-          //     if (signUpError) {
-          //       console.error('注册失败：', signUpError);
-          //       setMessage(`注册失败：${signUpError.message}`);
-          //       return;
-          //     }
-
-          //     if (newUser.user) {
-          //       userId = newUser.user.id;
-          //       console.log('新用户注册成功，UID：', userId);
-          //     } else {
-          //       setMessage('注册异常，未获取到用户信息');
-          //       return;
-          //     }
-          //   }
-
-          //   // 4. 插入 profiles 表（使用有效 UID）
-          //   const { error: profileError } = await supabase
-          //     .from('profiles')
-          //     .insert({
-          //       id: userId,
-          //       full_name: fullName,
-          //       username: email.split('@')[0],
-          //     });
-
-          //   if (profileError) {
-          //     console.error('插入 profiles 失败：', profileError);
-          //     setMessage(`用户注册成功，但资料创建失败：${profileError.message}`);
-          //     return;
-          //   }
-
-          //   setMessage('注册并创建资料成功！');
-          //   router.push('/'); // 注册成功后跳转
-          // };
         }
       }
     } catch (error) {
@@ -177,136 +93,143 @@ export default function Auth() {
   //   if (error) console.error('GitHub 登录失败:', error);
   // };
 
+  const imgBg = '/blog-bg.webp';
+  
   return (
-    inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博客页面已丢失，请输入正确的博客路径</div> :
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            {isLogin ? '登录账户' : '创建账户'}
-          </h2>
-          <p className={`mt-2 text-sm text-gray-600`}>
-            <span className={`${isLogin?'pr-[-5px]':''}`}>
-              {isLogin ? '还没有账户? 点击' : '我已有账户 '}{' '}
-            </span>
-            <button
-              type="button"
-              onClick={() => {setIsLogin(!isLogin);setMessage('')}}
-              className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
-            >
-              {isLogin ? '立即注册' : '立即登录'}
-            </button>
-          </p>
-        </div>
-      </div>
+    <>
+      <HeaderContent imgBg={imgBg}></HeaderContent>
+      {
+        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博客页面已丢失，请输入正确的博客路径</div> :
+        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="text-center">
+              <h2 className="mt-6 text-3xl font-bold text-gray-900">
+                {isLogin ? '登录账户' : '创建账户'}
+              </h2>
+              <p className={`mt-2 text-sm text-gray-600`}>
+                <span className={`${isLogin?'pr-[-5px]':''}`}>
+                  {isLogin ? '还没有账户? 点击' : '我已有账户 '}{' '}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {setIsLogin(!isLogin);setMessage('')}}
+                  className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
+                >
+                  {isLogin ? '立即注册' : '立即登录'}
+                </button>
+              </p>
+            </div>
+          </div>
 
-      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleAuth}>
-            {!isLogin && (
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                  姓名
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    required={!isLogin}
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="请输入您的姓名"
-                  />
+          <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+              <form className="space-y-6" onSubmit={handleAuth}>
+                {!isLogin && (
+                  <div>
+                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                      姓名
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        id="fullName"
+                        name="fullName"
+                        type="text"
+                        required={!isLogin}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="请输入您的姓名"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    邮箱地址
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="请输入邮箱地址"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    密码
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete={isLogin ? "current-password" : "new-password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="请输入密码"
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+
+                {message && (
+                  <div className={`p-3 rounded-md text-sm ${
+                    message.includes('成功') 
+                      ? 'bg-green-50 text-green-800 border border-green-200' 
+                      : 'bg-red-50 text-red-800 border border-red-200'
+                  }`}>
+                    {message}
+                  </div>
+                )}
+
+                <div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? '处理中...' : (isLogin ? '登录' : '注册')}
+                  </button>
+                </div>
+              </form>
+
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">或者</span>
+                  </div>
+                </div>
+
+                {/* <div className='mt-6'>
+                  <button className='cursor-pointer w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50' onClick={handleGitHubLogin}>用 GitHub 登录</button>
+                </div> */}
+                <div className="mt-6">
+                  <Link
+                    href={`/blog/${account}`}
+                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  >
+                    返回首页
+                  </Link>
                 </div>
               </div>
-            )}
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                邮箱地址
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="请输入邮箱地址"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                密码
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="请输入密码"
-                  minLength={6}
-                />
-              </div>
-            </div>
-
-            {message && (
-              <div className={`p-3 rounded-md text-sm ${
-                message.includes('成功') 
-                  ? 'bg-green-50 text-green-800 border border-green-200' 
-                  : 'bg-red-50 text-red-800 border border-red-200'
-              }`}>
-                {message}
-              </div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? '处理中...' : (isLogin ? '登录' : '注册')}
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">或者</span>
-              </div>
-            </div>
-
-            {/* <div className='mt-6'>
-              <button className='cursor-pointer w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50' onClick={handleGitHubLogin}>用 GitHub 登录</button>
-            </div> */}
-            <div className="mt-6">
-              <Link
-                href={`/blog/${account}`}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-              >
-                返回首页
-              </Link>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      }
+    </>
   )
 } 

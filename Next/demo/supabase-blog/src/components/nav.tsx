@@ -2,25 +2,31 @@
 import React, { useState,useEffect, useRef } from "react";
 import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 import { supabase } from '@/lib/supabase'
 type Props = {
   isPlace?:boolean,
-  isHeaderBg?:boolean,
   account?:string
 };
 
-const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
+const Nav = ({isPlace,account}: Props) => {
   // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
-  const [navList,setNavList] = useState<Array<{name:string,url:string}>>([]);
+  const [navList,setNavList] = useState<Array<{name:string,url?:string}>>([
+    { name: "首页"},
+    { name: "博客记录"},
+    { name: "生活定格"},
+    { name: "音画手记"},
+    { name: "问AI"},
+    { name: "留言"},
+  ]);
   const params = useParams(); //监听params变化
   const pathname = usePathname(); //监听路由变化
   const showBgRef = useRef(showBg);
   const [curAccount,setCurAccount] = useState<string>('');
   const [userProfile, setUserProfile] = useState<any>(null);
-
+  const [place,setPlace] = useState<boolean|undefined>(isPlace);
   // 给scroll闭包函数使用showBgRef.current
   useEffect(() => {
     showBgRef.current = showBg;
@@ -67,12 +73,12 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
       setCurAccount(_curAccount);
       console.log('curAccount',_curAccount,pathname,params,);
       setNavList([
-        { name: "首页", url: `/blog/${_curAccount}` },
-        { name: "博客记录", url: `/blog/${_curAccount}/articles` },
-        { name: "生活定格", url: `/blog/${_curAccount}/life` },
-        { name: "音画手记", url: `/blog/${_curAccount}/muvie` },
-        { name: "问AI", url: `/blog/${_curAccount}/askai` },
-        { name: "留言", url: `/blog/${_curAccount}/message` },
+        { name: "首页", url: `/blog/${_curAccount}/web` },
+        { name: "博客记录", url: `/blog/${_curAccount}/web/articles` },
+        { name: "生活定格", url: `/blog/${_curAccount}/web/life` },
+        { name: "音画手记", url: `/blog/${_curAccount}/web/muvie` },
+        { name: "问AI", url: `/blog/${_curAccount}/web/askai` },
+        { name: "留言", url: `/blog/${_curAccount}/web/message` },
         { name: "登录", url: `/blog/auth` },
         { name: "后台管理", url: `/blog/${_curAccount}/admin` },
       ]);
@@ -80,26 +86,6 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
     }
   },[params.account,account])
 
-  const commonBg = '/blog-bg.webp';
-  const HeaderBg = React.useMemo(() => {
-    return (
-      <>
-        {isHeaderBg && <>
-          <div className='w-full h-[30vh]'></div>
-          <div className='w-full absolute h-[30vh] left-0 top-0 z-[-1] header-box'>
-            <div className="w-full h-full relative">
-              <Image
-                fill
-                className="w-full h-full object-cover"
-                src={commonBg}
-                alt=""
-              />
-            </div>
-          </div>
-        </>}
-      </>
-    );
-  }, [commonBg,isHeaderBg]);
   useEffect(() => {
     const handleScroll = () => {
       const currentShowBg = showBgRef.current;
@@ -116,6 +102,15 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
       window.removeEventListener('scroll', handleScroll); // 清理事件监听器
     };
   }, [showBg]);
+
+  useEffect(()=>{
+    console.log('进来 nav useEffect',place,isPlace);
+    if(pathname?.indexOf('/admin')>-1){
+      setPlace(true);
+    }else{
+      setPlace(isPlace);
+    }
+  },[pathname])
   return (
     <>
       <div className={`nav-box fixed z-[10] left-0 top-0 w-full pl-5 pr-5  ${showBg?'text-black text-shadow-[0px_0px_6px_rgba(255,255,255,1)]':'text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]'}`}>
@@ -135,8 +130,8 @@ const Nav = ({isPlace,account,isHeaderBg=true}: Props) => {
         </div>
         <div className={`absolute z-[1] left-0 top-0 w-full h-full transition-all duration-300 ${showBg?'backdrop-blur-2xl':''}`}></div>
       </div>
-      {isPlace && <div className="place-box w-full h-[60px]"></div>}
-      {HeaderBg}
+      {place && <div className="place-box w-full h-[60px]"></div>}
+      {/* {HeaderBg} */}
     </>
   );
 };

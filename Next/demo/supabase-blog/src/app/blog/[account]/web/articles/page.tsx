@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import List from "@/app/blog/[account]/articles/components/list";
+import List from "@/app/blog/[account]/web/articles/components/list";
 import {Post} from '@/lib/supabase';
 import SetLayout from '@/components/set-layout';
 interface Props {
@@ -14,7 +14,8 @@ export default function Articles({params}:Props){
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
   const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`;
-  console.log('PAGE Articles',account);
+  const boxStyle = {minHeight:'70vh'}
+  console.log('PAGE BLOG Articles',account);
   
   useEffect(() => {
     account && localStorage.setItem('account', account);
@@ -80,7 +81,7 @@ export default function Articles({params}:Props){
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className=" bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">加载中...</p>
@@ -89,11 +90,9 @@ export default function Articles({params}:Props){
     )
   }
   return (
-    <SetLayout extraClass={extraClass} pageScroll safeArea>
-      <div className="list-box pt-5">
-            <List listData={articles} bloggerData={userProfile}></List>
-      </div>
-    </SetLayout>
+    <div className="list-box pt-5">
+          <List listData={articles} bloggerData={userProfile}></List>
+    </div>
   )
 
 }
