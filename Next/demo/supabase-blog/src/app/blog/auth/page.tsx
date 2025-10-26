@@ -41,7 +41,7 @@ export default function Auth() {
         } else {
           setMessage('登录成功！');
           console.log('登录成功',data,data?.session);
-          router.push(`/blog/${account}`)
+          router.push(`/blog/${account}`) //跳回去from页面，没有就首页 //待开发
         }
       } else {
         console.log('注册');

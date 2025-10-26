@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import {useJumpAction} from "@/lib/helper/base-mixin"
 interface Props {
   params: Promise<{ account: string, id:string }>; //动态路由 [account] 对应的参数
 }
 export default function ArticleEdit({params}:Props){
+  const {jumpAction} = useJumpAction();
   const { account, id } = React.use(params);
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -30,17 +32,18 @@ export default function ArticleEdit({params}:Props){
     const {data,msg} = await response.json();
     console.log('api: /login/check then',data);
     if (response.ok) {
-      if(!data.isLogin){
-        console.log('未登录');
-        router.push('/blog/auth');
-      }else{
+      if(data.isLogin){
         console.log('已登录');
         setUserProfile(data);
+        return
+      }else{
+        console.log('未登录');
       }
     } else {
       console.error('checkUser出错:', msg);
-      router.push('/blog/auth')
     }
+    // router.push('/blog/auth')
+    jumpAction('/blog/auth')
   }
 
   // 文章标题生成 slug
