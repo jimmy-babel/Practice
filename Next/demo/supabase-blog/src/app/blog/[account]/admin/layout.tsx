@@ -9,7 +9,9 @@ export default function AdminLayout({
   return (
     <div className="h-[calc(100vh-60px)]">
       <SetLayout header={<Nav></Nav>} extraClass={extraClass} screenPage direction="level" safeArea>
-        {children}
+        <div className="content-box">
+          {children}
+        </div>
       </SetLayout>
     </div>
   );

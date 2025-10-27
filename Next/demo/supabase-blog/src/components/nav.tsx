@@ -131,7 +131,6 @@ const Nav = ({isPlace,account}: Props) => {
         <div className={`absolute z-[1] left-0 top-0 w-full h-full transition-all duration-300 ${showBg?'backdrop-blur-2xl':''}`}></div>
       </div>
       {place && <div className="place-box w-full h-[60px]"></div>}
-      {/* {HeaderBg} */}
     </>
   );
 };

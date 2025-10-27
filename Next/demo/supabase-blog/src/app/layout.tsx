@@ -22,7 +22,9 @@ export default function RootLayout({
       // borderRadiusLG:12
     },
     components: {
-      
+      Menu:{
+        fontSize: 16,
+      },
       Card: {
         bodyPadding:0,
         borderRadius:0,

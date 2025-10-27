@@ -46,7 +46,10 @@ export default function Articles({params}:Props){
   }
   return (
     <div className="w-full h-full flex justify-center items-center tracking-wide">
-      欢迎来到后台管理
+      <div className='flex flex-col items-center leading-7'>
+        <div>欢迎来到</div>
+        <div>【BLOG后台管理】</div>
+      </div>
     </div>
   )
 
