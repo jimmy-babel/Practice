@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     const { data: articlesData, error: articlesError } = await supabase
       .from('articles')
       .select('*')
-      .eq('published', true)
+      // .eq('published', true)
       .eq('user_id', bloggerData?.id)
       .order('created_at', { ascending: false });
 

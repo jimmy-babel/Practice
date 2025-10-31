@@ -3,11 +3,11 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const {id, title, content, excerpt, published, user_id} = await req.json();
+    const {id, title, content,delta_data,excerpt, published, user_id} = await req.json();
     if(id==0){
       const { data, error } = await supabase
         .from('articles')
-        .insert({title, content, excerpt, published, user_id})
+        .insert({title, content,delta_data,excerpt, published, user_id})
         .select()
   
       if (error) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }else{
       const { data, error } = await supabase
         .from('articles')
-        .update({title, content, excerpt, published})
+        .update({title, content,delta_data,excerpt,published})
         .eq('id', id)
         .select()
         

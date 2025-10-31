@@ -67,11 +67,11 @@ export default function Article({params}:Props){
         setArticle(result.data);
       } else {
         console.error('获取文章时出错:', result.error);
-        setArticle([]);
+        setArticle([] as any);
       }
     } catch (error) {
       console.error('获取文章时出错:', error);
-      setArticle([]);
+      setArticle([] as any);
     } finally {
       setLoading(false);
     }

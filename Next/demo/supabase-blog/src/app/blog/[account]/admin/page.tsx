@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {useJumpAction} from "@/lib/helper/base-mixin"
+import {useJumpAction} from "@/lib/use-helper/base-mixin"
 
 interface Props {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
@@ -24,7 +24,7 @@ export default function Articles({params}:Props){
           return
         }
       }
-      jumpAction('/blog/auth')
+      jumpAction('/blog/auth',{type:"auth"})
     }catch(e){}finally{
       setLoading(false);
     }

@@ -1,116 +1,131 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import {useJumpAction} from "@/lib/helper/base-mixin"
+import {useJumpAction} from "@/lib/use-helper/base-mixin"
+import {article} from '@/lib/supabase';
+import type { Delta } from 'quill';
+
 interface Props {
   params: Promise<{ account: string, id:string }>; //动态路由 [account] 对应的参数
+}
+interface QuillEditorRef {
+  // 获取 Delta 格式内容（推荐）
+  getDeltaContent: () => Delta | null;
+  // 获取 HTML 格式内容
+  getHtmlContent: () => string | null;
+  // 获取纯文本内容
+  getTextContent: () => string | null;
 }
 export default function ArticleEdit({params}:Props){
   const {jumpAction} = useJumpAction();
   const { account, id } = React.use(params);
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [excerpt, setExcerpt] = useState('')
-  const [published, setPublished] = useState(false)
-  const [loading, setLoading] = useState(false)
-  // const [login, setLogin] = useState<any>(null)
-  // const [user, setUser] = useState<any>(null)
+  const [article, setArticle] = useState<article>({} as article)
+  const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
   const [message, setMessage] = useState('')
   const router = useRouter()
-  console.log('PAGE ADMIN ArticleDetail',account,id,title,excerpt,published,userProfile,message,content);
+  const editorRef = useRef<QuillEditorRef>(null);
+  const [QuillEditor, setQuillEditor] = useState<React.ComponentType<any> | null>(null);
+  console.log('PAGE ADMIN ArticleDetail',article);
+  
+  const loadQuillEditor = async () => {
+    const module = await import('@/components/Quill');
+    setQuillEditor(module.default); // 假设组件默认导出
+  };
 
+  // 初始化
   useEffect(() => {
-    checkUser()
+    let mounted = true
+    const init = async ()=>{
+      try {
+        loadQuillEditor();
+        await checkUser();
+        mounted && await loadData();
+      } catch (error) {
+        console.error('初始化时出错:', error)
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
+    return () => {
+      mounted = false
+    }
   }, [])
   
   // 检查用户登录状态
   const checkUser = async () => {
-    const response = await fetch(`/api/login/check`);
-    const {data,msg} = await response.json();
-    console.log('api: /login/check then',data);
-    if (response.ok) {
-      if(data.isLogin){
-        console.log('已登录');
-        setUserProfile(data);
-        return
-      }else{
-        console.log('未登录');
+    try {
+      const response = await fetch(`/api/login/check`);
+      const {data,msg} = await response.json();
+      console.log('api: /login/check then',data);
+      if (response.ok) {
+        if(data.isLogin){
+          console.log('已登录');
+          setUserProfile(data);
+          return
+        }else{
+          console.log('未登录');
+        }
+      } else {
+        console.error('checkUser出错:', msg);
       }
-    } else {
-      console.error('checkUser出错:', msg);
+      jumpAction('/blog/auth',{type:"auth"})
+    }catch (error) {
+      console.error('检测登陆状态出错:', error);
     }
-    // router.push('/blog/auth')
-    jumpAction('/blog/auth')
   }
 
-  // 文章标题生成 slug
-  // const generateSlug = (title: string) => {
-  //   return title
-  //     .toLowerCase()
-  //     .replace(/[^\w\s-]/g, '') // 移除特殊字符
-  //     .replace(/\s+/g, '-') // 空格替换为横线
-  //     .trim()
-  // }
+  // 加载文章
+  const loadData = async () => {
+    try {
+      if(id == '0') return;
+      console.log('api: get-article-detail');
+      const response = await fetch(`/api/admin/get-article-detail?blogger=${account}&id=${id}`);
+      const result = await response.json();
+      console.log('api: /blog/get-article-detail then',result);
+      if (response.ok) {
+        let data = result.data;
+        if(data){
+          // let {title="",delta_data="",excerpt="",published=false} = data;
+          // setTitle(title);
+          // setInitialContent(delta_data);
+          // setExcerpt(excerpt);
+          // setPublished(published);
+          setArticle(data);
+        }
+      } else {
+        console.error('获取文章时出错:', result.error);
+      }
+    } catch (error) {
+      console.error('获取文章时出错:', error);
+    }
+  };
 
   // 提交文章
   const handleSubmit = async (e: React.FormEvent) => {
+    const deltaContent = editorRef.current?.getDeltaContent();
+    const htmlContent = editorRef.current?.getHtmlContent();
+    console.log('deltaContent',deltaContent);
+    console.log('handleSubmit',htmlContent,);
     e.preventDefault()
     if (!userProfile?.isLogin) return
-
-    setLoading(true)
     setMessage('')
-
     try {
-      // const slug = generateSlug(title)
-      
-      // console.log('supabase select from posts',slug);
-      // // 检查 slug 是否已存在
-      // const { data: existingPost } = await supabase
-      //   .from('posts')
-      //   .select('id')
-      //   .eq('slug', slug)
-      //   .single()
-
-      // console.log('supabase select from posts then',existingPost);
-      // if (existingPost) {
-      //   setMessage('文章标题已存在，请使用不同的标题')
-      //   setLoading(false)
-      //   return
-      // }
-      // let insertParams = {
-      //   title,
-      //   content,
-      //   excerpt: excerpt || content.substring(0, 200),
-      //   slug,
-      //   published,
-      //   user_id: user.id,
-      // }
-      // console.log('supabase insert posts',insertParams);
-      // const { data, error } = await supabase
-      //   .from('posts')
-      //   .insert(insertParams)
-      //   .select()
-      // console.log('supabase insert posts then',data,error);
-      // if (error) {
-      //   setMessage(`发布失败: ${error.message}`)
-      // } else {
-      //   setMessage('文章发布成功！')
-      //   setTimeout(() => {
-      //     router.push(`/blog/${account}/admin/articles`)
-      //   }, 1500)
-      // }
+      let {title="",excerpt="",published=false} = article;  
       let params = {
         id,
         title,
-        content,
-        excerpt: excerpt || content.substring(0, 200),
+        excerpt: excerpt || "",
         published,
+        content:htmlContent || "",
+        delta_data:deltaContent && JSON.stringify(deltaContent) || "",
         user_id: userProfile?.id,
       }
       console.log('api: admin/article-edit',params);
+      // return //测试
       const response = await fetch(`/api/admin/article-edit`, {
         body:JSON.stringify(params),
         method: 'POST',
@@ -124,22 +139,19 @@ export default function ArticleEdit({params}:Props){
       if(data>0){
         setTimeout(() => {
           router.push(`/blog/${account}/admin/articles`)
-        }, 1500)
+        }, 500)
       }
     } catch (error) {
       setMessage(`发布失败: ${error}`)
-    } finally {
-      setLoading(false)
     }
   }
 
-  // 等待检查登录状态
-  if (!userProfile?.isLogin) {
+  if (loading) {
     return (
       <div className=" bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">检查登录状态...</p>
+          <p className="mt-4 text-gray-600">加载中...</p>
         </div>
       </div>
     )
@@ -147,7 +159,6 @@ export default function ArticleEdit({params}:Props){
 
   return (
     <div className=" bg-gray-50">
-      {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">写文章</h1>
@@ -161,8 +172,11 @@ export default function ArticleEdit({params}:Props){
               <input
                 type="text"
                 id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={article.title||''}
+                onChange={(e) => setArticle(item => ({
+                  ...item,
+                  title: e.target.value
+                }))}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="请输入文章标题"
@@ -176,8 +190,11 @@ export default function ArticleEdit({params}:Props){
               </label>
               <textarea
                 id="excerpt"
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
+                value={article.excerpt||''}
+                onChange={(e) => setArticle(item => ({
+                  ...item,
+                  excerpt: e.target.value
+                }))}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="请输入文章摘要，如果留空将自动从正文生成"
@@ -189,7 +206,7 @@ export default function ArticleEdit({params}:Props){
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                 文章内容
               </label>
-              <textarea
+              {/* <textarea
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -197,7 +214,8 @@ export default function ArticleEdit({params}:Props){
                 rows={20}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="请输入文章内容，支持 Markdown 格式"
-              />
+              /> */}
+              {QuillEditor?<QuillEditor ref={editorRef} initialContent={article?.delta_data||''}></QuillEditor>:null}
             </div>
 
             {/* 发布选项 */}
@@ -205,8 +223,11 @@ export default function ArticleEdit({params}:Props){
               <input
                 type="checkbox"
                 id="published"
-                checked={published}
-                onChange={(e) => setPublished(e.target.checked)}
+                checked={article.published}
+                onChange={(e) => setArticle(item => ({
+                  ...item,
+                  published: e.target.checked
+                }))}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="published" className="ml-2 block text-sm text-gray-700">
@@ -228,7 +249,7 @@ export default function ArticleEdit({params}:Props){
             {/* 按钮组 */}
             <div className="flex justify-end space-x-4">
               <Link
-                href="/"
+                href={`/blog/${account}/admin/articles`}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 取消
@@ -238,7 +259,7 @@ export default function ArticleEdit({params}:Props){
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '发布中...' : (published ? '发布文章' : '保存草稿')}
+                {loading ? '发布中...' : (article.published ? '发布文章' : '保存草稿')}
               </button>
             </div>
           </form>
@@ -248,10 +269,10 @@ export default function ArticleEdit({params}:Props){
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">写作提示</h3>
           <div className="text-sm text-gray-600 space-y-2">
-            <p>• 文章支持 Markdown 格式，你可以使用 **粗体**、*斜体*、`代码` 等格式</p>
-            <p>• 如果不填写摘要，系统会自动截取正文前 200 个字符作为摘要</p>
-            <p>• 未发布的文章将保存为草稿，只有你能看到</p>
-            <p>• 文章标题会自动生成 URL 友好的链接地址</p>
+            <p>• 文章按照富文本编辑器的内容展示</p>
+            {/* <p>• 如果不填写摘要，系统会自动截取正文前 200 个字符作为摘要</p> */}
+            <p>• 未发布的文章将保存为草稿，则不会公布到博客端</p>
+            {/* <p>• 文章标题会自动生成 URL 友好的链接地址</p> */}
           </div>
         </div>
       </main>

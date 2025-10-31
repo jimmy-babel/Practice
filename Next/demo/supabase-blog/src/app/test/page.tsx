@@ -14,7 +14,9 @@ export default function Page(props: Props) {
   return (
     <>
       <div className='pt-20'>测试</div>
-      <QuillImageEditor></QuillImageEditor>
+      <div className='w-[50%]'>
+        <QuillImageEditor></QuillImageEditor>
+      </div>
       {/* <Tiptap></Tiptap> */}
     </>
   )

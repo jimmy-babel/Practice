@@ -24,6 +24,7 @@ export interface article {
   id: string
   title: string
   content: string
+  delta_data: string
   excerpt?: string
   // slug: string
   published: boolean
