@@ -67,9 +67,9 @@ const Nav = ({isPlace,account}: Props) => {
     const processedParamsAccount = Array.isArray(params.account) 
       ? params.account[0] 
       : params.account;
-    // const curAccount = (params.account || account || localStorage.getItem('account') || "") as string; //params.account不转换的话就需要as断言
     const _curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
     if(_curAccount){
+      _curAccount && (_curAccount != localStorage.getItem('account')) && localStorage.setItem('account', _curAccount);
       setCurAccount(_curAccount);
       console.log('curAccount',_curAccount,pathname,params,);
       setNavList([

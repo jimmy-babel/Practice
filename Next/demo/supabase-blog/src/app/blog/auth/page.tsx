@@ -41,7 +41,7 @@ export default function Auth() {
         } else {
           setMessage('登录成功！');
           console.log('登录成功',data,data?.session);
-          router.push(`/blog/${account}`) //跳回去from页面，没有就首页 //待开发
+          router.push(`/blog/${account}/web`) //跳回去from页面，没有就首页 //待开发
         }
       } else {
         console.log('注册');
@@ -99,7 +99,7 @@ export default function Auth() {
     <>
       <HeaderContent imgBg={imgBg}></HeaderContent>
       {
-        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博客页面已丢失，请输入正确的博客路径</div> :
+        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博客页面已丢失，请重新访问正确的博客路径</div> :
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <div className="text-center">

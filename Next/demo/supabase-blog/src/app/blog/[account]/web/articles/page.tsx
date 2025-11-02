@@ -18,7 +18,6 @@ export default function Articles({params}:Props){
   console.log('PAGE BLOG Articles',account);
   
   useEffect(() => {
-    account && localStorage.setItem('account', account);
     let mounted = true
 
     // 初始化应用，检查用户状态 -> 获取文章数据
