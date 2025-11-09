@@ -3,11 +3,11 @@ import React from 'react';
 import { useEffect, useState } from 'react'
 import List from "@/app/blog/[account]/admin/articles/components/list";
 import {Post,article} from '@/lib/supabase';
-import {useJumpAction} from "@/lib/use-helper/base-mixin"
+import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
 import Image from 'next/image';
-import { Table } from 'antd';
-
+import { Table,Switch,Button } from 'antd';
+import SearchBox from "@/components/SearchBox";
 interface Props {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
@@ -17,7 +17,12 @@ export default function Articles({params}:Props){
   const [articles, setArticles] = useState<article[]>([] as article[])
   const [loading, setLoading] = useState(true)
   const {jumpAction} = useJumpAction();
-  
+  const {checkUser} = useCheckUser({loginJump:true});
+  const [searchText,setSearchText] = useState<string>("");
+  console.log('PAGE ADMIN Articles',account,articles,searchText);
+  const onChange = (checked: boolean) => {
+    console.log(`switch to ${checked}`);
+  };
   const columns: TableColumnsType<article> = [
     {
       title: '封面',
@@ -38,9 +43,9 @@ export default function Articles({params}:Props){
     },
     {
       title: '发布状态',
-      dataIndex: 'published',
       key:'published',
-      align:'center'
+      align:'center',
+      render:(row: article)=><Switch checkedChildren="开" unCheckedChildren="关" checked={!!row.published} onChange={onChange} />
     },
     {
       title: '创建时间',
@@ -57,7 +62,8 @@ export default function Articles({params}:Props){
     {
       title: '操作',
       key: 'action',
-      render: (row: article) => <div className='flex items-center'><button onClick={()=>jumpAction(`admin/articles/${row.id}`)}>编辑</button></div>,
+      align:'center',
+      render: (row: article) => <div className='flex justify-center items-center'><Button style={{marginLeft:0}} size="small" type="primary" onClick={()=>jumpAction(`admin/articles/${row.id}`)}>编辑</Button></div>,
     },
   ];
 
@@ -70,7 +76,8 @@ export default function Articles({params}:Props){
     // 初始化应用，检查用户状态 -> 获取文章数据
     const init = async () => {
       try {
-        await checkUser()
+        const res = await checkUser();
+        console.log('checkuser then',res);
         mounted && await fetchArticleList()
       } catch (error) {
         console.error('初始化时出错:', error)
@@ -86,26 +93,26 @@ export default function Articles({params}:Props){
   }, [])
 
   // 检查用户登录状态
-  const checkUser = async () => {
-    const response = await fetch(`/api/login/check`);
-    const {data,msg} = await response.json();
-    console.log('api: /login/check then',response);
-    if (response.ok) {
-      if(data.isLogin){
-        // setUserProfile(data||null)
-      }else{
-        return Promise.reject(data)
-      }
-    } else {
-      console.error('checkUser出错:',msg);
-    }
-  }
+  // const checkUser = async () => {
+  //   const response = await fetch(`/api/login/check`);
+  //   const {data,msg} = await response.json();
+  //   console.log('api: /login/check then',response);
+  //   if (response.ok) {
+  //     if(data.isLogin){
+  //       // setUserProfile(data||null)
+  //     }else{
+  //       return Promise.reject(data)
+  //     }
+  //   } else {
+  //     console.error('checkUser出错:',msg);
+  //   }
+  // }
   
   // 获取文章数据并关联作者信息
   const fetchArticleList = async () => {
     try {
-      console.log('api: get-article-list');
-      const response = await fetch(`/api/admin/get-article-list?blogger=${account}`);
+      console.log('api: get-article-list',searchText);
+      const response = await fetch(`/api/admin/get-article-list?blogger=${account}&search=${searchText}`);
       const result = await response.json();
       console.log('api: /blog/get-article-list then',result,response);
       if (response.ok) {
@@ -134,12 +141,16 @@ export default function Articles({params}:Props){
   }
   return (
     <div className="list-box w-full h-full">
-      <div className='header-box'>
-        <div className='search-box'></div>
-        <div className='btn-box'></div>
+      <div className='header-box flex justify-between items-center p-3'>
+        <div className='search-box'>
+          <SearchBox searchText={searchText} setSearchText={setSearchText} onSearch={fetchArticleList} />
+        </div>
+        <div className='btn-box'>
+          <Button type='primary' onClick={()=>jumpAction(`admin/articles/0`)}>添加文章</Button>
+        </div>
       </div>
       <Table<article>
-        className="w-full h-full"
+        className=""
         rowKey="id"
         rowSelection={{ 
           type: 'checkbox', 

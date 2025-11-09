@@ -2,8 +2,8 @@
 import { useRef, useState, useEffect } from 'react'
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import {useJumpAction} from "@/lib/use-helper/base-mixin"
+import {Button} from 'antd';
+import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {article} from '@/lib/supabase';
 import type { Delta } from 'quill';
 
@@ -20,6 +20,7 @@ interface QuillEditorRef {
 }
 export default function ArticleEdit({params}:Props){
   const {jumpAction} = useJumpAction();
+  const {checkUser} = useCheckUser({loginJump:true});
   const { account, id } = React.use(params);
   const [article, setArticle] = useState<article>({} as article)
   const [loading, setLoading] = useState(true)
@@ -41,7 +42,8 @@ export default function ArticleEdit({params}:Props){
     const init = async ()=>{
       try {
         loadQuillEditor();
-        await checkUser();
+        const res = await checkUser();
+        setUserProfile(res?.data);
         mounted && await loadData();
       } catch (error) {
         console.error('初始化时出错:', error)
@@ -55,29 +57,6 @@ export default function ArticleEdit({params}:Props){
     }
   }, [])
   
-  // 检查用户登录状态
-  const checkUser = async () => {
-    try {
-      const response = await fetch(`/api/login/check`);
-      const {data,msg} = await response.json();
-      console.log('api: /login/check then',data);
-      if (response.ok) {
-        if(data.isLogin){
-          console.log('已登录');
-          setUserProfile(data);
-          return
-        }else{
-          console.log('未登录');
-        }
-      } else {
-        console.error('checkUser出错:', msg);
-      }
-      jumpAction('/blog/auth',{type:"auth"})
-    }catch (error) {
-      console.error('检测登陆状态出错:', error);
-    }
-  }
-
   // 加载文章
   const loadData = async () => {
     try {
@@ -161,7 +140,7 @@ export default function ArticleEdit({params}:Props){
     <div className=" bg-gray-50">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">写文章</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">{id === '0' ? '添加' : '编辑'}文章</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 标题 */}
@@ -200,21 +179,18 @@ export default function ArticleEdit({params}:Props){
                 placeholder="请输入文章摘要，如果留空将自动从正文生成"
               />
             </div>
-
+            {/* 封面 */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                文章封面
+              </label>
+              
+            </div>
             {/* 正文 */}
             <div>
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                 文章内容
               </label>
-              {/* <textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-                rows={20}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入文章内容，支持 Markdown 格式"
-              /> */}
               {QuillEditor?<QuillEditor ref={editorRef} initialContent={article?.delta_data||''}></QuillEditor>:null}
             </div>
 
@@ -247,20 +223,23 @@ export default function ArticleEdit({params}:Props){
             )}
 
             {/* 按钮组 */}
-            <div className="flex justify-end space-x-4">
-              <Link
-                href={`/blog/${account}/admin/articles`}
+            <div className="flex justify-end">
+              <Button
+                size="middle"
+                onClick={()=>router.back()}
+                // href={`/blog/${account}/admin/articles`}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 取消
-              </Link>
-              <button
-                type="submit"
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit" 
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? '发布中...' : (article.published ? '发布文章' : '保存草稿')}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

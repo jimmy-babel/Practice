@@ -5,6 +5,7 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url); //GET请求获取URL
     const blogger = url.searchParams.get('blogger'); // GET获取查询参数中的blogger
+    const search = url.searchParams.get('search'); // GET获取查询参数中的search
 
     // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
     if (!blogger) {
@@ -31,6 +32,7 @@ export async function GET(req: Request) {
       .select('*')
       // .eq('published', true)
       .eq('user_id', bloggerData?.id)
+      .ilike('title', `%${search||""}%`)
       .order('created_at', { ascending: false });
 
     // console.log('supabase select from articles then:',articlesData,articlesError);

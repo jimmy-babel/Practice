@@ -1,6 +1,6 @@
 'use client'
 import { useState,useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter,useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import HeaderContent from '@/components/header-content';
@@ -15,6 +15,8 @@ export default function Auth() {
   const [account, setAccount] = useState("");
   const [inited, setInited] = useState(false);
   const router = useRouter()
+  const searchParams = useSearchParams(); // 获取 URL 查询参数
+  const fromPath = searchParams.get('from')||"";
   useEffect(() => {
     setAccount(localStorage.getItem('account') || "");
     setInited(true);
@@ -41,7 +43,7 @@ export default function Auth() {
         } else {
           setMessage('登录成功！');
           console.log('登录成功',data,data?.session);
-          router.push(`/blog/${account}/web`) //跳回去from页面，没有就首页 //待开发
+          router.push(`${fromPath}`||`/blog/${account}/web`)
         }
       } else {
         console.log('注册');
