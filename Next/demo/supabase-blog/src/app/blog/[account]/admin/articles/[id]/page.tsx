@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import {Button} from 'antd';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {article} from '@/lib/supabase';
+import ImageUploader from "@/components/ImageUploader";
 import type { Delta } from 'quill';
 
 interface Props {
@@ -18,6 +19,15 @@ interface QuillEditorRef {
   // 获取纯文本内容
   getTextContent: () => string | null;
 }
+interface listItem {
+  uid: string,
+  url?: string,
+  type?: string,
+  fileType?: string,
+  name?: string,
+  status?: string,
+  percent?: number,
+}
 export default function ArticleEdit({params}:Props){
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
@@ -28,6 +38,7 @@ export default function ArticleEdit({params}:Props){
   const [message, setMessage] = useState('')
   const router = useRouter()
   const editorRef = useRef<QuillEditorRef>(null);
+  const [fileList,setFileList] = useState<listItem[]>([]);
   const [QuillEditor, setQuillEditor] = useState<React.ComponentType<any> | null>(null);
   console.log('PAGE ADMIN ArticleDetail',article);
   
@@ -102,6 +113,7 @@ export default function ArticleEdit({params}:Props){
         content:htmlContent || "",
         delta_data:deltaContent && JSON.stringify(deltaContent) || "",
         user_id: userProfile?.id,
+        cover_img:fileList?.[0]?.url||""
       }
       console.log('api: admin/article-edit',params);
       // return //测试
@@ -123,6 +135,11 @@ export default function ArticleEdit({params}:Props){
     } catch (error) {
       setMessage(`发布失败: ${error}`)
     }
+  }
+
+  const onFinish = (arr:any)=>{
+    console.log('外面 onFinish',arr);
+    setFileList(arr);
   }
 
   if (loading) {
@@ -184,7 +201,7 @@ export default function ArticleEdit({params}:Props){
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 文章封面
               </label>
-              
+              <ImageUploader onFinish={onFinish}></ImageUploader>
             </div>
             {/* 正文 */}
             <div>

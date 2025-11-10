@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb', // 调整为 5MB（可根据需求设置更大值，如 '10mb'）
+    },
+  },
 };
 
 export default nextConfig;

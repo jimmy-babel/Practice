@@ -14,6 +14,7 @@ export interface Post {
   title: string
   content: string
   excerpt?: string
+  cover_img?:string,
   published: boolean
   user_id: string
   created_at: string
