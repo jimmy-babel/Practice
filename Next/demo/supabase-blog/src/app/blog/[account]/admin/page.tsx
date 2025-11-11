@@ -24,7 +24,7 @@ export default function Articles({params}:Props){
           return
         }
       }
-      jumpAction('/blog/auth',{type:"auth"})
+      jumpAction('/blog/auth',{type:"from"})
     }catch(e){}finally{
       setLoading(false);
     }

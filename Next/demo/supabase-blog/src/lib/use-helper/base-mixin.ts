@@ -20,12 +20,12 @@ export function useJumpAction(){
       const _curAccount = processedParamsAccount || localStorage.getItem('account') || "";
       setCurAccount(_curAccount);
   },[params.account])
-  const jumpAction = (url:string,extra:ExtraType={type:"auto"})=>{
-    console.log('jumpAction',url,fromPath);
-    if(extra?.type == 'auto'){
-      router.push(`/blog/${curAccount}/${url}`);
+  const jumpAction = (url:string,extra:ExtraType={type:"blog_auto"})=>{
+    console.log('jumpAction',url,fromPath,extra);
+    if(extra?.type == 'blog_auto'){
+      router.push(`/blog/${curAccount}/${(url.startsWith('/')?url.slice(1):url)}`);
     }
-    else if(extra?.type == 'auth'){
+    else if(extra?.type == 'from'){
       router.push(`${url}?from=${encodeURIComponent(fromPath)}`);
     }
     else{
@@ -47,7 +47,7 @@ export function useCheckUser({loginJump}:{loginJump:Boolean}){
         }
       }
       if(loginJump){
-        jumpAction('/blog/auth',{type:"auth"})
+        jumpAction('/blog/auth',{type:"from"})
       }
       return Promise.reject({data,msg,error})
     }catch(e){

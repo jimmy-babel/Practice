@@ -23,11 +23,22 @@ export default function Articles({params}:Props){
   const onChange = (checked: boolean) => {
     console.log(`switch to ${checked}`);
   };
+  // 自定义Cloudinary Loader
+  const cloudinaryLoader = ({ src="", width=110, quality=100 }:{src:string,width:number,quality?:number}) => {
+    
+    // 提取Cloudinary图片的public_id（即路径中最后的文件名部分）
+    const publicId = src.split('/').pop();
+    // 拼接Cloudinary支持的变换参数（路径格式）
+    const transformations = ['f_auto', `w_${width}`, `q_${quality}`].join(',');
+    // 生成最终URL
+    return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
+  };
+
   const columns: TableColumnsType<article> = [
     {
       title: '封面',
       key: 'id',
-      render: (row: article) => <div><Image className='w-[110px] h-[110px]' src={row.cover_img||''} alt="USER" objectFit="contain" width={110} height={110} /></div>,
+      render: (row: article) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain w-[110px] h-[110px]'/></div>,
     },
     {
       title: '标题',

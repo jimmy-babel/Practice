@@ -2,9 +2,8 @@
 import React, { useState,useEffect, useRef } from "react";
 import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
-// import Image from 'next/image';
-
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase';
+import {useJumpAction} from "@/lib/use-helper/base-mixin"
 type Props = {
   isPlace?:boolean,
   account?:string
@@ -13,13 +12,15 @@ type Props = {
 const Nav = ({isPlace,account}: Props) => {
   // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
-  const [navList,setNavList] = useState<Array<{name:string,url?:string}>>([
-    { name: "首页"},
-    { name: "博客记录"},
-    { name: "生活定格"},
-    { name: "音画手记"},
-    { name: "问AI"},
-    { name: "留言"},
+  const [navList,setNavList] = useState<Array<{name:string,url?:string,type?:string}>>([
+    { name: "首页", url: `web` },
+    { name: "博客记录", url: `web/articles` },
+    { name: "生活定格", url: `web/life` },
+    { name: "音画手记", url: `web/muvie` },
+    { name: "问AI", url: `web/askai` },
+    { name: "留言", url: `web/message` },
+    { name: "登录", url: `/blog/auth`,type:"from" },
+    { name: "后台管理", url: `admin` },
   ]);
   const params = useParams(); //监听params变化
   const pathname = usePathname(); //监听路由变化
@@ -27,6 +28,7 @@ const Nav = ({isPlace,account}: Props) => {
   const [curAccount,setCurAccount] = useState<string>('');
   const [userProfile, setUserProfile] = useState<any>(null);
   const [place,setPlace] = useState<boolean|undefined>(isPlace);
+  const {jumpAction} = useJumpAction();
   // 给scroll闭包函数使用showBgRef.current
   useEffect(() => {
     showBgRef.current = showBg;
@@ -72,16 +74,6 @@ const Nav = ({isPlace,account}: Props) => {
       _curAccount && (_curAccount != localStorage.getItem('account')) && localStorage.setItem('account', _curAccount);
       setCurAccount(_curAccount);
       console.log('curAccount',_curAccount,pathname,params,);
-      setNavList([
-        { name: "首页", url: `/blog/${_curAccount}/web` },
-        { name: "博客记录", url: `/blog/${_curAccount}/web/articles` },
-        { name: "生活定格", url: `/blog/${_curAccount}/web/life` },
-        { name: "音画手记", url: `/blog/${_curAccount}/web/muvie` },
-        { name: "问AI", url: `/blog/${_curAccount}/web/askai` },
-        { name: "留言", url: `/blog/${_curAccount}/web/message` },
-        { name: "登录", url: `/blog/auth` },
-        { name: "后台管理", url: `/blog/${_curAccount}/admin` },
-      ]);
       checkUser();
     }
   },[params.account,account])
@@ -123,7 +115,8 @@ const Nav = ({isPlace,account}: Props) => {
           <div className="flex-1 flex items-center justify-end">
             {navList.map((item, index) => (
               <div key={index} className="px-2 flex items-center">
-                <Link href={{pathname:item.url}}>{item.name}</Link>
+                {/* <Link href={{pathname:item.url}}>{item.name}</Link> */}
+                <div className="cursor-pointer" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
               </div>
             ))}
           </div>
