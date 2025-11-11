@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: 'file.poetize.cn', 
         pathname: '/**', 
       },
+      {
+        protocol: 'https', 
+        hostname: 'res.cloudinary.com', 
+        pathname: '/**', 
+      },
     ],
   },
   experimental: {

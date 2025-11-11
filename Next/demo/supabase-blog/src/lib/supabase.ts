@@ -26,7 +26,8 @@ export interface article {
   title: string
   content: string
   delta_data: string
-  excerpt?: string
+  excerpt?: string,
+  cover_img?:string,
   // slug: string
   published: boolean
   user_id: string

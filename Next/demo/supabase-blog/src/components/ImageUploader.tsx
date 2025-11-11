@@ -1,23 +1,10 @@
 'use client';
 import { Upload, Button, message, Image, GetProp, UploadFile, UploadProps} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-// type fileDataType = {
-//   type?: string,
-//   url?: string,
-// }
-interface listItem {
-  uid: string,
-  url?: string,
-  type?: string,
-  fileType?: string,
-  name?: string,
-  status?: string,
-  percent?: number,
-}
+import { useEffect, useState } from 'react';
 type Props = {
   defaultFileList?:Array<UploadFile>,
-  onFinish?: (value: Array<listItem>) => void;
+  onFinish?: (value: Array<UploadFile>) => void;
 }
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -27,7 +14,11 @@ export default function ImageUploader(props: Props) {
   const [previewImage, setPreviewImage] = useState('');
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [resultList, setResultList] = useState<UploadFile[]>([]);
-  // 上传前校验：仅允许图片，限制大小2MB
+  useEffect(()=>{
+    let result:UploadFile[] = defaultFileList.map(item=>({uid:`cover-${item.uid}`,name:`${item.name}`,url:item.url,status:'done',percent:100}));
+    setFileList(result);
+    setResultList(result);
+  },[defaultFileList])
   const beforeUpload = (file: File) => {
     console.log('beforeUpload',file);
     const isImage = file.type.startsWith('image/');
@@ -57,12 +48,12 @@ export default function ImageUploader(props: Props) {
   const trimData = (info:any)=>{
     let result = info.fileList.map((file:UploadFile) => ({
       uid: file.uid,
-      url: file?.response?.data?.url||"",
-      type: file.type,
-      fileType: file?.response?.data?.type||"",
+      url: file.url||file?.response?.data?.url||"",
+      type: file.type||"",
       name: file.name,
       status: file.status,
       percent: file.percent,
+      // fileType: file?.response?.data?.type||"",
     }));
     setResultList(result)
     return result
@@ -99,7 +90,6 @@ export default function ImageUploader(props: Props) {
         onChange={handleChange}
         listType="picture-card"
         fileList={fileList}
-        defaultFileList={defaultFileList}
         onPreview={handlePreview}
       >
         {resultList.length>=1 ? null : UploadBtn}

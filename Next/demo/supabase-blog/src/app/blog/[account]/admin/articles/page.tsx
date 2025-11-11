@@ -27,7 +27,7 @@ export default function Articles({params}:Props){
     {
       title: '封面',
       key: 'id',
-      render: (row: article) => <div><Image className='w-[110px] h-[110px]' src="/blog-bg.webp" alt="USER" objectFit="contain" width={110} height={110} /></div>,
+      render: (row: article) => <div><Image className='w-[110px] h-[110px]' src={row.cover_img||''} alt="USER" objectFit="contain" width={110} height={110} /></div>,
     },
     {
       title: '标题',

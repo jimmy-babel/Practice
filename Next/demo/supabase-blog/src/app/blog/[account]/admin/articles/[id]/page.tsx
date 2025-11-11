@@ -18,15 +18,13 @@ interface QuillEditorRef {
   getHtmlContent: () => string | null;
   // 获取纯文本内容
   getTextContent: () => string | null;
+
+  tempUrlsUpload: ()=> any
 }
 interface listItem {
   uid: string,
+  name: string,
   url?: string,
-  type?: string,
-  fileType?: string,
-  name?: string,
-  status?: string,
-  percent?: number,
 }
 export default function ArticleEdit({params}:Props){
   const {jumpAction} = useJumpAction();
@@ -39,6 +37,7 @@ export default function ArticleEdit({params}:Props){
   const router = useRouter()
   const editorRef = useRef<QuillEditorRef>(null);
   const [fileList,setFileList] = useState<listItem[]>([]);
+  const [defaultFileList,setDefaultFileList] = useState<listItem[]>([]);
   const [QuillEditor, setQuillEditor] = useState<React.ComponentType<any> | null>(null);
   console.log('PAGE ADMIN ArticleDetail',article);
   
@@ -79,11 +78,7 @@ export default function ArticleEdit({params}:Props){
       if (response.ok) {
         let data = result.data;
         if(data){
-          // let {title="",delta_data="",excerpt="",published=false} = data;
-          // setTitle(title);
-          // setInitialContent(delta_data);
-          // setExcerpt(excerpt);
-          // setPublished(published);
+          setDefaultFileList([{uid:data.id,url:data.cover_img,name:`name-${data.id}`}])
           setArticle(data);
         }
       } else {
@@ -96,6 +91,8 @@ export default function ArticleEdit({params}:Props){
 
   // 提交文章
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await editorRef.current?.tempUrlsUpload();
     const deltaContent = editorRef.current?.getDeltaContent();
     const htmlContent = editorRef.current?.getHtmlContent();
     console.log('deltaContent',deltaContent);
@@ -113,7 +110,7 @@ export default function ArticleEdit({params}:Props){
         content:htmlContent || "",
         delta_data:deltaContent && JSON.stringify(deltaContent) || "",
         user_id: userProfile?.id,
-        cover_img:fileList?.[0]?.url||""
+        cover_img:fileList?.[0]?.url||article.cover_img||""
       }
       console.log('api: admin/article-edit',params);
       // return //测试
@@ -196,12 +193,19 @@ export default function ArticleEdit({params}:Props){
                 placeholder="请输入文章摘要，如果留空将自动从正文生成"
               />
             </div>
+            {/* 分组 */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                文章分组
+              </label>
+              
+            </div>
             {/* 封面 */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 文章封面
               </label>
-              <ImageUploader onFinish={onFinish}></ImageUploader>
+              <ImageUploader defaultFileList={defaultFileList} onFinish={onFinish}></ImageUploader>
             </div>
             {/* 正文 */}
             <div>
