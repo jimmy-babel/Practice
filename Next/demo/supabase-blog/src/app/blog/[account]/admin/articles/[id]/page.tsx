@@ -7,10 +7,6 @@ import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {article} from '@/lib/supabase';
 import ImageUploader from "@/components/ImageUploader";
 import type { Delta } from 'quill';
-
-interface Props {
-  params: Promise<{ account: string, id:string }>; //动态路由 [account] 对应的参数
-}
 interface QuillEditorRef {
   // 获取 Delta 格式内容（推荐）
   getDeltaContent: () => Delta | null;
@@ -26,10 +22,13 @@ interface listItem {
   name: string,
   url?: string,
 }
+type Props = {
+  params:Promise<{ account:string,id:string }>; //动态路由 [account] 对应的参数
+}
 export default function ArticleEdit({params}:Props){
+  const { account,id } = React.use(params);
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
-  const { account, id } = React.use(params);
   const [article, setArticle] = useState<article>({} as article)
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
@@ -53,8 +52,9 @@ export default function ArticleEdit({params}:Props){
       try {
         loadQuillEditor();
         const res = await checkUser();
+        if(!mounted)return;
         setUserProfile(res?.data);
-        mounted && await loadData();
+        await loadData();
       } catch (error) {
         console.error('初始化时出错:', error)
       } finally {
@@ -126,7 +126,7 @@ export default function ArticleEdit({params}:Props){
       setMessage(msg);
       if(data>0){
         setTimeout(() => {
-          router.push(`/blog/${account}/admin/articles`)
+          jumpAction('admin/articles')
         }, 500)
       }
     } catch (error) {
@@ -198,7 +198,6 @@ export default function ArticleEdit({params}:Props){
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 文章分组
               </label>
-              
             </div>
             {/* 封面 */}
             <div>
@@ -248,7 +247,6 @@ export default function ArticleEdit({params}:Props){
               <Button
                 size="middle"
                 onClick={()=>router.back()}
-                // href={`/blog/${account}/admin/articles`}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 取消

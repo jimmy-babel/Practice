@@ -18,7 +18,7 @@ export default function Auth() {
   const searchParams = useSearchParams(); // 获取 URL 查询参数
   const fromPath = searchParams.get('from')||"";
   useEffect(() => {
-    setAccount(localStorage.getItem('account') || "");
+    setAccount(window.__NEXT_ACCOUNT__ || localStorage.getItem('account') || "");
     setInited(true);
   },[])
   console.log('PAGE Auth',isLogin,account,email,fullName,password,message);
@@ -101,7 +101,7 @@ export default function Auth() {
     <>
       <HeaderContent imgBg={imgBg}></HeaderContent>
       {
-        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博客页面已丢失，请重新访问正确的博客路径</div> :
+        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博主信息已丢失，请重新访问</div> :
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <div className="text-center">
@@ -221,7 +221,7 @@ export default function Auth() {
                 </div> */}
                 <div className="mt-6">
                   <Link
-                    href={`/blog/${account}`}
+                    href={`/blog/${account}/web`}
                     className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                   >
                     返回首页

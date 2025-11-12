@@ -11,12 +11,7 @@ type Props = {
 
 const List = (props: Props) => {
   const {listData,bloggerData} = props;
-  const [account,setAccount] = useState<string|null>(null);
   console.log('CMPT LIST',listData,bloggerData);
-  useEffect(()=>{
-    setAccount(localStorage.getItem('account'));
-    // console.log('CMPT List',account,localStorage.getItem('account'));
-  },[])
   return (
     <div className='blog-list-box flex-1'>
       {listData.map((item,index) => (
@@ -47,12 +42,12 @@ const List = (props: Props) => {
             </p>
           )}
           
-          <Link 
+          {/* <Link 
             href={`/blog/${account}/web/articles/${item.id||0}`}
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
             查看详情 →
-          </Link>
+          </Link> */}
         </article>
       ))}
     </div>

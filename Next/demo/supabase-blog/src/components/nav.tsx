@@ -1,27 +1,27 @@
 'use client';
 import React, { useState,useEffect, useRef } from "react";
 import { useParams, usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import {useJumpAction} from "@/lib/use-helper/base-mixin"
+type NavItem = { name: string; url?: string; type?: string };
 type Props = {
   isPlace?:boolean,
-  account?:string
+  account?:string,
+  navList?:NavItem[],
 };
-
-const Nav = ({isPlace,account}: Props) => {
+const Nav = ({navList,isPlace,account}: Props) => {
   // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
-  const [navList,setNavList] = useState<Array<{name:string,url?:string,type?:string}>>([
-    { name: "首页", url: `web` },
-    { name: "博客记录", url: `web/articles` },
-    { name: "生活定格", url: `web/life` },
-    { name: "音画手记", url: `web/muvie` },
-    { name: "问AI", url: `web/askai` },
-    { name: "留言", url: `web/message` },
-    { name: "登录", url: `/blog/auth`,type:"from" },
-    { name: "后台管理", url: `admin` },
-  ]);
+  // const [navList,setNavList] = useState<Array<{name:string,url?:string,type?:string}>>([
+  //   { name: "首页", url: `web` },
+  //   { name: "博客记录", url: `web/articles` },
+  //   { name: "生活定格", url: `web/life` },
+  //   { name: "音画手记", url: `web/muvie` },
+  //   { name: "问AI", url: `web/askai` },
+  //   { name: "留言", url: `web/message` },
+  //   { name: "登录", url: `/blog/auth`,type:"from" },
+  //   { name: "后台管理", url: `admin` },
+  // ]);
   const params = useParams(); //监听params变化
   const pathname = usePathname(); //监听路由变化
   const showBgRef = useRef(showBg);
@@ -71,9 +71,7 @@ const Nav = ({isPlace,account}: Props) => {
       : params.account;
     const _curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
     if(_curAccount){
-      _curAccount && (_curAccount != localStorage.getItem('account')) && localStorage.setItem('account', _curAccount);
       setCurAccount(_curAccount);
-      console.log('curAccount',_curAccount,pathname,params,);
       checkUser();
     }
   },[params.account,account])
@@ -107,15 +105,12 @@ const Nav = ({isPlace,account}: Props) => {
     <>
       <div className={`nav-box fixed z-[10] left-0 top-0 w-full pl-5 pr-5  ${showBg?'text-black text-shadow-[0px_0px_6px_rgba(255,255,255,1)]':'text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]'}`}>
         <div className="flex justify-between items-center relative h-[60px] w-full z-[2]">
-          {/* <div>{userProfile?.full_name},{curAccount}</div> */}
-
           {curAccount.toUpperCase()?<div>
             {userProfile?.full_name.toUpperCase() != curAccount.toUpperCase() ? <div>WELCOME {curAccount.toUpperCase()} BLOG</div> : <div>Hello,{userProfile.full_name}</div>}
           </div>:null}
           <div className="flex-1 flex items-center justify-end">
             {navList.map((item, index) => (
               <div key={index} className="px-2 flex items-center">
-                {/* <Link href={{pathname:item.url}}>{item.name}</Link> */}
                 <div className="cursor-pointer" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
               </div>
             ))}

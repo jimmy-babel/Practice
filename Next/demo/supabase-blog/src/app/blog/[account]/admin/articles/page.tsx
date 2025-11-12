@@ -1,19 +1,17 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import List from "@/app/blog/[account]/admin/articles/components/list";
 import {Post,article} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
 import Image from 'next/image';
 import { Table,Switch,Button } from 'antd';
 import SearchBox from "@/components/SearchBox";
-interface Props {
+type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
 export default function Articles({params}:Props){
-  
-  const { account } = React.use(params);
+  const {account} = React.use(params);
   const [articles, setArticles] = useState<article[]>([] as article[])
   const [loading, setLoading] = useState(true)
   const {jumpAction} = useJumpAction();
@@ -38,7 +36,7 @@ export default function Articles({params}:Props){
     {
       title: '封面',
       key: 'id',
-      render: (row: article) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain w-[110px] h-[110px]'/></div>,
+      render: (row: article) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
     },
     {
       title: '标题',
@@ -77,47 +75,28 @@ export default function Articles({params}:Props){
       render: (row: article) => <div className='flex justify-center items-center'><Button style={{marginLeft:0}} size="small" type="primary" onClick={()=>jumpAction(`admin/articles/${row.id}`)}>编辑</Button></div>,
     },
   ];
-
-  // const [userProfile, setUserProfile] = useState<any>(null)
   console.log('PAGE ADMIN Articles',account);
-  
+
+  // 查询登录状态+拿文章列表数据
   useEffect(() => {
     let mounted = true
-
-    // 初始化应用，检查用户状态 -> 获取文章数据
     const init = async () => {
       try {
         const res = await checkUser();
+        if(!mounted)return;
         console.log('checkuser then',res);
-        mounted && await fetchArticleList()
+        await fetchArticleList()
       } catch (error) {
         console.error('初始化时出错:', error)
+      } finally {
         setLoading(false)
       }
     }
-    
     init();
-    
     return () => {
       mounted = false
     }
   }, [])
-
-  // 检查用户登录状态
-  // const checkUser = async () => {
-  //   const response = await fetch(`/api/login/check`);
-  //   const {data,msg} = await response.json();
-  //   console.log('api: /login/check then',response);
-  //   if (response.ok) {
-  //     if(data.isLogin){
-  //       // setUserProfile(data||null)
-  //     }else{
-  //       return Promise.reject(data)
-  //     }
-  //   } else {
-  //     console.error('checkUser出错:',msg);
-  //   }
-  // }
   
   // 获取文章数据并关联作者信息
   const fetchArticleList = async () => {

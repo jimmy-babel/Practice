@@ -2,8 +2,9 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
 import {article} from '@/lib/supabase';
-import SetLayout from '@/components/set-layout';
-interface Props {
+import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
+
+type Props = {
   params: Promise<{ account: string,id:Number }>; //动态路由 [account] 对应的参数
 }
 export default function Article({params}:Props){
@@ -11,8 +12,8 @@ export default function Article({params}:Props){
   const { account,id } = React.use(params);
   const [article, setArticle] = useState<article>({} as article)
   const [loading, setLoading] = useState(true)
-  const [userProfile, setUserProfile] = useState<any>(null)
-  const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`;
+  const {checkUser} = useCheckUser({loginJump:true});
+
   console.log('PAGE BLOG Article DETAIL',account);
   
   useEffect(() => {
@@ -24,12 +25,12 @@ export default function Article({params}:Props){
       try {
         // 先检查用户状态
         await checkUser()
+        if (!mounted)return
         // 然后获取文章数据
-        if (mounted) {
-          await fetchArticleDetail()
-        }
+        await fetchArticleDetail()
       } catch (error) {
         console.error('初始化应用时出错:', error)
+      } finally {
         setLoading(false)
       }
     }
@@ -40,20 +41,6 @@ export default function Article({params}:Props){
       mounted = false
     }
   }, [])
-
-  // 检查用户登录状态
-  const checkUser = async () => {
-    const response = await fetch(`/api/login/check`);
-    const {data,msg} = await response.json();
-    console.log('api: /login/check then',response);
-    if (response.ok) {
-      if(data.isLogin){
-        setUserProfile(data||null)
-      }
-    } else {
-      console.error('checkUser出错:',msg);
-    }
-  }
   
   // 获取文章数据并关联作者信息
   const fetchArticleDetail = async () => {

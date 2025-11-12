@@ -1,38 +1,48 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {useJumpAction} from "@/lib/use-helper/base-mixin"
-
-interface Props {
-  params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
-}
-export default function Articles({params}:Props){
-  
-  const { account } = React.use(params);
+import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
+export default function Articles(){
   const [loading, setLoading] = useState(true)
-  const {jumpAction} = useJumpAction();
-  console.log('PAGE ADMIN 首页',account);
+  // const {jumpAction} = useJumpAction();
+  console.log('PAGE ADMIN 首页');
+  const {checkUser} = useCheckUser({loginJump:true});
 
   // 检查用户登录状态
-  const checkUser = async () => {
-    try{
-      const response = await fetch(`/api/login/check`);
-      const {data,msg,error} = await response.json();
-      console.log('api: /login/check then',data,msg,error);
-      if (response.ok) {
-        if(data?.isLogin){
-          return
-        }
-      }
-      jumpAction('/blog/auth',{type:"from"})
-    }catch(e){}finally{
-      setLoading(false);
-    }
-  }
+  // const checkUser = async () => {
+  //   try{
+  //     const response = await fetch(`/api/login/check`);
+  //     const {data,msg,error} = await response.json();
+  //     console.log('api: /login/check then',data,msg,error);
+  //     if (response.ok) {
+  //       if(data?.isLogin){
+  //         return
+  //       }
+  //     }
+  //     jumpAction('/blog/auth',{type:"from"})
+  //   }catch(e){}finally{
+  //     setLoading(false);
+  //   }
+  // }
 
-  useEffect(()=>{
-    checkUser();
-  },[])
+  useEffect(() => {
+    let mounted = true
+    const init = async () => {
+      try {
+        const res = await checkUser();
+        if(!mounted)return;
+        console.log('checkuser then ',res);
+      } catch (error) {
+        console.error('初始化时出错:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    init();
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   if (loading) {
     return (

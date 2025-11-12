@@ -2,12 +2,11 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
 import { supabase, Post } from '@/lib/supabase'
-import Link from 'next/link'
 import Profile from "@/components/profile";
-import SetLayout from "@/components/set-layout";
 import List from "@/app/blog/[account]/web/articles/components/list";
+import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 
-interface Props {
+type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
 // 首页
@@ -16,26 +15,22 @@ export default function Blog({ params }: Props) {
   const [articles, setArticles] = useState<Post[]>([] as Post[])
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
-  // const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`;
-  const boxStyle = {minHeight:'70vh'}
+  const {checkUser} = useCheckUser({loginJump:true});
+
   console.log('PAGE Blog 首页',articles,loading,userProfile);
 
 
   useEffect(() => {
     let mounted = true
-
     // 初始化应用，检查用户状态 -> 获取文章数据
-    const initializeApp = async () => {
-      console.log('initializeApp');
+    const init = async () => {
       try {
-        // 先检查用户状态
         await checkUser()
-        // 然后获取文章数据
-        if (mounted) {
-          await fetchArticleList()
-        }
+        if(!mounted)return
+        await fetchArticleList()
       } catch (error) {
         console.error('初始化应用时出错:', error)
+      } finally {
         setLoading(false)
       }
     }
@@ -48,7 +43,7 @@ export default function Blog({ params }: Props) {
       }
     }, 10000)
 
-    initializeApp().finally(() => {
+    init().finally(() => {
       clearTimeout(timeoutId)
     })
 
@@ -70,21 +65,7 @@ export default function Blog({ params }: Props) {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [])
-
-  // 检查用户登录状态
-  const checkUser = async () => {
-    const response = await fetch(`/api/login/check`);
-    const {data,msg} = await response.json();
-    console.log('api: /login/check then',data,msg);
-    if (response.ok) {
-      if(data.isLogin){
-        setUserProfile(data||null)
-      }
-    } else {
-      console.error('checkUser出错:',msg);
-    }
-  }
+  }, []) 
 
   // const handleSignOut = async () => {
   //   console.log('handleSignOut');
@@ -97,7 +78,7 @@ export default function Blog({ params }: Props) {
   //   }
   // }
 
-  // 获取文章数据并关联作者信息
+  // 获取文章数据列表数据
   const fetchArticleList = async () => {
     try {
       console.log('api: get-article-list');
@@ -129,11 +110,8 @@ export default function Blog({ params }: Props) {
     )
   }
 
-  // HTML部分
+  
   return (
-      // <SetLayout extraClass={extraClass} boxStyle={boxStyle} pageScroll safeArea>
-    // <SetLayout extraClass={extraClass} pageScroll safeArea>
-
     <div className='content-box pt-5'>
       <div className='flex justify-between flex-wrap'>
         <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
@@ -144,6 +122,5 @@ export default function Blog({ params }: Props) {
         </div>
       </div>
     </div>
-    // </SetLayout>
   )
 }
