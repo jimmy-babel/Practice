@@ -6,6 +6,7 @@ import {Button} from 'antd';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {article} from '@/lib/supabase';
 import ImageUploader from "@/components/ImageUploader";
+import AntdSelect from "@/components/custom-antd/Select.tsx";
 import type { Delta } from 'quill';
 interface QuillEditorRef {
   // 获取 Delta 格式内容（推荐）
@@ -198,6 +199,9 @@ export default function ArticleEdit({params}:Props){
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 文章分组
               </label>
+              <div className='w-50'>
+                <AntdSelect></AntdSelect>
+              </div>
             </div>
             {/* 封面 */}
             <div>
