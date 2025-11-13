@@ -6,7 +6,7 @@ import {Button} from 'antd';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {article} from '@/lib/supabase';
 import ImageUploader from "@/components/ImageUploader";
-import AntdSelect from "@/components/custom-antd/Select.tsx";
+import AntdSelect from "@/components/custom-antd/Select";
 import type { Delta } from 'quill';
 interface QuillEditorRef {
   // 获取 Delta 格式内容（推荐）
@@ -55,6 +55,7 @@ export default function ArticleEdit({params}:Props){
         const res = await checkUser();
         if(!mounted)return;
         setUserProfile(res?.data);
+        loadGroups(res?.data?.id);
         await loadData();
       } catch (error) {
         console.error('初始化时出错:', error)
@@ -73,7 +74,7 @@ export default function ArticleEdit({params}:Props){
     try {
       if(id == '0') return;
       console.log('api: get-article-detail');
-      const response = await fetch(`/api/admin/get-article-detail?blogger=${account}&id=${id}`);
+      const response = await fetch(`/api/admin/get-article-detail?blogger=${account}&id=${Number(id)}`);
       const result = await response.json();
       console.log('api: /blog/get-article-detail then',result);
       if (response.ok) {
@@ -87,6 +88,25 @@ export default function ArticleEdit({params}:Props){
       }
     } catch (error) {
       console.error('获取文章时出错:', error);
+    }
+  };
+
+  const loadGroups = async (userId:any) => {
+    try {
+      console.log('api: get-article-groups');
+      const response = await fetch(`/api/admin/get-article-groups?userId=${userId}&search=${""}`);
+      const result = await response.json();
+      console.log('api: /blog/get-article-groups then',result);
+      if (response.ok) {
+        let data = result.data;
+        if(data){
+          
+        }
+      } else {
+        console.error('获取groups时出错:', result.error);
+      }
+    } catch (error) {
+      console.error('获取groups时出错:', error);
     }
   };
 
@@ -104,7 +124,7 @@ export default function ArticleEdit({params}:Props){
     try {
       let {title="",excerpt="",published=false} = article;  
       let params = {
-        id,
+        id:Number(id),
         title,
         excerpt: excerpt || "",
         published,

@@ -20,8 +20,8 @@ export default function Article({params}:Props){
     let mounted = true
 
     // 初始化应用，检查用户状态 -> 获取文章数据
-    const initializeApp = async () => {
-      console.log('initializeApp');
+    const init = async () => {
+      console.log('init');
       try {
         // 先检查用户状态
         await checkUser()
@@ -34,9 +34,7 @@ export default function Article({params}:Props){
         setLoading(false)
       }
     }
-    
-    initializeApp();
-    
+    init();
     return () => {
       mounted = false
     }
@@ -46,7 +44,7 @@ export default function Article({params}:Props){
   const fetchArticleDetail = async () => {
     try {
       console.log('api: get-article-detail');
-      const response = await fetch(`/api/blog/get-article-detail?blogger=${account}&id=${id}`);
+      const response = await fetch(`/api/blog/get-article-detail?blogger=${account}&id=${Number(id)}`);
       const result = await response.json();
       console.log('api: /blog/get-article-detail then',result,response);
       if (response.ok) {

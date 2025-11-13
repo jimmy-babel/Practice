@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {Post,article} from '@/lib/supabase';
+import {article} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
 import Image from 'next/image';
