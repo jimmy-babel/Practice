@@ -56,3 +56,8 @@ export interface Comment {
     avatar_url?: string
   }
 }
+
+export interface article_groups_relation {
+  group_id: number,
+  article_id:number
+}

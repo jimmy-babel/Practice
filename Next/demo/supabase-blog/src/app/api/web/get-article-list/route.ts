@@ -5,11 +5,10 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url); //GET请求获取URL
     const blogger = url.searchParams.get('blogger'); // GET获取查询参数中的blogger
-    const id = url.searchParams.get('id'); // GET获取查询参数中的id
 
     // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
-    if (!blogger || !id) {
-      return NextResponse.json({ error: '缺少传参' }, { status: 400 });
+    if (!blogger) {
+      return NextResponse.json({ error: '缺少 blogger 参数' }, { status: 400 });
     }
     
     // 获取博主信息
@@ -30,34 +29,23 @@ export async function GET(req: Request) {
     const { data: articlesData, error: articlesError } = await supabase
       .from('articles')
       .select('*')
-      // .eq('published', true)
-      .eq('id',id)
+      .eq('published', true)
       .eq('user_id', bloggerData?.id)
-      .order('created_at', { ascending: false })
-      .single()
+      .order('created_at', { ascending: false });
+
     // console.log('supabase select from articles then:',articlesData,articlesError);
     if (articlesError) {
-      return NextResponse.json({ msg: '获取文章详情时出错', error:articlesError }, { status: 500 });
+      return NextResponse.json({ msg: '获取文章时出错', error:articlesError }, { status: 500 });
     }
 
-    if (!articlesData) {
-      return NextResponse.json({ data: null, bloggerData:{avatar_url,full_name,username} }, { status: 200 });
+    if (!articlesData || articlesData.length === 0) {
+      return NextResponse.json({ data: [], bloggerData:{avatar_url,full_name,username} }, { status: 200 });
     }
 
-    // 获取分组关系
-    const { data: articleGroupsRelationData, error: articleGroupsRelationError } = await supabase
-      .from('article_groups_relation')
-      .select('group_id')
-      .eq('article_id',id)
-    if (articleGroupsRelationError) {
-      return NextResponse.json({ msg: '获取分组关系出错', error:articleGroupsRelationError }, { status: 500 });
-    }
-    let groupsId = articleGroupsRelationData.map(item=>item.group_id)
-    
-    return NextResponse.json({ data:{...articlesData,groupsId},bloggerData:{avatar_url,full_name,username} }, { status: 200 });
+    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username} }, { status: 200 });
 
   } catch (error) {
-    console.error('获取文章详情时出错:', error);
+    console.error('获取文章时出错:', error);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
   }
 }

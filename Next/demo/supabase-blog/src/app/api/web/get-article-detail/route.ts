@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     const { data: articlesData, error: articlesError } = await supabase
       .from('articles')
       .select('*')
-      // .eq('published', true)
+      .eq('published', true)
       .eq('id',id)
       .eq('user_id', bloggerData?.id)
       .order('created_at', { ascending: false })
@@ -44,17 +44,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ data: null, bloggerData:{avatar_url,full_name,username} }, { status: 200 });
     }
 
-    // 获取分组关系
-    const { data: articleGroupsRelationData, error: articleGroupsRelationError } = await supabase
-      .from('article_groups_relation')
-      .select('group_id')
-      .eq('article_id',id)
-    if (articleGroupsRelationError) {
-      return NextResponse.json({ msg: '获取分组关系出错', error:articleGroupsRelationError }, { status: 500 });
-    }
-    let groupsId = articleGroupsRelationData.map(item=>item.group_id)
-    
-    return NextResponse.json({ data:{...articlesData,groupsId},bloggerData:{avatar_url,full_name,username} }, { status: 200 });
+    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username} }, { status: 200 });
 
   } catch (error) {
     console.error('获取文章详情时出错:', error);

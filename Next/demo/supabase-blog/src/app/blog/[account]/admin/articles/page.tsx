@@ -5,8 +5,9 @@ import {article} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
 import Image from 'next/image';
-import { Table,Switch,Button } from 'antd';
+import { Table,Switch,Button,Space } from 'antd';
 import SearchBox from "@/components/SearchBox";
+import AntdSelect from "@/components/custom-antd/Select";
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
@@ -17,6 +18,11 @@ export default function Articles({params}:Props){
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
   const [searchText,setSearchText] = useState<string>("");
+  const [selectData, setSelectData] = useState<number[]>([0]);
+  const [apiParams, setApiParams] = useState<any>(null);
+  const [filterType, setFilterType] = useState<"articles" | undefined>(
+    undefined
+  );
   console.log('PAGE ADMIN Articles',account,articles,searchText);
   const onChange = (checked: boolean) => {
     console.log(`switch to ${checked}`);
@@ -85,6 +91,8 @@ export default function Articles({params}:Props){
         const res = await checkUser();
         if(!mounted)return;
         console.log('checkuser then',res);
+        setApiParams(`?userId=${res?.data?.id}&search=`);
+        setFilterType("articles");
         await fetchArticleList()
       } catch (error) {
         console.error('初始化时出错:', error)
@@ -102,7 +110,8 @@ export default function Articles({params}:Props){
   const fetchArticleList = async () => {
     try {
       console.log('api: get-article-list',searchText);
-      const response = await fetch(`/api/admin/get-article-list?blogger=${account}&search=${searchText}`);
+      let groupsId = selectData?.join(',') || "";
+      const response = await fetch(`/api/admin/get-article-list?blogger=${account}&search=${searchText}&groupsId=${groupsId}`);
       const result = await response.json();
       console.log('api: /blog/get-article-list then',result,response);
       if (response.ok) {
@@ -132,8 +141,22 @@ export default function Articles({params}:Props){
   return (
     <div className="list-box w-full h-full">
       <div className='header-box flex justify-between items-center p-3'>
-        <div className='search-box'>
-          <SearchBox searchText={searchText} setSearchText={setSearchText} onSearch={fetchArticleList} />
+        <div className='search-box flex'>
+          <Space>
+            <SearchBox searchText={searchText} setSearchText={setSearchText} onSearch={fetchArticleList} />
+            <AntdSelect
+              extraClass="min-w-27"
+              filterType={filterType}
+              isRowSetAllAuto
+              isApiAuto
+              mode="multiple"
+              apiName="/api/admin/get-article-groups"
+              apiMethods="GET"
+              apiParams={apiParams}
+              selectData={selectData}
+              setSelectData={setSelectData}
+            ></AntdSelect>
+          </Space>
         </div>
         <div className='btn-box'>
           <Button type='primary' onClick={()=>jumpAction(`admin/articles/0`)}>添加文章</Button>

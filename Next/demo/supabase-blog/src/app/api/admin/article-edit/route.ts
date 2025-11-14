@@ -3,7 +3,13 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     const {id, title, content, delta_data, cover_img, excerpt, published, user_id, groupsId} = await req.json();
-    // let groupsIdStr = groupsId?.join(',') || "";
+
+    // 根据groupsId数组 更新表article_groups_relation
+    const relations = groupsId.filter((item:number)=>item>0)?.map((groupId:number) => ({
+      article_id: id,
+      group_id: groupId
+    }));
+    console.log('relations',relations);
     if(!id || id === 0){
       const { data, error } = await supabase
         .from('articles')
@@ -14,10 +20,10 @@ export async function POST(req: Request) {
       }
       // 根据groupsId数组 更新表article_groups_relation
       const newArticle = data?.[0] || null;
-      const relations = groupsId?.map((groupId:number) => ({
-        article_id: newArticle?.id,
-        group_id: groupId
-      }));
+      // const relations = groupsId?.map((groupId:number) => ({
+      //   article_id: newArticle?.id,
+      //   group_id: groupId
+      // }));
       if(relations.length>0){
          const { error: relationError } = await supabase
           .from('article_groups_relation')
@@ -43,12 +49,21 @@ export async function POST(req: Request) {
       if (error) {
         return NextResponse.json({ msg: '编辑文章时出错',error }, { status: 500 });
       }
-      
-      // 根据groupsId数组 更新表article_groups_relation
-      const relations = groupsId?.map((groupId:number) => ({
-        article_id: id,
-        group_id: groupId
-      }));
+
+
+      // 先彻底删除该文章的所有旧关联（关键：避免新旧关联冲突）
+      const { error: deleteError } = await supabase
+        .from('article_groups_relation')
+        .delete()
+        .eq('article_id', id);
+
+      if (deleteError) {
+        return NextResponse.json(
+          { msg: '删除旧分组关联失败', error: deleteError },
+          { status: 500 }
+        );
+      }
+
       if(relations.length>0){
          const { error: relationError } = await supabase
           .from('article_groups_relation')
