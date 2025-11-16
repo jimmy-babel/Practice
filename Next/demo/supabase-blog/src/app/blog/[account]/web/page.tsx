@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { supabase, Post } from '@/lib/supabase'
+import { supabase, article } from '@/lib/supabase'
 import Profile from "@/components/profile";
 import List from "@/app/blog/[account]/web/articles/components/list";
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
@@ -12,7 +12,7 @@ type Props = {
 // 首页
 export default function Blog({ params }: Props) {
   const { account } = React.use(params);
-  const [articles, setArticles] = useState<Post[]>([] as Post[])
+  const [articles, setArticles] = useState<article[]>([] as article[])
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<any>(null)
   const {checkUser} = useCheckUser({loginJump:true});

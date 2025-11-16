@@ -61,3 +61,24 @@ export interface article_groups_relation {
   group_id: number,
   article_id:number
 }
+
+export interface life_styles {
+  id: number
+  title: string
+  excerpt?: string
+  published: boolean
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+export interface life_styles_label {
+  id: number,
+  name: string
+}
+export interface life_styles_sub_label {
+  id: number,
+  name: string
+}
+// export interface life_styles_relation_label {
+
+// }
