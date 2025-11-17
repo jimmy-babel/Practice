@@ -4,7 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "antd";
 import { useJumpAction, useCheckUser } from "@/lib/use-helper/base-mixin";
-import { article } from "@/lib/supabase";
+import { life_styles } from "@/lib/supabase";
 import ImageUploader from "@/components/ImageUploader";
 import AntdSelect from "@/components/custom-antd/Select";
 import type { Delta } from "quill";
@@ -30,7 +30,7 @@ export default function LifeStylesEdit({ params }: Props) {
   const { account, id } = React.use(params);
   const { jumpAction } = useJumpAction();
   const { checkUser } = useCheckUser({ loginJump: true });
-  const [article, setArticle] = useState<article>({} as article);
+  const [lifestyles, setArticle] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [message, setMessage] = useState("");
@@ -41,52 +41,57 @@ export default function LifeStylesEdit({ params }: Props) {
   const [QuillEditor, setQuillEditor] =
     useState<React.ComponentType<any> | null>(null);
   const [apiParams, setApiParams] = useState<any>(null);
-  const [filterType, setFilterType] = useState<"articles" | undefined>(
+  const [filterType, setFilterType] = useState<"lifestyles" | undefined>(
     undefined
   );
   const [selectData, setSelectData] = useState<number[]>([]);
 
-  console.log("PAGE ADMIN LifeStylesEdit", article);
+  console.log("PAGE ADMIN LifeStylesEdit", lifestyles);
 
   const loadQuillEditor = async () => {
     const module = await import("@/components/Quill");
     setQuillEditor(module.default); // 假设组件默认导出
   };
 
-  // 初始化
-  useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      try {
-        loadQuillEditor();
-        const res = await checkUser();
-        if (!mounted) return;
-        setUserProfile(res?.data);
-        setApiParams(`?userId=${res?.data?.id}&search=`);
-        setFilterType("articles");
-        await loadData();
-      } catch (error) {
-        console.error("初始化时出错:", error);
-      } finally {
-        setLoading(false);
+   useEffect(() => {
+      let mounted = true
+      const init = async () => {
+        try {
+          const res = await checkUser();
+          if(!mounted)return;
+          setUserProfile(res.data);
+          console.log('checkuser then',res);
+        } catch (error) {
+          console.error('初始化时出错:', error)
+        }
       }
-    };
-    init();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+      init();
+      return () => {
+        console.log('销毁');
+        mounted = false
+      }
+    }, [])
+  
+    useEffect(()=>{
+      if(!userProfile)return
+      setApiParams(`?userId=${userProfile?.id}`);
+      setFilterType("lifestyles");
+      const loadData = async ()=>{
+        await getDetail();
+      };
+      loadData();
+    },[userProfile])
 
-  // 加载文章
-  const loadData = async () => {
+  // 加载手记
+  const getDetail = async () => {
     try {
       if (id == "0") return;
-      console.log("api: get-article-detail");
+      console.log("api: get-lifestyles-detail");
       const response = await fetch(
-        `/api/admin/get-article-detail?blogger=${account}&id=${Number(id)}`
+        `/api/admin/get-lifestyles-detail?blogger=${account}&userId=${userProfile?.id}&id=${Number(id)}`
       );
       const result = await response.json();
-      console.log("api: /blog/get-article-detail then", result);
+      console.log("api: /blog/get-lifestyles-detail then", result);
       if (response.ok) {
         let data = result.data;
         if (data) {
@@ -97,14 +102,17 @@ export default function LifeStylesEdit({ params }: Props) {
           setArticle(data);
         }
       } else {
-        console.error("获取文章时出错:", result.error);
+        console.error("获取手记时出错:", result.error);
       }
     } catch (error) {
-      console.error("获取文章时出错:", error);
+      console.error("获取手记时出错:", error);
+    } finally {
+      console.log('finally');
+      setLoading(false);
     }
   };
 
-  // 提交文章
+  // 提交手记
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await editorRef.current?.tempUrlsUpload();
@@ -116,7 +124,7 @@ export default function LifeStylesEdit({ params }: Props) {
     if (!userProfile?.isLogin) return;
     setMessage("");
     try {
-      let { title = "", excerpt = "", published = false } = article;
+      let { title = "", excerpt = "", published = false } = lifestyles;
       let params = {
         id: Number(id),
         title,
@@ -125,11 +133,11 @@ export default function LifeStylesEdit({ params }: Props) {
         content: htmlContent || "",
         delta_data: (deltaContent && JSON.stringify(deltaContent)) || "",
         user_id: userProfile?.id,
-        cover_img: fileList?.[0]?.url || article.cover_img || "",
+        cover_img: fileList?.[0]?.url || lifestyles.cover_img || "",
         groupsId: selectData || [],
       };
-      console.log("api: admin/article-edit", params);
-      const response = await fetch(`/api/admin/article-edit`, {
+      console.log("api: admin/lifestyles-edit", params);
+      const response = await fetch(`/api/admin/lifestyles-edit`, {
         body: JSON.stringify(params),
         method: "POST",
         headers: {
@@ -137,11 +145,11 @@ export default function LifeStylesEdit({ params }: Props) {
         },
       });
       const { data, msg, error } = await response.json();
-      console.log("api: admin/article-edit then", data, msg, error);
+      console.log("api: admin/lifestyles-edit then", data, msg, error);
       setMessage(msg);
       if (data > 0) {
         setTimeout(() => {
-          jumpAction("admin/articles");
+          jumpAction("admin/lifestyles");
         }, 500);
       }
     } catch (error) {
@@ -170,7 +178,7 @@ export default function LifeStylesEdit({ params }: Props) {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            {id === "0" ? "添加" : "编辑"}文章
+            {id === "0" ? "添加" : "编辑"}手记
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -180,12 +188,12 @@ export default function LifeStylesEdit({ params }: Props) {
                 htmlFor="title"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                文章标题
+                手记标题
               </label>
               <input
                 type="text"
                 id="title"
-                value={article.title || ""}
+                value={lifestyles.title || ""}
                 onChange={(e) =>
                   setArticle((item) => ({
                     ...item,
@@ -194,7 +202,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 }
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入文章标题"
+                placeholder="请输入手记标题"
               />
             </div>
 
@@ -204,11 +212,11 @@ export default function LifeStylesEdit({ params }: Props) {
                 htmlFor="excerpt"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                文章摘要 (可选)
+                手记摘要 (可选)
               </label>
               <textarea
                 id="excerpt"
-                value={article.excerpt || ""}
+                value={lifestyles.excerpt || ""}
                 onChange={(e) =>
                   setArticle((item) => ({
                     ...item,
@@ -217,7 +225,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 }
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入文章摘要，如果留空将自动从正文生成"
+                placeholder="请输入手记摘要，如果留空将自动从正文生成"
               />
             </div>
             {/* 分组 */}
@@ -226,7 +234,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 htmlFor="groups"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                文章分组
+                手记分组
               </label>
               <AntdSelect
                 extraClass="min-w-30 max-w-[50%]"
@@ -234,7 +242,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 isRowSetAllAuto
                 isApiAuto
                 mode="multiple"
-                apiName="/api/admin/get-article-groups"
+                apiName="/api/admin/get-lifestyles-groups"
                 apiMethods="GET"
                 apiParams={apiParams}
                 selectData={selectData}
@@ -247,9 +255,10 @@ export default function LifeStylesEdit({ params }: Props) {
                 htmlFor="cover_img"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                文章封面
+                手记封面
               </label>
               <ImageUploader
+                limitMax={1}
                 defaultFileList={defaultFileList}
                 onFinish={onFinish}
               ></ImageUploader>
@@ -260,14 +269,19 @@ export default function LifeStylesEdit({ params }: Props) {
                 htmlFor="content"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                文章内容
+                手记相册
               </label>
-              {QuillEditor ? (
+              <ImageUploader
+                limitMax={9}
+                defaultFileList={defaultFileList}
+                onFinish={onFinish}
+              ></ImageUploader>
+              {/* {QuillEditor ? (
                 <QuillEditor
                   ref={editorRef}
-                  initialContent={article?.delta_data || ""}
+                  initialContent={lifestyles?.delta_data || ""}
                 ></QuillEditor>
-              ) : null}
+              ) : null} */}
             </div>
 
             {/* 发布选项 */}
@@ -275,7 +289,7 @@ export default function LifeStylesEdit({ params }: Props) {
               <input
                 type="checkbox"
                 id="published"
-                checked={article.published}
+                checked={lifestyles.published}
                 onChange={(e) =>
                   setArticle((item) => ({
                     ...item,
@@ -322,22 +336,22 @@ export default function LifeStylesEdit({ params }: Props) {
               >
                 {loading
                   ? "发布中..."
-                  : article.published
-                  ? "发布文章"
+                  : lifestyles.published
+                  ? "发布手记"
                   : "保存草稿"}
               </Button>
             </div>
           </form>
         </div>
 
-        {/* 写作提示 */}
+        {/* 提示 */}
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">写作提示</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">提示</h3>
           <div className="text-sm text-gray-600 space-y-2">
-            <p>• 文章按照富文本编辑器的内容展示</p>
+            <p>• 手记按照标题、摘要、封面作在博客端列表中展示</p>
             {/* <p>• 如果不填写摘要，系统会自动截取正文前 200 个字符作为摘要</p> */}
-            <p>• 未发布的文章将保存为草稿，则不会公布到博客端</p>
-            {/* <p>• 文章标题会自动生成 URL 友好的链接地址</p> */}
+            <p>• 未发布的手记将保存为草稿，则不会公布到博客端</p>
+            {/* <p>• 手记标题会自动生成 URL 友好的链接地址</p> */}
           </div>
         </div>
       </main>

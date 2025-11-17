@@ -4,12 +4,13 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 type Props = {
   defaultFileList?:Array<UploadFile>,
+  limitMax?:number,
   onFinish?: (value: Array<UploadFile>) => void;
 }
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 export default function ImageUploader(props: Props) {
-  const {defaultFileList=[],onFinish = () => {},} = props;
+  const {defaultFileList=[],limitMax=1,onFinish = () => {},} = props;
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -36,7 +37,7 @@ export default function ImageUploader(props: Props) {
     setFileList(info.fileList);
     if (info.file.status === 'done') {
       onFinish(trimData(info));
-      message.success(`图片上传成功，URL：${info.file.response.data.url}`);
+      // message.success(`图片上传成功，URL：${info.file.response.data.url}`);
       // 这里可保存图片URL到状态/数据库
     } else if (info.file.status === 'removed') {
       onFinish(trimData(info));
@@ -92,7 +93,7 @@ export default function ImageUploader(props: Props) {
         fileList={fileList}
         onPreview={handlePreview}
       >
-        {resultList.length>=1 ? null : UploadBtn}
+        {resultList.length>=limitMax ? null : UploadBtn}
       </Upload>
       {previewImage && (
         <Image

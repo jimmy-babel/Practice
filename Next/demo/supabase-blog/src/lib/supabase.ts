@@ -81,10 +81,8 @@ export interface life_styles_photos {
   url: string
   excerpt?: string
   sort:number
-  published: boolean
   user_id: string
   created_at: string
-  updated_at: string
 }
 
 export interface life_styles_label {

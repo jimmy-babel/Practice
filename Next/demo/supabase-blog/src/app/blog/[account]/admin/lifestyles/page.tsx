@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {article} from '@/lib/supabase';
+import {life_styles} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
 import Image from 'next/image';
@@ -13,7 +13,7 @@ type Props = {
 }
 export default function LifeStyles({params}:Props){
   const {account} = React.use(params);
-  const [lifestyles, setLifestyles] = useState<article[]>([] as article[])
+  const [lifestyles, setLifestyles] = useState<life_styles[]>([] as life_styles[])
   const [loading, setLoading] = useState(true)
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
@@ -39,11 +39,11 @@ export default function LifeStyles({params}:Props){
     return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
   };
 
-  const columns: TableColumnsType<article> = [
+  const columns: TableColumnsType<life_styles> = [
     {
       title: '封面',
       key: 'id',
-      render: (row: article) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
+      // render: (row: life_styles) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
     },
     {
       title: '标题',
@@ -61,7 +61,7 @@ export default function LifeStyles({params}:Props){
       title: '发布状态',
       key:'published',
       align:'center',
-      render:(row: article)=><Switch checkedChildren="开" unCheckedChildren="关" checked={!!row.published} onChange={onChange} />
+      render:(row: life_styles)=><Switch checkedChildren="开" unCheckedChildren="关" checked={!!row.published} onChange={onChange} />
     },
     {
       title: '创建时间',
@@ -79,7 +79,7 @@ export default function LifeStyles({params}:Props){
       title: '操作',
       key: 'action',
       align:'center',
-      render: (row: article) => <div className='flex justify-center items-center'><Button style={{marginLeft:0}} size="small" type="primary" onClick={()=>jumpAction(`admin/lifestyles/${row.id}`)}>编辑</Button></div>,
+      render: (row: life_styles) => <div className='flex justify-center items-center'><Button style={{marginLeft:0}} size="small" type="primary" onClick={()=>jumpAction(`admin/lifestyles/${row.id}`)}>编辑</Button></div>,
     },
   ];
   console.log('PAGE ADMIN lifestyles',account);
@@ -95,26 +95,29 @@ export default function LifeStyles({params}:Props){
         console.log('checkuser then',res);
       } catch (error) {
         console.error('初始化时出错:', error)
-      } finally {
-        setLoading(false)
       }
     }
     init();
     return () => {
+      console.log('销毁');
       mounted = false
     }
   }, [])
 
   useEffect(()=>{
+    if(!userProfile)return
     setApiParams(`?userId=${userProfile?.id}&search=${searchText}`);
     setFilterType("lifestyles");
-    fetchArticleList();
+    const loadData = async ()=>{
+      await fetchArticleList();
+    };
+    loadData();
   },[userProfile])
   
   // 获取生活手记数据并关联作者信息
   const fetchArticleList = async () => {
     try {
-      console.log('api: get-article-list',searchText);
+      console.log('api: get-life_styles-list',searchText,userProfile.id);
       let groupsId = selectData?.join(',') || "";
       const response = await fetch(`/api/admin/get-lifestyles-list?blogger=${account}&userId=${userProfile.id}&search=${searchText}&groupsId=${groupsId}`);
       const result = await response.json();
@@ -129,6 +132,7 @@ export default function LifeStyles({params}:Props){
       console.error('获取生活手记时出错:', error);
       setLifestyles([]);
     } finally {
+      console.log('finally');
       setLoading(false);
     }
   };
@@ -149,30 +153,40 @@ export default function LifeStyles({params}:Props){
         <div className='search-box flex'>
           <Space>
             <SearchBox searchText={searchText} setSearchText={setSearchText} onSearch={fetchArticleList} />
-            <AntdSelect
+            {/* <AntdSelect
               extraClass="min-w-27"
               filterType={filterType}
               isRowSetAllAuto
               isApiAuto
-              mode="multiple"
               apiName="/api/admin/get-article-groups"
               apiMethods="GET"
               apiParams={apiParams}
               selectData={selectData}
               setSelectData={setSelectData}
             ></AntdSelect>
+            <AntdSelect
+              extraClass="min-w-27"
+              filterType={filterType}
+              isRowSetAllAuto
+              isApiAuto
+              apiName="/api/admin/get-article-groups"
+              apiMethods="GET"
+              apiParams={apiParams}
+              selectData={selectData}
+              setSelectData={setSelectData}
+            ></AntdSelect> */}
           </Space>
         </div>
         <div className='btn-box'>
           <Button type='primary' onClick={()=>jumpAction(`admin/lifestyles/0`)}>添加生活手记</Button>
         </div>
       </div>
-      <Table<article>
+      <Table<life_styles>
         className=""
         rowKey="id"
         rowSelection={{ 
           type: 'checkbox', 
-          getCheckboxProps: (row: article) => ({
+          getCheckboxProps: (row: life_styles) => ({
             name: row.title,
           }),
         }}
