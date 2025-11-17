@@ -6,6 +6,9 @@ const DefaultFilterData = {
   articles: {
     list: [],
   },
+  lifestyles: {
+    list: [],
+  },
   publish: {
     list: [
       { value: 0, label: "全部" },

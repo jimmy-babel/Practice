@@ -13,17 +13,18 @@ type Props = {
 }
 export default function LifeStyles({params}:Props){
   const {account} = React.use(params);
-  const [articles, setArticles] = useState<article[]>([] as article[])
+  const [lifestyles, setLifestyles] = useState<article[]>([] as article[])
   const [loading, setLoading] = useState(true)
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
   const [searchText,setSearchText] = useState<string>("");
   const [selectData, setSelectData] = useState<number[]>([0]);
   const [apiParams, setApiParams] = useState<any>(null);
-  const [filterType, setFilterType] = useState<"articles" | undefined>(
+  const [filterType, setFilterType] = useState<"lifestyles" | undefined>(
     undefined
   );
-  console.log('PAGE ADMIN LifeStyles',account,articles,searchText);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  console.log('PAGE ADMIN LifeStyles',account,lifestyles,searchText);
   const onChange = (checked: boolean) => {
     console.log(`switch to ${checked}`);
   };
@@ -78,22 +79,20 @@ export default function LifeStyles({params}:Props){
       title: '操作',
       key: 'action',
       align:'center',
-      render: (row: article) => <div className='flex justify-center items-center'><Button style={{marginLeft:0}} size="small" type="primary" onClick={()=>jumpAction(`admin/articles/${row.id}`)}>编辑</Button></div>,
+      render: (row: article) => <div className='flex justify-center items-center'><Button style={{marginLeft:0}} size="small" type="primary" onClick={()=>jumpAction(`admin/lifestyles/${row.id}`)}>编辑</Button></div>,
     },
   ];
-  console.log('PAGE ADMIN Articles',account);
+  console.log('PAGE ADMIN lifestyles',account);
 
-  // 查询登录状态+拿文章列表数据
+  // 查询登录状态+拿生活手记列表数据
   useEffect(() => {
     let mounted = true
     const init = async () => {
       try {
         const res = await checkUser();
         if(!mounted)return;
+        setUserProfile(res.data);
         console.log('checkuser then',res);
-        setApiParams(`?userId=${res?.data?.id}&search=`);
-        setFilterType("articles");
-        await fetchArticleList()
       } catch (error) {
         console.error('初始化时出错:', error)
       } finally {
@@ -105,24 +104,30 @@ export default function LifeStyles({params}:Props){
       mounted = false
     }
   }, [])
+
+  useEffect(()=>{
+    setApiParams(`?userId=${userProfile?.id}&search=${searchText}`);
+    setFilterType("lifestyles");
+    fetchArticleList();
+  },[userProfile])
   
-  // 获取文章数据并关联作者信息
+  // 获取生活手记数据并关联作者信息
   const fetchArticleList = async () => {
     try {
       console.log('api: get-article-list',searchText);
       let groupsId = selectData?.join(',') || "";
-      const response = await fetch(`/api/admin/get-article-list?blogger=${account}&search=${searchText}&groupsId=${groupsId}`);
+      const response = await fetch(`/api/admin/get-lifestyles-list?blogger=${account}&userId=${userProfile.id}&search=${searchText}&groupsId=${groupsId}`);
       const result = await response.json();
-      console.log('api: /blog/get-article-list then',result,response);
+      console.log('api: /blog/get-lifestyles-list then',result,response);
       if (response.ok) {
-        setArticles(result.data);
+        setLifestyles(result.data);
       } else {
-        console.error('获取文章时出错:', result.error);
-        setArticles([]);
+        console.error('获取生活手记时出错:', result.error);
+        setLifestyles([]);
       }
     } catch (error) {
-      console.error('获取文章时出错:', error);
-      setArticles([]);
+      console.error('获取生活手记时出错:', error);
+      setLifestyles([]);
     } finally {
       setLoading(false);
     }
@@ -159,7 +164,7 @@ export default function LifeStyles({params}:Props){
           </Space>
         </div>
         <div className='btn-box'>
-          <Button type='primary' onClick={()=>jumpAction(`admin/articles/0`)}>添加生活手记</Button>
+          <Button type='primary' onClick={()=>jumpAction(`admin/lifestyles/0`)}>添加生活手记</Button>
         </div>
       </div>
       <Table<article>
@@ -172,7 +177,7 @@ export default function LifeStyles({params}:Props){
           }),
         }}
         columns={columns}
-        dataSource={articles}
+        dataSource={lifestyles}
       />
     </div>
   )

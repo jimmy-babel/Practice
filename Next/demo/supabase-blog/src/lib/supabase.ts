@@ -29,6 +29,7 @@ export interface article {
   excerpt?: string
   cover_img?:string
   published: boolean
+  sort:number
   user_id: string
   created_at: string
   updated_at: string
@@ -66,19 +67,39 @@ export interface life_styles {
   id: number
   title: string
   excerpt?: string
+  cover_img?: string
+  published: boolean
+  sort:number
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface life_styles_photos {
+  id: number
+  life_styles_id:number
+  url: string
+  excerpt?: string
+  sort:number
   published: boolean
   user_id: string
   created_at: string
   updated_at: string
 }
-export interface life_styles_label {
-  id: number,
-  name: string
-}
-export interface life_styles_sub_label {
-  id: number,
-  name: string
-}
-// export interface life_styles_relation_label {
 
-// }
+export interface life_styles_label {
+  id: number
+  name: string
+  sort:number
+}
+
+export interface life_styles_sub_label {
+  id: number
+  name: string
+  sort:number
+}
+
+export interface life_styles_label_relation { 
+  label_id:number,
+  sub_label_id:number,
+}
