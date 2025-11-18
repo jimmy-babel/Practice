@@ -23,7 +23,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     defaultFileList = [], 
     // onFinish = () => {}, 
     multiple = false, 
-    maxCount 
+    maxCount = 1
   }, ref) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
@@ -123,7 +123,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     // };
 
     // 新逻辑
-    const validateFile = (file: File): boolean => {
+    const validateFile = (file: File | undefined): boolean => {
       // const isImage = file.type.startsWith('image/');
       // if (!isImage) {
       //   message.error('请上传图片格式文件（JPG/PNG等）');
@@ -147,7 +147,40 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
 
     // 2. 移除 beforeUpload，仅保留 onChange 处理所有逻辑
     const handleChange: UploadProps['onChange'] = ({ file, fileList }) => {
-      console.log('进来 handleChange', file,file.status,fileList);
+      const curFile = fileList.find(item => item.uid === file.uid);
+      const originFile = curFile?.originFileObj as File | undefined;
+      console.log('进来 handleChange',file.status,originFile,file,fileList);
+      if (file.status === 'removed') {
+        pendingFilesRef.current.delete(file.uid);
+        setFileList(fileList);
+        console.log('进来1',fileList);
+      }else{
+        if(!originFile){
+          console.log('进来2',fileList);
+          return;
+        }
+        else if (!validateFile(originFile)) {
+          // 从 fileList 中移除校验失败的文件
+          const filteredList = fileList.filter(f => f.uid !== file.uid);
+          console.log('进来3',filteredList);
+          setFileList(filteredList);
+          // onFinish(trimData(filteredList));
+          return;
+        }else{
+          pendingFilesRef.current.set(file.uid, originFile);
+          const previewUrl = URL.createObjectURL(originFile);
+          // 更新文件列表（添加预览 URL 等信息）
+          // const updatedList = fileList.find(item => item.uid === file.uid)||{};
+          setFileList(n=>n.concat([{uid:file.uid,url:previewUrl,name:file.name,percent:0,preview: previewUrl, status: 'done'}]));
+          // setFileList(n=>n.filter(i=>i.uid!==file.uid).concat([{...updatedList as any,percent:0,preview: previewUrl, status: 'done'},]));
+          // setFileList(n=>n.map(item=>{
+          //   console.log('进来咯',item.uid,file.uid,item);
+          //   return (item.uid === file.uid ? {...item,percent:0,preview: previewUrl, status: 'done'} : item);
+          // }));
+        }
+        console.log('进来5', fileList,pendingFilesRef.current);
+      }
+
       // 场景1：文件刚被添加（status 为 'uploading' 且未被上传过）
       // if (file.status === 'uploading' || (!file.url && !file.response)) {
       //   // 获取原始 File 对象（AntD 会将其存在 originFileObj 中）
@@ -223,6 +256,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     const uploadPendingFiles = async (): Promise<Array<UploadFile>> => {
       const pendingFiles = Array.from(pendingFilesRef.current.entries());
       if (pendingFiles.length === 0) {
+        console.log('看看1',pendingFilesRef.current);
         return fileList;
       }
 
@@ -250,15 +284,17 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
 
       try {
         const uploadedFiles = await Promise.all(uploadPromises);
+        
+        console.log('看看2',uploadedFiles);
         const updatedFileList = fileList.map(file => {
           const uploaded = uploadedFiles.find(f => f.uid === file.uid);
           return uploaded || file;
         });
-
+        console.log('看看3',updatedFileList);
         setFileList(updatedFileList);
         pendingFilesRef.current.clear();
         // onFinish(updatedFileList);
-        message.success(`成功上传 ${uploadedFiles.length} 个文件`);
+        // message.success(`成功上传 ${uploadedFiles.length} 个文件`);
         return updatedFileList;
       } catch (error) {
         console.error('上传失败：', error);
@@ -305,8 +341,6 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     return (
       <>
         <Upload
-          action="/api/upload"
-          method="POST"
           beforeUpload={()=>false}
           onChange={handleChange}
           listType="picture-card"

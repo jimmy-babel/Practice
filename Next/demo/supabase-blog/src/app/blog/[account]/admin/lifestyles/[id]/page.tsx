@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "antd";
+import { Button,UploadFile } from "antd";
 import { useJumpAction, useCheckUser } from "@/lib/use-helper/base-mixin";
 import { life_styles } from "@/lib/supabase";
 import ImageUploader from "@/components/ImageUploader";
@@ -27,6 +27,11 @@ interface listItem {
 type Props = {
   params: Promise<{ account: string; id: string }>; //动态路由 [account] 对应的参数
 };
+interface ImageUploaderRef {
+  uploadPendingFiles: () => Promise<Array<UploadFile>>;
+  getFileList: () => Array<UploadFile>;
+  clearFiles: () => void;
+}
 export default function LifeStylesEdit({ params }: Props) {
   const { account, id } = React.use(params);
   const { jumpAction } = useJumpAction();
@@ -39,6 +44,7 @@ export default function LifeStylesEdit({ params }: Props) {
   const editorRef = useRef<QuillEditorRef>(null);
   const [fileList, setFileList] = useState<listItem[]>([]);
   const [defaultFileList, setDefaultFileList] = useState<listItem[]>([]);
+  const [defaultPhotosList, setDefaultPhotosList] = useState<listItem[]>([]);
   const [QuillEditor, setQuillEditor] =
     useState<React.ComponentType<any> | null>(null);
   const [apiParams, setApiParams] = useState<any>(null);
@@ -46,6 +52,8 @@ export default function LifeStylesEdit({ params }: Props) {
     undefined
   );
   const [selectData, setSelectData] = useState<number[]>([]);
+  const uploadCoverRef = useRef<ImageUploaderRef>(null);
+  const uploadPhotosRef = useRef<ImageUploaderRef>(null);
 
   console.log("PAGE ADMIN LifeStylesEdit", lifestyles);
 
@@ -99,6 +107,7 @@ export default function LifeStylesEdit({ params }: Props) {
           setDefaultFileList([
             { uid: data.id, url: data.cover_img, name: `name-${data.id}` },
           ]);
+          setDefaultPhotosList(data.photos?.map((item:any)=>({uid: `uid-${item.id}`, url: item.url, name: `name-${item.id}`}))||[]);
           // setSelectData(data.groupsId?.length > 0 ? data.groupsId : [0]);
           setLifeStyles(data);
         }
@@ -119,9 +128,15 @@ export default function LifeStylesEdit({ params }: Props) {
     await editorRef.current?.tempUrlsUpload();
     const deltaContent = editorRef.current?.getDeltaContent();
     const htmlContent = editorRef.current?.getHtmlContent();
+
     console.log("deltaContent", deltaContent);
     console.log("handleSubmit", htmlContent);
-    e.preventDefault();
+
+    const uploadCover = await uploadCoverRef.current?.uploadPendingFiles();
+    const uploadPhotos = await uploadPhotosRef.current?.uploadPendingFiles();
+    
+    console.log("uploadCover", uploadCover);
+    console.log("uploadPhotos", uploadPhotos);
     if (!userProfile?.isLogin) return;
     setMessage("");
     try {
@@ -132,8 +147,8 @@ export default function LifeStylesEdit({ params }: Props) {
         excerpt: excerpt || "",
         published,
         user_id: userProfile?.id,
-        cover_img: fileList?.[0]?.url || lifestyles.cover_img || "",
-        photos: (fileList?.[0]?.url && fileList) || (lifestyles.cover_img && [lifestyles.cover_img]) || [],
+        cover_img: uploadCover?.[0]?.url || lifestyles.cover_img || "",
+        photos: uploadPhotos || [],
         labelIds: selectData || [],
       };
       console.log("api: admin/lifestyles-edit", params);
@@ -255,10 +270,10 @@ export default function LifeStylesEdit({ params }: Props) {
                 手记封面
               </label>
               <ImageUploader
-                limitMax={1}
-                btnText="上传封面"
+                // btnText="上传封面"
                 defaultFileList={defaultFileList}
-                onFinish={onFinish}
+                ref={uploadCoverRef}
+                // onFinish={onFinish}
               ></ImageUploader>
             </div>
             {/* 正文 */}
@@ -270,9 +285,11 @@ export default function LifeStylesEdit({ params }: Props) {
                 手记相册
               </label>
               <ImageUploader
-                limitMax={9}
-                defaultFileList={defaultFileList}
-                onFinish={onFinish}
+                multiple
+                maxCount={9}
+                defaultFileList={defaultPhotosList}
+                ref={uploadPhotosRef}
+                // // onFinish={onFinish}
               ></ImageUploader>
               {/* {QuillEditor ? (
                 <QuillEditor

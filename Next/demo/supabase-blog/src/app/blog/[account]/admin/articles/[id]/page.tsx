@@ -251,7 +251,7 @@ export default function ArticleEdit({ params }: Props) {
               </label>
               <ImageUploader
                 defaultFileList={defaultFileList}
-                onFinish={onFinish}
+                // onFinish={onFinish}
                 multiple
                 maxCount={9}
               ></ImageUploader>

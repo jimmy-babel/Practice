@@ -26,17 +26,17 @@ export async function POST(req: Request) {
     // 根据labelIds数组 更新表 life_styles_to_label life_styles_to_sub_label
     // let [relationsIds, sub_relationsIds] = [labelIds[0],labelIds[1]]
 
-    const relations = relationsIds.map((groupId:number) => ({
+    const relations = relationsIds.map((id:number) => ({
       life_styles_id: id,
-      group_id: groupId
+      label_id: id
     }));
-    const sub_relations = sub_relationsIds.map((groupId:number) => ({
+    const sub_relations = sub_relationsIds.map((id:number) => ({
       life_styles_id: id,
-      sub_label_id: groupId
+      sub_label_id: id
     }));
     console.log('relations',relations);
     console.log('sub_relations',sub_relations);
-    return NextResponse.json({ msg: '新增生活手记时出错' }, { status: 500 }); 
+    // return NextResponse.json({ msg: '新增生活手记时出错' }, { status: 500 }); 
     if(!id || id === 0){
       const { data, error } = await supabase
         .from('life_styles')
@@ -73,6 +73,26 @@ export async function POST(req: Request) {
           );
         }
       }
+      if(photos?.length>0){
+          const photosRelations = photos.map((item:any)=>({
+            // ...item,
+            life_styles_id: newArticle?.id,
+            user_id: user_id,
+            url: item.url,
+            excerpt: item.excerpt || '',
+          }))
+          console.log('photosRelations',photosRelations);
+          const { error: photosError } = await supabase
+            .from('life_styles_photos')
+            .insert(photosRelations);
+          if (photosError) {
+            // 注意：此处生活手记已创建但关联失败，根据业务需求可选择回滚（需额外逻辑）或提示错误
+            return NextResponse.json(
+              { msg: '生活手记新增成功，但图片关联失败', error: photosError },
+              { status: 500 }
+            );
+          }
+      }
 
       return NextResponse.json({ data:newArticle?.id, msg:"生活手记新增成功"}, { status: 200 });
     }else{
@@ -89,18 +109,40 @@ export async function POST(req: Request) {
 
 
       // 先彻底删除该生活手记的所有旧关联（关键：避免新旧关联冲突）
-      const { error: deleteError } = await supabase
+      const { error: labelError } = await supabase
         .from('life_styles_to_label')
         .delete()
         .eq('life_styles_id', id);
 
-      if (deleteError) {
+      if (labelError) {
         return NextResponse.json(
-          { msg: '删除旧分组关联失败', error: deleteError },
+          { msg: '删除旧分组关联失败', error: labelError },
           { status: 500 }
         );
       }
+      const { error: subLabelError } = await supabase
+        .from('life_styles_to_sub_label')
+        .delete()
+        .eq('life_styles_id', id);
 
+      if (subLabelError) {
+        return NextResponse.json(
+          { msg: '删除旧分组关联失败', error: subLabelError },
+          { status: 500 }
+        );
+      }
+      const { error: photosDeleteError } = await supabase
+        .from('life_styles_photos')
+        .delete()
+        .eq('life_styles_id', id);
+      if (photosDeleteError) {
+          return NextResponse.json(
+            { msg: '删除相册失败', error: photosDeleteError },
+            { status: 500 }
+          );
+      }
+
+      // 删完后重新插入
       if(relations.length>0){
          const { error: relationError } = await supabase
           .from('life_styles_to_label')
@@ -127,7 +169,26 @@ export async function POST(req: Request) {
           );
         }
       }
-
+      if(photos?.length>0){
+        const photosRelations = photos.map((item:any)=>({
+          // ...item,
+          life_styles_id: id,
+          user_id: user_id,
+          url: item.url,
+          excerpt: item.excerpt || '',
+        }))
+        
+        const { error: relationError } = await supabase
+        .from('life_styles_photos')
+        .insert(photosRelations);
+        if (relationError) {
+          // 注意：此处生活手记已创建但关联失败，根据业务需求可选择回滚（需额外逻辑）或提示错误
+          return NextResponse.json(
+            { msg: '生活手记新增成功，但图片关联失败', error: relationError },
+            { status: 500 }
+          );
+        }
+      }
       return NextResponse.json({ data:data?.[0]?.id, msg:"生活手记编辑成功" }, { status: 200 });
     }
 
