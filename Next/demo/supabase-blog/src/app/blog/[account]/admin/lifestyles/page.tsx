@@ -43,7 +43,7 @@ export default function LifeStyles({params}:Props){
     {
       title: '封面',
       key: 'id',
-      // render: (row: life_styles) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
+      render: (row: life_styles) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
     },
     {
       title: '标题',

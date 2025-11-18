@@ -7,6 +7,7 @@ import { useJumpAction, useCheckUser } from "@/lib/use-helper/base-mixin";
 import { life_styles } from "@/lib/supabase";
 import ImageUploader from "@/components/ImageUploader";
 import AntdSelect from "@/components/custom-antd/Select";
+import Cascader from "@/components/custom-antd/Cascader"
 import type { Delta } from "quill";
 interface QuillEditorRef {
   // 获取 Delta 格式内容（推荐）
@@ -30,7 +31,7 @@ export default function LifeStylesEdit({ params }: Props) {
   const { account, id } = React.use(params);
   const { jumpAction } = useJumpAction();
   const { checkUser } = useCheckUser({ loginJump: true });
-  const [lifestyles, setArticle] = useState<life_styles>({} as life_styles);
+  const [lifestyles, setLifeStyles] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [message, setMessage] = useState("");
@@ -41,7 +42,7 @@ export default function LifeStylesEdit({ params }: Props) {
   const [QuillEditor, setQuillEditor] =
     useState<React.ComponentType<any> | null>(null);
   const [apiParams, setApiParams] = useState<any>(null);
-  const [filterType, setFilterType] = useState<"lifestyles" | undefined>(
+  const [setType, setSetType] = useState<"lifestyles" | undefined>(
     undefined
   );
   const [selectData, setSelectData] = useState<number[]>([]);
@@ -75,7 +76,7 @@ export default function LifeStylesEdit({ params }: Props) {
     useEffect(()=>{
       if(!userProfile)return
       setApiParams(`?userId=${userProfile?.id}`);
-      setFilterType("lifestyles");
+      setSetType("lifestyles");
       const loadData = async ()=>{
         await getDetail();
       };
@@ -98,8 +99,8 @@ export default function LifeStylesEdit({ params }: Props) {
           setDefaultFileList([
             { uid: data.id, url: data.cover_img, name: `name-${data.id}` },
           ]);
-          setSelectData(data.groupsId?.length > 0 ? data.groupsId : [0]);
-          setArticle(data);
+          // setSelectData(data.groupsId?.length > 0 ? data.groupsId : [0]);
+          setLifeStyles(data);
         }
       } else {
         console.error("获取手记时出错:", result.error);
@@ -130,11 +131,10 @@ export default function LifeStylesEdit({ params }: Props) {
         title,
         excerpt: excerpt || "",
         published,
-        content: htmlContent || "",
-        delta_data: (deltaContent && JSON.stringify(deltaContent)) || "",
         user_id: userProfile?.id,
         cover_img: fileList?.[0]?.url || lifestyles.cover_img || "",
-        groupsId: selectData || [],
+        photos: (fileList?.[0]?.url && fileList) || (lifestyles.cover_img && [lifestyles.cover_img]) || [],
+        labelIds: selectData || [],
       };
       console.log("api: admin/lifestyles-edit", params);
       const response = await fetch(`/api/admin/lifestyles-edit`, {
@@ -195,7 +195,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 id="title"
                 value={lifestyles.title || ""}
                 onChange={(e) =>
-                  setArticle((item) => ({
+                  setLifeStyles((item) => ({
                     ...item,
                     title: e.target.value,
                   }))
@@ -218,7 +218,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 id="excerpt"
                 value={lifestyles.excerpt || ""}
                 onChange={(e) =>
-                  setArticle((item) => ({
+                  setLifeStyles((item) => ({
                     ...item,
                     excerpt: e.target.value,
                   }))
@@ -236,18 +236,15 @@ export default function LifeStylesEdit({ params }: Props) {
               >
                 手记分组
               </label>
-              <AntdSelect
-                extraClass="min-w-30 max-w-[50%]"
-                filterType={filterType}
-                isRowSetAllAuto
+              <Cascader 
                 isApiAuto
-                mode="multiple"
-                apiName="/api/admin/get-lifestyles-groups"
+                setType={setType}
+                apiName="/api/common/get-lifestyles-label"
                 apiMethods="GET"
                 apiParams={apiParams}
                 selectData={selectData}
                 setSelectData={setSelectData}
-              ></AntdSelect>
+              ></Cascader>
             </div>
             {/* 封面 */}
             <div>
@@ -259,6 +256,7 @@ export default function LifeStylesEdit({ params }: Props) {
               </label>
               <ImageUploader
                 limitMax={1}
+                btnText="上传封面"
                 defaultFileList={defaultFileList}
                 onFinish={onFinish}
               ></ImageUploader>
@@ -291,7 +289,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 id="published"
                 checked={lifestyles.published}
                 onChange={(e) =>
-                  setArticle((item) => ({
+                  setLifeStyles((item) => ({
                     ...item,
                     published: e.target.checked,
                   }))

@@ -42,7 +42,10 @@ interface FilterApiResponse {
   data: FilterApiItem[]; // data 是包含任意属性的对象数组
   // 其他可能的字段（如 code、message 等，根据实际接口补充）
 }
-
+interface option {
+  label: string
+  value: number
+}
 const App: React.FC<Props> = (props: Props) => {
   const {
     filterType,
@@ -60,8 +63,7 @@ const App: React.FC<Props> = (props: Props) => {
     optionFilterProp = "label",
     extraClass = "w-full",
   } = props;
-  const [items, setItems] = useState<{ label: string; value: number }[]>([]);
-  const [curVal, setCurVal] = useState<number[]>([]);
+  const [items, setItems] = useState<option[]>([]);
   const [name, setName] = useState("");
   const inputRef = useRef<InputRef>(null);
   const [loading, setLoading] = useState(true); // 新增加载状态
@@ -80,10 +82,7 @@ const App: React.FC<Props> = (props: Props) => {
   };
 
   const loadData = async () => {
-    // let { apiName, apiParams, apiHeader, rowSetAllText, idKey, nameKey } = this;
     if (isApiAuto) {
-      // let apiCache = app.StorageH.get("FILTER_API_CACHE") || {};
-      // const { code, data } = await getFilterApi({ apiName, apiParams, apiHeader, apiCache });
       const res = (await getFilterApi({
         apiName,
         apiParams,
@@ -101,7 +100,7 @@ const App: React.FC<Props> = (props: Props) => {
       // return res?.data||[];
 
       let _list = res.data || [];
-      let list: { label: string; value: number }[];
+      let list:option[];
       list = _list.map((item: FilterApiItem) => ({
         value: item[idKey || "id"] as number,
         label: item[nameKey || "name"] as string,
@@ -114,7 +113,7 @@ const App: React.FC<Props> = (props: Props) => {
       // app.StorageH.set("FILTER_API_CACHE", apiCache);
       return list;
     } else {
-      let list: { value: number; label: string }[] = [];
+      let list:option[] = [];
       list = DefaultFilterData?.[filterType as DefaultFilterKeys]?.list || [];
       // isRowSetAllAuto && selectData&&selectData.length<=0 && setSelectData && setSelectData([0]);
       setLoading(false);

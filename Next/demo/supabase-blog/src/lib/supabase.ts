@@ -8,19 +8,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 // 初始化客户端：使用createBrowserClient，自动处理浏览器Cookie（包括auth-token和refresh-token）
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
-// 类型定义保持不变（无需修改）
-// export interface Post {
-//   id: string
-//   title: string
-//   content: string
-//   excerpt?: string
-//   cover_img?:string,
-//   published: boolean
-//   user_id: string
-//   created_at: string
-//   updated_at: string
-// }
-
 export interface article {
   id: number
   title: string
@@ -73,6 +60,7 @@ export interface life_styles {
   user_id: string
   created_at: string
   updated_at: string
+  photos?: life_styles_photos[]; 
 }
 
 export interface life_styles_photos {

@@ -151,7 +151,7 @@ export default function ArticleEdit({ params }: Props) {
 
   const onFinish = (arr: any) => {
     console.log("外面 onFinish", arr);
-    setFileList(arr);
+    // setFileList(arr);
   };
 
   if (loading) {
@@ -252,6 +252,8 @@ export default function ArticleEdit({ params }: Props) {
               <ImageUploader
                 defaultFileList={defaultFileList}
                 onFinish={onFinish}
+                multiple
+                maxCount={9}
               ></ImageUploader>
             </div>
             {/* 正文 */}

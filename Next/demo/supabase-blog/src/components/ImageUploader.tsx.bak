@@ -1,242 +1,113 @@
-//阻止默认上传逻辑，通过事件上传
-
 'use client';
-import { Upload, Button, message, Image, GetProp, UploadFile, UploadProps } from 'antd';
+import { Upload, Button, message, Image, GetProp, UploadFile, UploadProps} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
-
+import { useEffect, useState } from 'react';
 type Props = {
-  defaultFileList?: Array<UploadFile>;
-  onFinish?: (value: Array<UploadFile>) => void; // 上传完成后回调（供父组件获取结果）
-};
-
+  defaultFileList?:Array<UploadFile>,
+  limitMax?:number,
+  btnText?:string,
+  onFinish?: (value: Array<UploadFile>) => void;
+}
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-// 定义组件向父组件暴露的方法
-interface ImageUploaderRef {
-  uploadPendingFiles: () => Promise<Array<UploadFile>>; // 批量上传暂存文件
-  getFileList: () => Array<UploadFile>; // 获取当前文件列表（含已上传和待上传）
-}
+export default function ImageUploader(props: Props) {
+  const {defaultFileList=[],limitMax=1,onFinish = () => {},} = props;
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [resultList, setResultList] = useState<UploadFile[]>([]);
+  useEffect(()=>{
+    let result:UploadFile[] = defaultFileList.map(item=>({uid:`cover-${item.uid}`,name:`${item.name}`,url:item.url,status:'done',percent:100}));
+    setFileList(result);
+    setResultList(result);
+  },[defaultFileList])
+  const beforeUpload = (file: File) => {
+    console.log('beforeUpload',file);
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) message.error('请上传图片格式文件（JPG/PNG等）');
+    
+    const isLt = file.size / 1024 / 1024 < 3;
+    if (!isLt) message.error('图片大小不能超过3MB');
+    
+    return isImage && isLt; // 校验通过才触发上传
+  };
 
-const ImageUploader = forwardRef<ImageUploaderRef, Props>(
-  ({ defaultFileList = [], onFinish = () => {} }, ref) => {
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState('');
-    // 文件列表：区分“已上传（来自defaultFileList）”和“待上传（新选择）”
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
-    // 暂存待上传的原始文件对象（用于最终上传）
-    const pendingFilesRef = useRef<Map<string, File>>(new Map()); // key: uid, value: File
+  // 上传结果处理
+  const handleChange = (info: any) => {
+    console.log('handleChange',info);
+    setFileList(info.fileList);
+    if (info.file.status === 'done') {
+      onFinish(trimData(info));
+      // message.success(`图片上传成功，URL：${info.file.response.data.url}`);
+      // 这里可保存图片URL到状态/数据库
+    } else if (info.file.status === 'removed') {
+      onFinish(trimData(info));
+    }else if (info.file.status === 'error') {
+      message.error('图片上传失败');
+    }
+  };
 
-    // 初始化默认文件列表（已上传的文件）
-    useEffect(() => {
-      const initializedFiles = defaultFileList.map(item => ({
-        uid: `cover-${item.uid || Date.now()}`,
-        name: item.name || '未知文件',
-        url: item.url,
-        status: 'done' as const,
-        percent: 100,
-      }));
-      setFileList(initializedFiles);
-      onFinish(initializedFiles); // 初始回调
-    }, [defaultFileList, onFinish]);
-
-    // 1. 阻止自动上传，仅暂存文件
-    const beforeUpload = (file: File) => {
-      // 校验文件类型和大小
-      const isImage = file.type.startsWith('image/');
-      if (!isImage) {
-        message.error('请上传图片格式文件（JPG/PNG等）');
-        return false;
-      }
-
-      const isLt3MB = file.size / 1024 / 1024 < 3;
-      if (!isLt3MB) {
-        message.error('图片大小不能超过3MB');
-        return false;
-      }
-
-      // 生成唯一uid（用于标识文件）
-      const uid = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      // 生成本地临时预览URL
-      const previewUrl = URL.createObjectURL(file);
-
-      // 将文件添加到暂存列表（状态中显示为“上传中”占位，但实际未上传）
-      setFileList(prev => [
-        ...prev.filter(f => f.uid !== uid), // 去重
-        {
-          uid,
-          name: file.name,
-          status: 'uploading' as const, // 临时标记为上传中（实际未上传）
-          percent: 0,
-          preview: previewUrl, // 本地预览URL
-          originFileObj: file, // 保存原始文件对象
-        },
-      ]);
-
-      // 存入待上传的原始文件（供最终上传用）
-      pendingFilesRef.current.set(uid, file);
-
-      return false; // 关键：阻止AntD自动上传
-    };
-
-    // 2. 处理文件删除/状态变化
-    const handleChange: UploadProps['onChange'] = ({ file, fileList }) => {
-      // 如果文件被删除，从暂存列表中移除
-      if (file.status === 'removed') {
-        pendingFilesRef.current.delete(file.uid);
-      }
-      // 更新文件列表状态
-      setFileList(fileList);
-      // 实时回调父组件（含待上传文件的临时状态）
-      onFinish(trimData(fileList));
-    };
-
-    // 3. 预览图片
-    const handlePreview = async (file: UploadFile) => {
-      if (!file.url && !file.preview) {
-        // 若没有预览URL，从原始文件生成
-        if (file.originFileObj) {
-          file.preview = await getBase64(file.originFileObj as FileType);
-        }
-      }
-      setPreviewImage(file.url || (file.preview as string));
-      setPreviewOpen(true);
-    };
-
-    // 工具函数：生成base64预览
-    const getBase64 = (file: FileType): Promise<string> =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-      });
-
-    // 4. 批量上传暂存文件（暴露给父组件）
-    const uploadPendingFiles = async (): Promise<Array<UploadFile>> => {
-      const pendingFiles = Array.from(pendingFilesRef.current.entries());
-      if (pendingFiles.length === 0) {
-        // 没有待上传文件，直接返回当前文件列表
-        return fileList;
-      }
-
-      // 批量上传所有暂存文件
-      const uploadPromises = pendingFiles.map(async ([uid, file]) => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`文件 ${file.name} 上传失败`);
-        }
-
-        const result = await response.json();
-        return {
-          uid,
-          name: file.name,
-          url: result.data.url, // 实际上传后的URL
-          status: 'done' as const,
-          percent: 100,
-        };
-      });
-
-      try {
-        // 执行所有上传
-        const uploadedFiles = await Promise.all(uploadPromises);
-        // 更新文件列表：替换待上传文件为已上传状态
-        const updatedFileList = fileList.map(file => {
-          const uploaded = uploadedFiles.find(f => f.uid === file.uid);
-          return uploaded ? uploaded : file;
-        });
-
-        // 更新状态和暂存列表
-        setFileList(updatedFileList);
-        pendingFilesRef.current.clear(); // 清空暂存
-        onFinish(updatedFileList); // 回调父组件，返回最终结果
-        message.success('所有图片上传完成');
-        return updatedFileList;
-      } catch (error) {
-        console.error('批量上传失败：', error);
-        message.error('图片上传失败，请重试');
-        throw error; // 允许父组件捕获错误
-      }
-    };
-
-    // 工具函数：整理文件列表数据（供回调）
-    const trimData = (list: UploadFile[]): Array<UploadFile> => {
-      return list.map(file => ({
-        uid: file.uid,
-        url: file.url || (file.preview as string) || '', // 临时URL或实际URL
-        name: file.name || '',
-        status: file.status,
-        percent: file.percent,
-      }));
-    };
-
-    // 暴露方法给父组件
-    useImperativeHandle(ref, () => ({
-      uploadPendingFiles,
-      getFileList: () => trimData(fileList),
+  const trimData = (info:any)=>{
+    let result = info.fileList.map((file:UploadFile) => ({
+      uid: file.uid,
+      url: file.url||file?.response?.data?.url||"",
+      type: file.type||"",
+      name: file.name,
+      status: file.status,
+      percent: file.percent,
+      // fileType: file?.response?.data?.type||"",
     }));
-
-    // 上传按钮
-    const UploadBtn = (
-      <div>
-        <PlusOutlined />
-        <div className="pt-2">上传封面</div>
-      </div>
-    );
-
-    return (
-      <>
-        <Upload
-          action="/api/upload" // 虽然配置了action，但beforeUpload返回false，不会实际调用
-          method="POST"
-          beforeUpload={beforeUpload} // 核心：阻止自动上传，仅暂存
-          onChange={handleChange}
-          listType="picture-card"
-          fileList={fileList}
-          onPreview={handlePreview}
-          showUploadList={{ showRemoveIcon: true, showPreviewIcon: true }}
-        >
-          {fileList.length >= 1 ? null : UploadBtn}
-        </Upload>
-
-        {/* 预览图片 */}
-        {previewImage && (
-          <Image
-            wrapperStyle={{ display: 'none' }}
-            preview={{
-              visible: previewOpen,
-              onVisibleChange: (visible) => setPreviewOpen(visible),
-              afterOpenChange: (visible) => !visible && setPreviewImage(''),
-            }}
-            src={previewImage}
-          />
-        )}
-      </>
-    );
+    setResultList(result)
+    return result
   }
-);
+  
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as FileType);
+    }
 
-export default ImageUploader;
-
-
-//父组件调用：
-//const uploadRef = useRef<{
-//    uploadPendingFiles: () => Promise<Array<UploadFile>>;
-//    getFileList: () => Array<UploadFile>;
-//}>(null);
-//// 1. 调用Upload组件的批量上传方法
-//await uploadRef.current?.uploadPendingFiles();
-
-//// 2. 获取最终的文件列表（含已上传的URL）
-//const finalFiles = uploadRef.current?.getFileList() || [];
-//if (finalFiles.length === 0) {
-//  message.warning('请至少上传一张图片');
-//  return;
-//}
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+  };
+  
+  const getBase64 = (file: FileType): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+  const UploadBtn = (
+    <div>
+      <PlusOutlined />
+      <div className='pt-2'>{props.btnText || '上传图片'}</div>
+    </div>
+  )
+  return (
+    <>
+      <Upload
+        action="/api/upload" // 指向后端API路由
+        method="POST"
+        beforeUpload={beforeUpload}
+        onChange={handleChange}
+        listType="picture-card"
+        fileList={fileList}
+        onPreview={handlePreview}
+      >
+        {resultList.length>=limitMax ? null : UploadBtn}
+      </Upload>
+      {previewImage && (
+        <Image
+          wrapperStyle={{ display: 'none' }}
+          preview={{
+            visible: previewOpen,
+            onVisibleChange: (visible) => setPreviewOpen(visible),
+            afterOpenChange: (visible) => !visible && setPreviewImage(''),
+          }}
+          src={previewImage}
+        />
+      )}
+    </>
+    
+  );
+}

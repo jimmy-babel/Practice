@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
-
+import dayjs from 'dayjs';
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
@@ -70,10 +70,10 @@ export async function GET(req: Request) {
     if (lifeStylesError) {
       return NextResponse.json({ msg: '获取生活手记时出错', error: lifeStylesError }, { status: 500 });
     }
-
+    const result = lifeStylesData.map(item=>({...item,created_at:dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss'),updated_at:dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss'),}))
     return NextResponse.json(
       {
-        data: lifeStylesData || [],
+        data: result || [],
         count: count || 0 // 使用 select 返回的精确 count
       },
       { status: 200 }

@@ -21,6 +21,7 @@
     "@tiptap/starter-kit": "^3.8.0",
     "antd": "^5.27.4",
     "cloudinary": "^2.8.0",
+    "dayjs": "^1.11.19",
     "next": "15.3.4",
     "next-cloudinary": "^6.17.4",
     "quill": "^2.0.3",

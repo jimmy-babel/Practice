@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
+import dayjs from 'dayjs';
 
 export async function GET(req: Request) {
   try {
@@ -68,15 +69,16 @@ export async function GET(req: Request) {
     }
 
     // 提取纯文章数据（过滤关联表的冗余字段）
-    const pureArticles = articlesData?.map((article:any) => {
+    const result = articlesData?.map((article:any) => {
       // 删除关联表的嵌套字段，只保留文章本身的字段
       const { article_groups_relation, ...rest } = article;
-      return rest;
+      return {...rest,created_at:dayjs(rest.created_at).format('YYYY-MM-DD HH:mm:ss'),updated_at:dayjs(rest.updated_at).format('YYYY-MM-DD HH:mm:ss'),};
     }) || [];
+    
     
     return NextResponse.json(
       {
-        data: pureArticles || [],
+        data: result || [],
         bloggerData: { avatar_url, full_name, username },
         count: count || 0 // 使用 select 返回的精确 count
       },
