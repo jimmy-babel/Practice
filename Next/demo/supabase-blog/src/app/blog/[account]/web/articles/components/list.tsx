@@ -69,7 +69,7 @@ const List = (props: Props) => {
   const {listData} = props;
   const {jumpAction} = useJumpAction();
   return (
-    <div className='w-full'>
+    <div className='w-full anim-op-y'>
       {listData.map(item =>(
         <div onClick={()=>jumpAction(`web/articles/${item.id}`)} key={item.id} className='pt-7 pb-7 anim-hover-x cursor-pointer anim-hover-a border-b border-b-[rgba(127,127,127,0.1)]'>
           <div className='text-xl font-bold'>{item.title}</div>

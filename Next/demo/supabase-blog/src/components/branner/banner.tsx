@@ -13,8 +13,8 @@ const Banner = (props: Props) => {
           <div className='pl-12 pt-3 text-gray-400'>在坚持不下去的时候，坚持下去</div>
         </div>
         <div className='flex-1 h-[inherit] flex-col flex justify-center pl-10 pr-20'>
-          <Card className={`w-full overflow-hidden shadow-gray-400 border-gray-400`} variant="borderless" style={{borderRadius:'24px',backgroundColor:"#000",cursor:"unset"}} hoverable={true}>
-            <div className='anim-op-y h-[230px] p-8 text-white' style={{background:"linear-gradient(45deg,#2a292c,#19191b)"}}>
+          <Card className={`w-full anim-op-y overflow-hidden shadow-gray-400 border-gray-400`} variant="borderless" style={{borderRadius:'24px',backgroundColor:"#000",cursor:"unset"}} hoverable={true}>
+            <div className='h-[230px] p-8 text-white' style={{background:"linear-gradient(45deg,#2a292c,#19191b)"}}>
               <div className='flex items-center '>
                 <Avatar size={50} shape="square"></Avatar>
                 <div className='pl-4'>
