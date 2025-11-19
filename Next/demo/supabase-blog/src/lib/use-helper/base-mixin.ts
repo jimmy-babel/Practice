@@ -19,7 +19,10 @@ export function useJumpAction(){
       router.push(`${url}`);
     }
   }
-  return {jumpAction}
+  const backAction = ()=>{
+    router.back();
+  }
+  return {jumpAction,backAction}
 }
 
 export function useCheckUser({loginJump}:{loginJump:Boolean}){

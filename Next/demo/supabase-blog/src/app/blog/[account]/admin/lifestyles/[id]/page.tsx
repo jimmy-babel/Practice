@@ -3,22 +3,10 @@ import { useRef, useState, useEffect } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Button,UploadFile } from "antd";
-import { useJumpAction, useCheckUser } from "@/lib/use-helper/base-mixin";
+import { useJumpAction,useCheckUser } from "@/lib/use-helper/base-mixin";
 import { life_styles } from "@/lib/supabase";
 import ImageUploader from "@/components/ImageUploader";
-import AntdSelect from "@/components/custom-antd/Select";
 import Cascader from "@/components/custom-antd/Cascader"
-import type { Delta } from "quill";
-interface QuillEditorRef {
-  // 获取 Delta 格式内容（推荐）
-  getDeltaContent: () => Delta | null;
-  // 获取 HTML 格式内容
-  getHtmlContent: () => string | null;
-  // 获取纯文本内容
-  getTextContent: () => string | null;
-
-  tempUrlsUpload: () => any;
-}
 interface listItem {
   uid: string;
   name: string;
@@ -29,24 +17,17 @@ type Props = {
 };
 interface ImageUploaderRef {
   uploadPendingFiles: () => Promise<Array<UploadFile>>;
-  getFileList: () => Array<UploadFile>;
-  clearFiles: () => void;
 }
 export default function LifeStylesEdit({ params }: Props) {
   const { account, id } = React.use(params);
-  const { jumpAction } = useJumpAction();
+  const { jumpAction,backAction } = useJumpAction();
   const { checkUser } = useCheckUser({ loginJump: true });
   const [lifestyles, setLifeStyles] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [message, setMessage] = useState("");
-  const router = useRouter();
-  const editorRef = useRef<QuillEditorRef>(null);
-  const [fileList, setFileList] = useState<listItem[]>([]);
   const [defaultFileList, setDefaultFileList] = useState<listItem[]>([]);
   const [defaultPhotosList, setDefaultPhotosList] = useState<listItem[]>([]);
-  const [QuillEditor, setQuillEditor] =
-    useState<React.ComponentType<any> | null>(null);
   const [apiParams, setApiParams] = useState<any>(null);
   const [setType, setSetType] = useState<"lifestyles" | undefined>(
     undefined
@@ -56,11 +37,6 @@ export default function LifeStylesEdit({ params }: Props) {
   const uploadPhotosRef = useRef<ImageUploaderRef>(null);
 
   console.log("PAGE ADMIN LifeStylesEdit", lifestyles);
-
-  const loadQuillEditor = async () => {
-    const module = await import("@/components/Quill");
-    setQuillEditor(module.default); // 假设组件默认导出
-  };
 
    useEffect(() => {
       let mounted = true
@@ -104,11 +80,11 @@ export default function LifeStylesEdit({ params }: Props) {
       if (response.ok) {
         let data = result.data;
         if (data) {
-          setDefaultFileList([
+          data.cover_img && setDefaultFileList([
             { uid: data.id, url: data.cover_img, name: `name-${data.id}` },
           ]);
-          setDefaultPhotosList(data.photos?.map((item:any)=>({uid: `uid-${item.id}`, url: item.url, name: `name-${item.id}`}))||[]);
-          // setSelectData(data.groupsId?.length > 0 ? data.groupsId : [0]);
+          data.photos?.length>0 && setDefaultPhotosList(data.photos?.map((item:any)=>({uid: `${item.id}`, url: item.url, name: `name-${item.id}`}))||[]);
+          data.labelIds?.length > 0 && setSelectData(data.labelIds);
           setLifeStyles(data);
         }
       } else {
@@ -125,16 +101,8 @@ export default function LifeStylesEdit({ params }: Props) {
   // 提交手记
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await editorRef.current?.tempUrlsUpload();
-    const deltaContent = editorRef.current?.getDeltaContent();
-    const htmlContent = editorRef.current?.getHtmlContent();
-
-    console.log("deltaContent", deltaContent);
-    console.log("handleSubmit", htmlContent);
-
     const uploadCover = await uploadCoverRef.current?.uploadPendingFiles();
     const uploadPhotos = await uploadPhotosRef.current?.uploadPendingFiles();
-    
     console.log("uploadCover", uploadCover);
     console.log("uploadPhotos", uploadPhotos);
     if (!userProfile?.isLogin) return;
@@ -170,11 +138,6 @@ export default function LifeStylesEdit({ params }: Props) {
     } catch (error) {
       setMessage(`发布失败: ${error}`);
     }
-  };
-
-  const onFinish = (arr: any) => {
-    console.log("外面 onFinish", arr);
-    setFileList(arr);
   };
 
   if (loading) {
@@ -270,10 +233,9 @@ export default function LifeStylesEdit({ params }: Props) {
                 手记封面
               </label>
               <ImageUploader
-                // btnText="上传封面"
+                uploadBtnText="上传封面"
                 defaultFileList={defaultFileList}
                 ref={uploadCoverRef}
-                // onFinish={onFinish}
               ></ImageUploader>
             </div>
             {/* 正文 */}
@@ -286,17 +248,10 @@ export default function LifeStylesEdit({ params }: Props) {
               </label>
               <ImageUploader
                 multiple
-                maxCount={9}
+                maxCount={50}
                 defaultFileList={defaultPhotosList}
                 ref={uploadPhotosRef}
-                // // onFinish={onFinish}
               ></ImageUploader>
-              {/* {QuillEditor ? (
-                <QuillEditor
-                  ref={editorRef}
-                  initialContent={lifestyles?.delta_data || ""}
-                ></QuillEditor>
-              ) : null} */}
             </div>
 
             {/* 发布选项 */}
@@ -338,7 +293,7 @@ export default function LifeStylesEdit({ params }: Props) {
             <div className="flex justify-end">
               <Button
                 size="middle"
-                onClick={() => router.back()}
+                onClick={() => backAction()}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 取消

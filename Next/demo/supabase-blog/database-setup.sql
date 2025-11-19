@@ -73,15 +73,15 @@ CREATE TABLE life_styles (
 --生活手记图片表
 CREATE TABLE life_styles_photos (
   id INT generated always as identity primary key,
-  life_styles_id INT references life_styles(id) ON DELETE CASCADE,
   url TEXT NOT NULL,
+  life_styles_id INT references life_styles(id) ON DELETE CASCADE,
   excerpt TEXT NOT NULL DEFAULT '',
   sort INT default 0,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   created_at TIMESTAMP default NOW()
 )
 
---生活手记标签表
+--生活手记<标签>表
 CREATE TABLE life_styles_label (
   id INT generated always as identity primary key,
   name TEXT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE life_styles_label (
   userId UUID REFERENCES auth.users(id) ON DELETE CASCADE
 )
 
---生活手记子标签表
+--生活手记<子标签>表
 CREATE TABLE life_styles_sub_label (
   id INT generated always as identity primary key,
   name TEXT NOT NULL,
@@ -97,14 +97,14 @@ CREATE TABLE life_styles_sub_label (
   userId UUID REFERENCES auth.users(id) ON DELETE CASCADE
 )
 
---生活手记标签关系表
+--生活手记<标签与子标签>的关系表
 CREATE TABLE life_styles_label_relation (
   label_id INT REFERENCES life_styles_label(id) ON DELETE CASCADE,
   sub_label_id INT REFERENCES life_styles_sub_label(id) ON DELETE CASCADE,
   PRIMARY KEY (label_id, sub_label_id)
 )
 
---(生活手记与标签的关联表)
+--(<生活手记与标签>的关联表)
 CREATE TABLE life_styles_to_label (
   life_styles_id INT REFERENCES life_styles(id) ON DELETE CASCADE, -- 关联生活手记ID（删手记时自动删关联）
   label_id INT REFERENCES life_styles_label(id) ON DELETE CASCADE, -- 关联标签ID（删标签时自动删关联）
@@ -115,7 +115,7 @@ CREATE INDEX idx_life_styles_to_label_life_styles_id ON life_styles_to_label(lif
 CREATE INDEX idx_life_styles_to_label_label_id ON life_styles_to_label(label_id);
 
 
---(生活手记与子标签的关联表)
+--(<生活手记与子标签>的关联表)
 CREATE TABLE life_styles_to_sub_label (
   life_styles_id INT REFERENCES life_styles(id) ON DELETE CASCADE, -- 关联生活手记ID
   sub_label_id INT REFERENCES life_styles_sub_label(id) ON DELETE CASCADE, -- 关联子标签ID

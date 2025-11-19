@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --background: #ffffff;
+  --foreground: #171717; */
+  
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -23,4 +26,62 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.anim-op-hide{
+  opacity: 1;
+  animation: animOpHide 0.3s;
+}
+@keyframes animOpHide{
+  0%{
+    opacity: 1;
+  }
+  100%{
+    opacity: 0;
+  }
+}
+.anim-op-show{
+  opacity: 0;
+  animation: animOpShow 0.3s linear 0.3s forwards;
+}
+@keyframes animOpShow{
+  0%{
+    opacity: 0;
+  }
+  100%{
+    opacity: 1;
+  }
+}
+.anim-hover-scale{
+  transform: scale(1);
+  transition: all 0.3s;
+}
+.anim-hover-scale:hover{
+  transform: scale(1.1);
+}
+.anim-hover-x{
+  transform: translateX(0);
+  transition: all 0.3s;
+}
+.anim-hover-x:hover{
+  transform: translateX(10px);
+}
+.anim-hover-a:hover{
+  color: rgba(96, 165, 259, 1);
+  transition: all 0.3s;
+}
+.anim-op-y{
+  opacity: 0;
+  transform: translateY(10px);
+  animation: animOpY 0.3s ease-out 0.3s forwards;
+}
+@keyframes animOpY{
+  0%{
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100%{
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

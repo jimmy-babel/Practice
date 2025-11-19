@@ -2,12 +2,15 @@
 import { useRef, useState, useEffect } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "antd";
+import { Button,UploadFile } from "antd";
 import { useJumpAction, useCheckUser } from "@/lib/use-helper/base-mixin";
 import { article } from "@/lib/supabase";
 import ImageUploader from "@/components/ImageUploader";
 import AntdSelect from "@/components/custom-antd/Select";
 import type { Delta } from "quill";
+interface ImageUploaderRef {
+  uploadPendingFiles: () => Promise<Array<UploadFile>>;
+}
 interface QuillEditorRef {
   // 获取 Delta 格式内容（推荐）
   getDeltaContent: () => Delta | null;
@@ -45,6 +48,7 @@ export default function ArticleEdit({ params }: Props) {
     undefined
   );
   const [selectData, setSelectData] = useState<number[]>([]);
+  const uploadCoverRef = useRef<ImageUploaderRef>(null);
 
   console.log("PAGE ADMIN ArticleDetail", article);
 
@@ -90,7 +94,7 @@ export default function ArticleEdit({ params }: Props) {
       if (response.ok) {
         let data = result.data;
         if (data) {
-          setDefaultFileList([
+          data.cover_img && setDefaultFileList([
             { uid: data.id, url: data.cover_img, name: `name-${data.id}` },
           ]);
           setSelectData(data.groupsId?.length > 0 ? data.groupsId : [0]);
@@ -110,9 +114,10 @@ export default function ArticleEdit({ params }: Props) {
     await editorRef.current?.tempUrlsUpload();
     const deltaContent = editorRef.current?.getDeltaContent();
     const htmlContent = editorRef.current?.getHtmlContent();
+    const uploadCover = await uploadCoverRef.current?.uploadPendingFiles();
+    console.log("uploadCover", uploadCover);
     console.log("deltaContent", deltaContent);
     console.log("handleSubmit", htmlContent);
-    e.preventDefault();
     if (!userProfile?.isLogin) return;
     setMessage("");
     try {
@@ -125,7 +130,7 @@ export default function ArticleEdit({ params }: Props) {
         content: htmlContent || "",
         delta_data: (deltaContent && JSON.stringify(deltaContent)) || "",
         user_id: userProfile?.id,
-        cover_img: fileList?.[0]?.url || article.cover_img || "",
+        cover_img: uploadCover?.[0]?.url || article.cover_img || "",
         groupsId: selectData || [],
       };
       console.log("api: admin/article-edit", params);
@@ -250,10 +255,9 @@ export default function ArticleEdit({ params }: Props) {
                 文章封面
               </label>
               <ImageUploader
+                uploadBtnText="上传封面"
                 defaultFileList={defaultFileList}
-                // onFinish={onFinish}
-                multiple
-                maxCount={9}
+                ref={uploadCoverRef}
               ></ImageUploader>
             </div>
             {/* 正文 */}

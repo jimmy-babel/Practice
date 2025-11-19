@@ -8,14 +8,15 @@ type Props = {
   // onFinish?: (value: Array<UploadFile>) => void;
   multiple?: boolean; // 新增：是否允许多选，默认false（单选）
   maxCount?: number; // 新增：最大文件数量限制，默认无限制
+  uploadBtnText?:string
 };
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 interface ImageUploaderRef {
   uploadPendingFiles: () => Promise<Array<UploadFile>>;
-  getFileList: () => Array<UploadFile>;
-  clearFiles: () => void; // 新增：清空文件列表方法
+  // getFileList: () => Array<UploadFile>;
+  // clearFiles: () => void; // 新增：清空文件列表方法
 }
 
 const ImageUploader = forwardRef<ImageUploaderRef, Props>(
@@ -23,7 +24,8 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     defaultFileList = [], 
     // onFinish = () => {}, 
     multiple = false, 
-    maxCount = 1
+    maxCount = 1,
+    uploadBtnText = "上传图片"
   }, ref) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
@@ -33,7 +35,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     // 初始化默认文件列表
     useEffect(() => {
       const initializedFiles = defaultFileList.map(item => ({
-        uid: `uid-${item.uid || Date.now()}`,
+        uid: `${item.uid || Date.now()}`,
         name: item.name || '未知文件',
         url: item.url,
         status: 'done' as const,
@@ -303,29 +305,28 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
       }
     };
 
-    // 清空文件列表
-    const clearFiles = () => {
-      setFileList([]);
-      pendingFilesRef.current.clear();
-      // onFinish([]);
-    };
+    // // 清空文件列表
+    // const clearFiles = () => {
+    //   setFileList([]);
+    //   pendingFilesRef.current.clear();
+    // };
 
     // 整理文件列表数据
-    const trimData = (list: UploadFile[]): Array<UploadFile> => {
-      return list.map(file => ({
-        uid: file.uid,
-        url: file.url || (file.preview as string) || '',
-        name: file.name || '',
-        status: file.status,
-        percent: file.percent,
-      }));
-    };
+    // const trimData = (list: UploadFile[]): Array<UploadFile> => {
+    //   return list.map(file => ({
+    //     uid: file.uid,
+    //     url: file.url || (file.preview as string) || '',
+    //     name: file.name || '',
+    //     status: file.status,
+    //     percent: file.percent,
+    //   }));
+    // };
 
     // 暴露方法给父组件
     useImperativeHandle(ref, () => ({
       uploadPendingFiles,
-      getFileList: () => trimData(fileList),
-      clearFiles,
+      // getFileList: () => trimData(fileList),
+      // clearFiles,
     }));
 
     // 上传按钮显示逻辑：单选且有文件时隐藏，多选/未达上限时显示
@@ -334,7 +335,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
     const UploadBtn = (
       <div>
         <PlusOutlined />
-        <div className="pt-2">{multiple ? '上传图片' : '上传封面'}</div>
+        <div className="pt-2">{uploadBtnText}</div>
       </div>
     );
 

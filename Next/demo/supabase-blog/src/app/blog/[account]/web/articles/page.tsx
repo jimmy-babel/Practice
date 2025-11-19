@@ -73,8 +73,8 @@ export default function Articles({params}:Props){
     )
   }
   return (
-    <div className="list-box pt-5">
-          <List listData={articles} bloggerData={userProfile}></List>
+    <div className="list-box w-[60%] m-auto">
+        <List listData={articles}></List>
     </div>
   )
 

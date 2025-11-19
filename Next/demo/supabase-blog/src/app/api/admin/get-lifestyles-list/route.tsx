@@ -65,7 +65,8 @@ export async function GET(req: Request) {
     query = supabase
       .from('life_styles')
       .select('*', { count: 'exact' })
-      .ilike('title', `%${search || ''}%`);
+      .ilike('title', `%${search || ''}%`)
+      .order('created_at', { ascending: false })
     const { data: lifeStylesData, error: lifeStylesError, count } = await query;
     if (lifeStylesError) {
       return NextResponse.json({ msg: '获取生活手记时出错', error: lifeStylesError }, { status: 500 });

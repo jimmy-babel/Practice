@@ -30,6 +30,7 @@ type Props = {
   searchValue?: string;
   selectData?: number[];
   setSelectData?: (data: number[]) => void;
+  changeOnSelect?:boolean
 }
 const App: React.FC<Props> = (props:Props) => {
   const {
@@ -45,6 +46,7 @@ const App: React.FC<Props> = (props:Props) => {
     searchValue,
     selectData,
     setSelectData,
+    changeOnSelect,
   } = props;
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true); // 新增加载状态
@@ -128,7 +130,7 @@ const App: React.FC<Props> = (props:Props) => {
   };
 
   return (
-    <Cascader value={selectData} options={options} onChange={onChange} />
+    <Cascader value={loading?[]:selectData} options={options} onChange={onChange} changeOnSelect={changeOnSelect} />
   );
 }
 

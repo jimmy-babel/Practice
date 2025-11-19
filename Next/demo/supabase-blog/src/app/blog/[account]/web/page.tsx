@@ -5,7 +5,7 @@ import { supabase, article } from '@/lib/supabase'
 import Profile from "@/components/profile";
 import List from "@/app/blog/[account]/web/articles/components/list";
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
-
+import Banner from "@/components/branner/banner";
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
@@ -112,14 +112,15 @@ export default function Blog({ params }: Props) {
 
   
   return (
-    <div className='content-box pt-5'>
+    <div className='content-box'>
       <div className='flex justify-between flex-wrap'>
-        <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
+        {/* <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
           <Profile></Profile>
         </div>
         <div className='blog-list-box flex-1'>
           <List listData={articles} bloggerData={userProfile}></List>
-        </div>
+        </div> */}
+        <Banner></Banner>
       </div>
     </div>
   )

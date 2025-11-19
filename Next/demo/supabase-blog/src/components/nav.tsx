@@ -2,7 +2,9 @@
 import React, { useState,useEffect, useRef } from "react";
 import { useParams, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import {useJumpAction} from "@/lib/use-helper/base-mixin"
+import {useJumpAction} from "@/lib/use-helper/base-mixin";
+import Avatar from "@/components/custom-antd/Avatar";
+import './nav.css';
 type NavItem = { name: string; url?: string; type?: string };
 type Props = {
   isPlace?:boolean,
@@ -12,21 +14,11 @@ type Props = {
 const Nav = ({navList,isPlace,account}: Props) => {
   // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
-  // const [navList,setNavList] = useState<Array<{name:string,url?:string,type?:string}>>([
-  //   { name: "首页", url: `web` },
-  //   { name: "博客记录", url: `web/articles` },
-  //   { name: "生活定格", url: `web/life` },
-  //   { name: "音画手记", url: `web/muvie` },
-  //   { name: "问AI", url: `web/askai` },
-  //   { name: "留言", url: `web/message` },
-  //   { name: "登录", url: `/blog/auth`,type:"from" },
-  //   { name: "后台管理", url: `admin` },
-  // ]);
-  const params = useParams(); //监听params变化
-  const pathname = usePathname(); //监听路由变化
+  // const params = useParams(); //监听params变化
+  // const pathname = usePathname(); //监听路由变化
   const showBgRef = useRef(showBg);
-  const [curAccount,setCurAccount] = useState<string>('');
-  const [userProfile, setUserProfile] = useState<any>(null);
+  // const [curAccount,setCurAccount] = useState<string>('');
+  // const [userProfile, setUserProfile] = useState<any>(null);
   const [place,setPlace] = useState<boolean|undefined>(isPlace);
   const {jumpAction} = useJumpAction();
   // 给scroll闭包函数使用showBgRef.current
@@ -36,53 +28,53 @@ const Nav = ({navList,isPlace,account}: Props) => {
 
   
   // 检查用户登录状态
-  const checkUser = async () => {
-    try {
-      console.log('checkUser');
-      console.log('supabase.auth.getUser');
-      const { data } = await supabase.auth.getUser()
-      let user = data?.user;
-      console.log('supabase.auth.getUser then',user,data);
-      if (user) {
-        console.log('已登录',user);
-        console.log('supabase select from profiles');
-        // 获取用户配置信息
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        console.log('supabase select from profiles then',profile,error);
-        setUserProfile(profile)
-      } else {
-        console.log('未登录',data);
-        setUserProfile(null)
-      }
-    } catch (error) {
-      console.error('检查用户状态时出错:', error)
-      setUserProfile(null)
-    }
-  }
+  // const checkUser = async () => {
+  //   try {
+  //     console.log('checkUser');
+  //     console.log('supabase.auth.getUser');
+  //     const { data } = await supabase.auth.getUser()
+  //     let user = data?.user;
+  //     console.log('supabase.auth.getUser then',user,data);
+  //     if (user) {
+  //       console.log('已登录',user);
+  //       console.log('supabase select from profiles');
+  //       // 获取用户配置信息
+  //       const { data: profile, error } = await supabase
+  //         .from('profiles')
+  //         .select('*')
+  //         .eq('id', user.id)
+  //         .single()
+  //       console.log('supabase select from profiles then',profile,error);
+  //       // setUserProfile(profile)
+  //     } else {
+  //       console.log('未登录',data);
+  //       // setUserProfile(null)
+  //     }
+  //   } catch (error) {
+  //     console.error('检查用户状态时出错:', error)
+  //     // setUserProfile(null)
+  //   }
+  // }
   
-  useEffect(() => {
-    // params.account转换string
-    const processedParamsAccount = Array.isArray(params.account) 
-      ? params.account[0] 
-      : params.account;
-    const _curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
-    if(_curAccount){
-      setCurAccount(_curAccount);
-      checkUser();
-    }
-  },[params.account,account])
+  // useEffect(() => {
+  //   // params.account转换string
+  //   const processedParamsAccount = Array.isArray(params.account) 
+  //     ? params.account[0] 
+  //     : params.account;
+  //   const _curAccount = processedParamsAccount || account || localStorage.getItem('account') || "";
+  //   if(_curAccount){
+  //     setCurAccount(_curAccount);
+  //     checkUser();
+  //   }
+  // },[params.account,account])
 
   useEffect(() => {
     const handleScroll = () => {
       const currentShowBg = showBgRef.current;
-      if (window.scrollY > 60) {
-        !currentShowBg && setShowBg(true); //这里如果用showBg,会因为闭包的问题导致showBg一直不变  //总滑动超60像素时，backdrop背景
+      if (window.scrollY > 75) {
+        !currentShowBg && setShowBg(true); //这里如果用showBg,会因为闭包的问题导致showBg一直不变  //总滑动超75像素时，backdrop背景
       } else {
-        currentShowBg && setShowBg(false); //这里如果用showBg,会因为闭包的问题导致showBg一直不变  // 总滑动小于60像素时，去掉backdrop效果
+        currentShowBg && setShowBg(false); //这里如果用showBg,会因为闭包的问题导致showBg一直不变  // 总滑动小于75像素时，去掉backdrop效果
       }
     };
 
@@ -93,32 +85,33 @@ const Nav = ({navList,isPlace,account}: Props) => {
     };
   }, [showBg]);
 
-  useEffect(()=>{
-    console.log('进来 nav useEffect',place,isPlace);
-    if(pathname?.indexOf('/admin')>-1){
-      setPlace(true);
-    }else{
-      setPlace(isPlace);
-    }
-  },[pathname])
+  // useEffect(()=>{
+  //   console.log('进来 nav useEffect',place,isPlace);
+  //   if(pathname?.indexOf('/admin')>-1){
+  //     setPlace(true);
+  //   }else{
+  //     setPlace(isPlace);
+  //   }
+  // },[pathname])
   return (
     <>
-      <div className={`nav-box fixed z-[10] left-0 top-0 w-full pl-5 pr-5  ${showBg?'text-black text-shadow-[0px_0px_6px_rgba(255,255,255,1)]':'text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]'}`}>
-        <div className="flex justify-between items-center relative h-[60px] w-full z-[2]">
-          {curAccount.toUpperCase()?<div>
+      <div className={`nav-box sticky z-[10] left-0 top-0 w-full h-[75px] text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]`}>
+        <div className="anim-op-y flex justify-between items-center relative h-full w-full pl-5 pr-5 z-[2]">
+          <Avatar></Avatar>
+          {/* {curAccount.toUpperCase()?<div>
             {userProfile?.full_name.toUpperCase() != curAccount.toUpperCase() ? <div>WELCOME {curAccount.toUpperCase()} BLOG</div> : <div>Hello,{userProfile.full_name}</div>}
-          </div>:null}
-          <div className="flex-1 flex items-center justify-end">
-            {navList.map((item, index) => (
+          </div>:null} */}
+          <div className="flex-1 flex items-center justify-center">
+            {navList?.map((item, index) => (
               <div key={index} className="px-2 flex items-center">
-                <div className="cursor-pointer" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
+                <div className="cursor-pointer anim-hover-scale" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
               </div>
             ))}
           </div>
         </div>
-        <div className={`absolute z-[1] left-0 top-0 w-full h-full transition-all duration-300 ${showBg?'backdrop-blur-2xl':''}`}></div>
+        <div className={`absolute z-[1] filter-box left-0 top-0 w-full h-full transition-all duration-300`} style={{backdropFilter:'blur(10px) saturate(180%)',backgroundColor:'rgba(18, 18, 18,0.3)'}}></div>
       </div>
-      {place && <div className="place-box w-full h-[60px]"></div>}
+      {/* {place && <div className="place-box w-full h-[75px]"></div>} */}
     </>
   );
 };
