@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  /* --background: #ffffff;
-  --foreground: #171717; */
+  --background: #ffffff;
+  --foreground: #171717;
   
+}
+
+html.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
 }
@@ -58,6 +61,13 @@ body {
 }
 .anim-hover-scale:hover{
   transform: scale(1.1);
+}
+.anim-hover-scale-sm{
+  transform: scale(1);
+  transition: all 0.3s;
+}
+.anim-hover-scale-sm:hover{
+  transform: scale(1.03);
 }
 .anim-hover-x{
   transform: translateX(0);

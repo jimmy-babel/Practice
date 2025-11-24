@@ -3,7 +3,9 @@ import React from 'react';
 import { useEffect, useState } from 'react'
 import {article} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
-
+import {UserOutlined,CalendarOutlined,EyeOutlined} from '@ant-design/icons';
+import RichTextRenderer from "@/components/richTextRenderer/richTextRenderer";
+import "./page.css";
 type Props = {
   params: Promise<{ account: string,id:Number }>; //动态路由 [account] 对应的参数
 }
@@ -72,8 +74,33 @@ export default function Article({params}:Props){
     )
   }
   return (
-    <div className="list-box pt-5">
-      详情:{article.title}
+    <div className="article-detial-container pt-20 w-full">
+      <div className='container flex w-full max-w-[1100px] m-auto'>
+        {/* <div className='nav-box'></div> */}
+        <div className='article-container flex-1'>
+          <div className='title-box w-full'>
+            <div className='title text-3xl font-bold text-center'>{article.title}</div>
+            <div className='blogger-msg-box text-gray-400 gap-4 flex justify-center items-center'>
+              <div className='flex items-center gap-2 leading-15 pb-5'>
+                <UserOutlined />
+                <div>{'JIMMY'}</div>
+              </div>
+              <div className='flex items-center gap-2 leading-15 pb-5'>
+                <CalendarOutlined />
+                <div>{article.created_at}</div>
+              </div>
+              <div className='flex items-center gap-2 leading-15 pb-5'>
+                <EyeOutlined />
+                <div>{'1'} views</div>
+              </div>
+            </div>
+          </div>
+          <div className='content-box w-full pl-12 pr-12'>
+            {/* {article.content||""} */}
+            <RichTextRenderer htmlContent={article.content||""}></RichTextRenderer>
+          </div>
+        </div>
+      </div>
     </div>
   )
 

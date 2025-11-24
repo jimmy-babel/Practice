@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect } from "react";
+// import { ThemeProvider } from 'next-themes'
 
 // 定义Context类型
 type AccountContextType = {
@@ -39,6 +40,14 @@ export function AccountProvider({
   }, [account]);
 
   return (
+    //   <ThemeProvider
+    //     attribute="class" // 推荐用 class 控制样式（适配 CSS/Tailwind）
+    //     defaultTheme="dark" // 默认主题：system（跟随系统）/ light / dark
+    //     storageKey="my-blog-theme" // 本地存储键名（默认是 "theme"，可选）
+    //     enableSystem={true} // 是否启用系统主题检测（默认 true）
+    //     disableTransitionOnChange={false} // 切换主题时是否禁用过渡动画（默认 false）
+    //   >
+    // </ThemeProvider>
     <AccountContext.Provider value={{ account }}>
       {children}
     </AccountContext.Provider>

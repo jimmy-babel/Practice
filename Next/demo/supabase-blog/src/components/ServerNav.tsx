@@ -5,7 +5,7 @@ import ClientNav from '@/components/nav';
 const staticNavList = [
   { name: "首页", url: `web` },
   { name: "文章", url: `web/articles` },
-  { name: "生活手记", url: `web/life` },
+  { name: "生活手记", url: `web/lifestyles` },
   // { name: "音画手记", url: `web/muvie` },
   // { name: "问AI", url: `web/askai` },
   // { name: "留言", url: `web/message` },

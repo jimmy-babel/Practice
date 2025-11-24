@@ -1,10 +1,10 @@
-'use client'; // 客户端标识，处理Antd的客户端渲染逻辑
+//AntdClientWrapper.tsx
+"use client"; // 客户端标识，处理Antd的客户端渲染逻辑
 
-import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { ConfigProvider } from 'antd';
-import '@ant-design/v5-patch-for-react-19';
-import React from 'react';
-
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { ConfigProvider } from "antd";
+import "@ant-design/v5-patch-for-react-19";
+import React from "react";
 // 主题配置（可在服务端定义后传递，这里简化直接写在客户端）
 const customTheme = {
   token: {
@@ -29,7 +29,9 @@ type Props = {
 export default function AntdClientWrapper({ children }: Props) {
   return (
     <AntdRegistry>
-      <ConfigProvider theme={customTheme}>{children}</ConfigProvider>
+      <ConfigProvider theme={customTheme}>
+          {children}
+      </ConfigProvider>
     </AntdRegistry>
   );
 }
