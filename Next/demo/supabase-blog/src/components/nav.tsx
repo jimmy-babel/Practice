@@ -122,7 +122,8 @@ const Nav = ({navList,isPlace,account}: Props) => {
   // },[pathname])
   return (
     <>
-      <div className={`nav-box sticky z-[10] left-0 top-0 w-full h-[75px] text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]`}>
+      {/* <div className={`nav-box sticky z-[10] left-0 top-0 w-full h-[75px] text-white text-shadow-[0px_0px_6px_rgba(0,0,0,1)]`}> */}
+      <div className={`nav-box sticky z-[10] left-0 top-0 w-full h-[75px]`}>
         <div className="anim-op-y flex justify-between items-center relative h-full w-full pl-5 pr-5 z-[2]">
           <Avatar size={40}></Avatar>
           {/* {curAccount.toUpperCase()?<div>
@@ -142,7 +143,8 @@ const Nav = ({navList,isPlace,account}: Props) => {
             </div>
           </div>
         </div>
-        <div className={`absolute z-[1] filter-box left-0 top-0 w-full h-full transition-all duration-300`} style={{backdropFilter:'blur(10px) saturate(180%)',backgroundColor:'rgba(18, 18, 18,0.3)'}}></div>
+        <div className={`absolute z-[1] filter-box left-0 top-0 w-full h-full transition-all duration-300`} style={{backdropFilter:'blur(10px) saturate(180%)'}}></div>
+        {/* <div className={`absolute z-[1] filter-box left-0 top-0 w-full h-full transition-all duration-300`} style={{backdropFilter:'blur(10px) saturate(180%)'}}></div> */}
       </div>
       {/* {place && <div className="place-box w-full h-[75px]"></div>} */}
     </>

@@ -1,6 +1,3 @@
-// src/app/layout.tsx
-// 移除"use client"，默认成为服务端组件
-
 import AntdClientWrapper from "@/components/AntdClientWrapper";
 import ThemeProvider from "@/components/themeProvider/ThemeProvider";
 import ServerNav from "@/components/ServerNav"; // 使用服务端导航组件
@@ -24,7 +21,8 @@ export default function RootLayout({
         {/* 引入客户端组件处理Antd和动态逻辑，服务端仅渲染静态容器 */}
         <AntdClientWrapper>
           <ThemeProvider>
-            {/* <ServerNav /> 使用服务端导航组件（内部包含客户端动态逻辑） */}
+            {/* 使用服务端导航组件（内部包含客户端动态逻辑） */}
+            <ServerNav /> 
             {children}
           </ThemeProvider>
         </AntdClientWrapper>

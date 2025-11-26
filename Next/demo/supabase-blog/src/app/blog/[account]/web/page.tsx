@@ -114,12 +114,6 @@ export default function Blog({ params }: Props) {
   return (
     <div className='content-box'>
       <div className='flex justify-between flex-wrap'>
-        {/* <div className='profile-box w-[23%] min-w-[225px] pr-5 pb-5'>
-          <Profile></Profile>
-        </div>
-        <div className='blog-list-box flex-1'>
-          <List listData={articles} bloggerData={userProfile}></List>
-        </div> */}
         <Banner></Banner>
       </div>
     </div>
