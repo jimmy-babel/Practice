@@ -74,7 +74,7 @@ export async function GET(req: Request) {
     const result = lifeStylesData.map(item=>({...item,created_at:dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss'),updated_at:dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss'),}))
     return NextResponse.json(
       {
-        data: result || [],
+        data: [].concat([],result as any,result as any,result as any,result as any,result as any,result as any,result as any) || [],
         count: count || 0 // 使用 select 返回的精确 count
       },
       { status: 200 }

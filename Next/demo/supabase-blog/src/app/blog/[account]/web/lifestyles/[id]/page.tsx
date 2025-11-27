@@ -6,6 +6,7 @@ import { useCheckUser, useJumpAction } from "@/lib/use-helper/base-mixin";
 import Image from "next/image";
 import { UserOutlined, CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import { PhotoView, PhotoProvider } from "react-photo-view";
+import Loading from "@/components/loading-css/loading";
 import "react-photo-view/dist/react-photo-view.css";
 type Props = {
   params: Promise<{ account: string; id: string }>; //动态路由 [account] 对应的参数
@@ -78,6 +79,11 @@ const LifeStyles = (props: Props) => {
     // 生成最终URL
     return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
   };
+  if (loading) {
+    return (
+      <Loading></Loading>
+    )
+  }
   return (
     <div className="container w-[50%] m-auto">
       <div className="label-box anim-op-y">

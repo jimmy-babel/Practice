@@ -7,6 +7,7 @@ import { useJumpAction, useCheckUser } from "@/lib/use-helper/base-mixin";
 import { article } from "@/lib/supabase";
 import ImageUploader from "@/components/ImageUploader";
 import AntdSelect from "@/components/custom-antd/Select";
+import Loading from "@/components/loading-css/loading";
 import type { Delta } from "quill";
 interface ImageUploaderRef {
   uploadPendingFiles: () => Promise<Array<UploadFile>>;
@@ -159,15 +160,10 @@ export default function ArticleEdit({ params }: Props) {
     // setFileList(arr);
   };
 
-  if (loading) {
+  if(loading){
     return (
-      <div className=" bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
-    );
+      <Loading></Loading>
+    )
   }
 
   return (

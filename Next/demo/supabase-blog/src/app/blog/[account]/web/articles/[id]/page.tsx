@@ -5,6 +5,7 @@ import {article} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {UserOutlined,CalendarOutlined,EyeOutlined} from '@ant-design/icons';
 import RichTextRenderer from "@/components/richTextRenderer/richTextRenderer";
+import Loading from "@/components/loading-css/loading";
 import "./page.css";
 type Props = {
   params: Promise<{ account: string,id:Number }>; //动态路由 [account] 对应的参数
@@ -65,12 +66,7 @@ export default function Article({params}:Props){
 
   if (loading) {
     return (
-      <div className=" bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
+      <Loading></Loading>
     )
   }
   return (

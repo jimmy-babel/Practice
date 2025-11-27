@@ -46,7 +46,8 @@ export default function SetLayout({
         </div>
       )}
 
-      <div className={`flex-1 ${direction == 'vertical' ? "w-full" : ""} ${screenPage?'overflow-y-scroll':''}`}>{children}</div>
+      {/* <div className={`flex-1 ${direction == 'vertical' ? "w-full" : ""} ${screenPage?'overflow-y-scroll':''}`}>{children}</div> */}
+      <div className={`flex-1 ${direction == 'vertical' ? "w-full" : ""}`}>{children}</div>
 
       {footer && (
         <div

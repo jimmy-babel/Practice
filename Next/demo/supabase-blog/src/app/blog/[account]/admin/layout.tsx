@@ -10,7 +10,7 @@ export default function AdminLayout({
     <div className="h-[calc(100vh-75px)] overflow-hidden global-parse-light">
       <SetLayout header={<Nav></Nav>} extraClass={extraClass} screenPage direction="level" safeArea>
         <div className="admin-layout-bg pt-3 pl-3 box-border bg-[#f4f4f4] w-full h-full">
-          <div className="admin-layout-content bg-white w-full h-full">
+          <div className="admin-layout-content bg-white w-full h-full relative">
             {children}
           </div>
         </div>

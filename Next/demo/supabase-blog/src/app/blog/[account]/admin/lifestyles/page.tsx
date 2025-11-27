@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {life_styles} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Table,Switch,Button,Space } from 'antd';
 import SearchBox from "@/components/SearchBox";
 import AntdSelect from "@/components/custom-antd/Select";
+import Loading from "@/components/loading-css/loading";
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
@@ -24,6 +25,9 @@ export default function LifeStyles({params}:Props){
     undefined
   );
   const [userProfile, setUserProfile] = useState<any>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [tableHeight, setTableHeight] = useState(400);
+
   console.log('PAGE ADMIN LifeStyles',account,lifestyles,searchText);
   const onChange = (checked: boolean) => {
     console.log(`switch to ${checked}`);
@@ -114,6 +118,44 @@ export default function LifeStyles({params}:Props){
     loadData();
   },[userProfile])
   
+  // 监听容器高度变化，更新表格高度
+  const updateTableHeight = () => {
+    if (tableContainerRef.current) {
+      // 设置表格高度为容器高度减去一些边距
+      setTableHeight((tableContainerRef.current.clientHeight) - 64 - 55);
+    }
+  };
+
+  // 组件挂载后和窗口大小变化时更新高度
+  useEffect(() => {
+    // 使用requestAnimationFrame确保DOM已经渲染完成
+    const timer = requestAnimationFrame(() => {
+      updateTableHeight();
+    });
+    
+    // 监听窗口大小变化
+    window.addEventListener('resize', updateTableHeight);
+    
+    // 清理函数
+    return () => {
+      cancelAnimationFrame(timer);
+      window.removeEventListener('resize', updateTableHeight);
+    };
+  }, []);
+
+  // 数据加载完成后更新高度
+  useEffect(() => {
+    if (!loading && lifestyles.length > 0) {
+      // 使用setTimeout确保Table组件已经完全渲染
+      const timer = setTimeout(() => {
+        updateTableHeight();
+      }, 0);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, lifestyles]);
+  
+
   // 获取生活手记数据并关联作者信息
   const fetchArticleList = async () => {
     try {
@@ -136,19 +178,15 @@ export default function LifeStyles({params}:Props){
       setLoading(false);
     }
   };
-
-  if (loading) {
+  
+  if(loading){
     return (
-      <div className=" bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
+      <Loading></Loading>
     )
   }
+  
   return (
-    <div className="list-box w-full h-full">
+    <div className="list-box flex flex-col w-full h-full min-h-0 overflow-hidden">
       <div className='header-box flex justify-between items-center p-3'>
         <div className='search-box flex'>
           <Space>
@@ -181,18 +219,21 @@ export default function LifeStyles({params}:Props){
           <Button type='primary' onClick={()=>jumpAction(`admin/lifestyles/0`)}>添加生活手记</Button>
         </div>
       </div>
-      <Table<life_styles>
-        className=""
-        rowKey="id"
-        rowSelection={{ 
-          type: 'checkbox', 
-          getCheckboxProps: (row: life_styles) => ({
-            name: row.title,
-          }),
-        }}
-        columns={columns}
-        dataSource={lifestyles}
-      />
+      <div className='flex-1 overflow-hidden min-h-0' ref={tableContainerRef}>
+        <Table<life_styles>
+          className="h-full"
+          scroll={{y: tableHeight}}
+          rowKey="id"
+          rowSelection={{ 
+            type: 'checkbox', 
+            getCheckboxProps: (row: life_styles) => ({
+              name: row.title,
+            }),
+          }}
+          columns={columns}
+          dataSource={lifestyles}
+        />
+      </div>
     </div>
   )
 

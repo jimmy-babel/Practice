@@ -4,6 +4,7 @@ import React,{useEffect,useState} from "react";
 import {life_styles} from '@/lib/supabase';
 import {useCheckUser,useJumpAction} from "@/lib/use-helper/base-mixin";
 import Image from 'next/image';
+import Loading from "@/components/loading-css/loading";
 
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
@@ -70,8 +71,14 @@ const LifeStyles = (props: Props) => {
     // 生成最终URL
     return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
   };
+  
+  if (loading) {
+    return (
+      <Loading></Loading>
+    )
+  }
   return (
-    <div className="container w-[60%] m-auto ">
+    <div className="container w-[60%] m-auto">
       <div className="grid grid-cols-4 gap-15 w-full pt-8">
         {lifeStyles.map(item=>(
           <div className="anim-op-y" key={item.id}>

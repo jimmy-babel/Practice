@@ -1,29 +1,13 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
+import {useCheckUser} from "@/lib/use-helper/base-mixin"
+import Loading from "@/components/loading-css/loading";
+
 export default function Articles(){
   const [loading, setLoading] = useState(true)
-  // const {jumpAction} = useJumpAction();
   console.log('PAGE ADMIN 首页');
   const {checkUser} = useCheckUser({loginJump:true});
-
-  // 检查用户登录状态
-  // const checkUser = async () => {
-  //   try{
-  //     const response = await fetch(`/api/login/check`);
-  //     const {data,msg,error} = await response.json();
-  //     console.log('api: /login/check then',data,msg,error);
-  //     if (response.ok) {
-  //       if(data?.isLogin){
-  //         return
-  //       }
-  //     }
-  //     jumpAction('/blog/auth',{type:"from"})
-  //   }catch(e){}finally{
-  //     setLoading(false);
-  //   }
-  // }
 
   useEffect(() => {
     let mounted = true
@@ -46,12 +30,7 @@ export default function Articles(){
 
   if (loading) {
     return (
-      <div className="h-[100%] bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
+      <Loading></Loading>
     )
   }
   return (

@@ -1,71 +1,73 @@
-'use client'
-import React from 'react';
-import { useEffect, useState } from 'react'
-import { supabase, article } from '@/lib/supabase'
-import Profile from "@/components/profile";
-import List from "@/app/blog/[account]/web/articles/components/list";
-import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
+"use client";
+import React from "react";
+import { useEffect, useState } from "react";
+import { supabase, article } from "@/lib/supabase";
+import { useCheckUser } from "@/lib/use-helper/base-mixin";
 import Banner from "@/components/branner/banner";
+import Loading from "@/components/loading-css/loading";
+
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
-}
+};
 // 首页
 export default function Blog({ params }: Props) {
   const { account } = React.use(params);
-  const [articles, setArticles] = useState<article[]>([] as article[])
-  const [loading, setLoading] = useState(true)
-  const [userProfile, setUserProfile] = useState<any>(null)
-  const {checkUser} = useCheckUser({loginJump:true});
+  const [articles, setArticles] = useState<article[]>([] as article[]);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const { checkUser } = useCheckUser({ loginJump: true });
 
-  console.log('PAGE Blog 首页',articles,loading,userProfile);
-
+  console.log("PAGE Blog 首页", articles, loading, userProfile);
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
     // 初始化应用，检查用户状态 -> 获取文章数据
     const init = async () => {
       try {
-        await checkUser()
-        if(!mounted)return
-        await fetchArticleList()
+        await checkUser();
+        if (!mounted) return;
+        await fetchArticleList();
       } catch (error) {
-        console.error('初始化应用时出错:', error)
+        console.error("初始化应用时出错:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     // 设置超时保护，10秒后强制停止加载状态
     const timeoutId = setTimeout(() => {
       if (mounted) {
-        console.log('加载超时，强制停止加载状态')
-        setLoading(false)
+        console.log("加载超时，强制停止加载状态");
+        setLoading(false);
       }
-    }, 10000)
+    }, 10000);
 
     init().finally(() => {
-      clearTimeout(timeoutId)
-    })
+      clearTimeout(timeoutId);
+    });
 
     // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('supabase.auth.onAuthStateChange 监听认证状态变化',event,session);
-        if (!mounted) return
-        
-        if (event === 'SIGNED_IN' && session) {
-          
-        } else if (event === 'SIGNED_OUT') {
-          setUserProfile(null)
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(
+        "supabase.auth.onAuthStateChange 监听认证状态变化",
+        event,
+        session
+      );
+      if (!mounted) return;
+
+      if (event === "SIGNED_IN" && session) {
+      } else if (event === "SIGNED_OUT") {
+        setUserProfile(null);
       }
-    )
+    });
 
     return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, []) 
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // const handleSignOut = async () => {
   //   console.log('handleSignOut');
@@ -81,18 +83,20 @@ export default function Blog({ params }: Props) {
   // 获取文章数据列表数据
   const fetchArticleList = async () => {
     try {
-      console.log('api: get-article-list');
-      const response = await fetch(`/api/blog/get-article-list?blogger=${account}`);
+      console.log("api: get-article-list");
+      const response = await fetch(
+        `/api/blog/get-article-list?blogger=${account}`
+      );
       const result = await response.json();
-      console.log('api: /blog/get-article-list then',result,response);
+      console.log("api: /blog/get-article-list then", result, response);
       if (response.ok) {
         setArticles(result.data);
       } else {
-        console.error('获取文章时出错:', result.error);
+        console.error("获取文章时出错:", result.error);
         setArticles([]);
       }
     } catch (error) {
-      console.error('获取文章时出错:', error);
+      console.error("获取文章时出错:", error);
       setArticles([]);
     } finally {
       setLoading(false);
@@ -100,22 +104,14 @@ export default function Blog({ params }: Props) {
   };
 
   if (loading) {
-    return (
-      <div className=" bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
-    )
+    return <Loading></Loading>;
   }
 
-  
   return (
-    <div className='content-box'>
-      <div className='flex justify-between flex-wrap'>
+    <div className="content-box">
+      <div className="flex justify-between flex-wrap">
         <Banner></Banner>
       </div>
     </div>
-  )
+  );
 }

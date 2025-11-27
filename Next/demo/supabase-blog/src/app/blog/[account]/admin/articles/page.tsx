@@ -1,6 +1,5 @@
 "use client"
-import React from 'react';
-import { useEffect, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react';
 import {article} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import type { TableColumnsType, TableProps } from 'antd';
@@ -8,12 +7,16 @@ import Image from 'next/image';
 import { Table,Switch,Button,Space } from 'antd';
 import SearchBox from "@/components/SearchBox";
 import AntdSelect from "@/components/custom-antd/Select";
+import Loading from "@/components/loading-css/loading";
+
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 }
 export default function Articles({params}:Props){
   const {account} = React.use(params);
   const [articles, setArticles] = useState<article[]>([] as article[])
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [tableHeight, setTableHeight] = useState(400);
   const [loading, setLoading] = useState(true)
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
@@ -83,7 +86,43 @@ export default function Articles({params}:Props){
   ];
   console.log('PAGE ADMIN Articles',account);
 
-  // 查询登录状态+拿文章列表数据
+  // 监听容器高度变化，更新表格高度
+  const updateTableHeight = () => {
+    if (tableContainerRef.current) {
+      // 设置表格高度为容器高度减去一些边距
+      setTableHeight((tableContainerRef.current.clientHeight) - 64 - 55);
+    }
+  };
+
+  // 组件挂载后和窗口大小变化时更新高度
+  useEffect(() => {
+    // 使用requestAnimationFrame确保DOM已经渲染完成
+    const timer = requestAnimationFrame(() => {
+      updateTableHeight();
+    });
+    
+    // 监听窗口大小变化
+    window.addEventListener('resize', updateTableHeight);
+    
+    // 清理函数
+    return () => {
+      cancelAnimationFrame(timer);
+      window.removeEventListener('resize', updateTableHeight);
+    };
+  }, []);
+
+  // 数据加载完成后更新高度
+  useEffect(() => {
+    if (!loading && articles.length > 0) {
+      // 使用setTimeout确保Table组件已经完全渲染
+      const timer = setTimeout(() => {
+        updateTableHeight();
+      }, 0);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, articles]);
+
   useEffect(() => {
     let mounted = true
     const init = async () => {
@@ -128,18 +167,13 @@ export default function Articles({params}:Props){
     }
   };
 
-  if (loading) {
+  if(loading){
     return (
-      <div className=" bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">加载中...</p>
-        </div>
-      </div>
+      <Loading></Loading>
     )
   }
   return (
-    <div className="list-box w-full h-full overflow-hidden">
+    <div className="list-box flex flex-col w-full h-full min-h-0 overflow-hidden">
       <div className='header-box flex justify-between items-center p-3'>
         <div className='search-box flex'>
           <Space>
@@ -162,18 +196,21 @@ export default function Articles({params}:Props){
           <Button type='primary' onClick={()=>jumpAction(`admin/articles/0`)}>添加文章</Button>
         </div>
       </div>
-      <Table<article>
-        className=""
-        rowKey="id"
-        rowSelection={{ 
-          type: 'checkbox', 
-          getCheckboxProps: (row: article) => ({
-            name: row.title,
-          }),
-        }}
-        columns={columns}
-        dataSource={articles}
-      />
+      <div className='flex-1 overflow-hidden min-h-0' ref={tableContainerRef}>
+        <Table<article>
+          className="h-full"
+          scroll={{y: tableHeight}}
+          rowKey="id"
+          rowSelection={{ 
+            type: 'checkbox', 
+            getCheckboxProps: (row: article) => ({
+              name: row.title,
+            }),
+          }}
+          columns={columns}
+          dataSource={articles}
+        />
+      </div>
     </div>
   )
 

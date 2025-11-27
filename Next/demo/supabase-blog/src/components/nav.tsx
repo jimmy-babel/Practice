@@ -136,7 +136,7 @@ const Nav = ({navList,isPlace,account}: Props) => {
               </div>
             ))}
           </div>
-          <div className="extra pr-12">
+          <div className="extra w-15">
             <div onClick={()=>toggleTheme(resolvedTheme||'light')}>
               {/* {resolvedTheme == 'dark'?<MoonOutlined className="text-white cursor-pointer" />:<SunOutlined className="text-black cursor-pointer"/>} */}
               {renderThemeIcon()}
