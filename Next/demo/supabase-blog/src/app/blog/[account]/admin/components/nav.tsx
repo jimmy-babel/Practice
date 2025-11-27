@@ -33,9 +33,9 @@ export default function Nav(props: Props){
   };
   return (
     <div style={{ width: 180 }}>
-      <Button type="primary" onClick={toggleCollapsed} style={{ marginBottom: 16 }}>
+      {/* <Button type="primary" onClick={toggleCollapsed} style={{ marginBottom: 16 }}>
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </Button>
+      </Button> */}
       <Menu
         onClick={menuItemOnClick}
         mode="inline"

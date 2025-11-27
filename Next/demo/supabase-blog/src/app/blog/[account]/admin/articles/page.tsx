@@ -139,7 +139,7 @@ export default function Articles({params}:Props){
     )
   }
   return (
-    <div className="list-box w-full h-full">
+    <div className="list-box w-full h-full overflow-hidden">
       <div className='header-box flex justify-between items-center p-3'>
         <div className='search-box flex'>
           <Space>
