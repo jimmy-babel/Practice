@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {article} from '@/lib/supabase';
+import {article,Profile} from '@/lib/supabase';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {UserOutlined,CalendarOutlined,EyeOutlined} from '@ant-design/icons';
 import RichTextRenderer from "@/components/richTextRenderer/richTextRenderer";
@@ -14,6 +14,7 @@ export default function Article({params}:Props){
   
   const { account,id } = React.use(params);
   const [article, setArticle] = useState<article>({} as article)
+  const [userInfo, setUserInfo] = useState<Profile>({} as Profile)
   const [loading, setLoading] = useState(true)
   const {checkUser} = useCheckUser({loginJump:true});
 
@@ -52,6 +53,7 @@ export default function Article({params}:Props){
       console.log('api: /blog/get-article-detail then',result,response);
       if (response.ok) {
         setArticle(result.data);
+        setUserInfo(result.bloggerData);
       } else {
         console.error('获取文章时出错:', result.error);
         setArticle([] as any);
@@ -70,7 +72,7 @@ export default function Article({params}:Props){
     )
   }
   return (
-    <div className="article-detial-container pt-20 w-full">
+    <div className="article-detial-container pt-10 w-full">
       <div className='container flex w-full max-w-[1100px] m-auto'>
         {/* <div className='nav-box'></div> */}
         <div className='article-container flex-1'>
@@ -79,7 +81,7 @@ export default function Article({params}:Props){
             <div className='blogger-msg-box text-gray-400 gap-4 flex justify-center items-center'>
               <div className='flex items-center gap-2 leading-15 pb-5'>
                 <UserOutlined />
-                <div>{'JIMMY'}</div>
+                <div>{userInfo.full_name}</div>
               </div>
               <div className='flex items-center gap-2 leading-15 pb-5'>
                 <CalendarOutlined />
@@ -89,6 +91,11 @@ export default function Article({params}:Props){
                 <EyeOutlined />
                 <div>{'1'} views</div>
               </div>
+              {article.labels?.map((item) => (
+                <div className='flex items-center gap-2 leading-15 pb-5' key={item.id}>
+                  <div className='text-xs px-2 rounded-full'>#{item.name}</div>
+                </div>
+              ))}
             </div>
           </div>
           <div className='content-box w-full pl-12 pr-12'>

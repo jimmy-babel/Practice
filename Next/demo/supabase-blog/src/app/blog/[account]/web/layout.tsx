@@ -13,7 +13,7 @@ export default function WebLayout({
   return (
     <>
       <SetLayout extraClass={extraClass} pageScroll safeArea>
-        <div className="min-h-[calc(100vh-75px)]">
+        <div className="min-h-[calc(100vh-var(--nav-bar-height))]">
             <div className="blog-background blog-background-top"></div>
             <div className="blog-background blog-background-bottom"></div>
             {children}

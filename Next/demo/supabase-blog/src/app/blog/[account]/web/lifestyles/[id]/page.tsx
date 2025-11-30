@@ -114,7 +114,7 @@ const LifeStyles = (props: Props) => {
               {lifeStyles.photos &&
                 lifeStyles.photos?.map((item) => (
                   <div className="anim-op-y" key={item.id}>
-                    <div className="list anim-hover-scale-sm rounded-2xl shadow-[0px_0px_8px_transparent] shadow-gray-700 text-2xs  cursor-pointer">
+                    <div className="list anim-hover-scale-sm rounded-2xl box-shadow-reverse text-2xs  cursor-pointer">
                       <div className="album-box">
                         <div className="cover-box aspect-square relative">
                           <PhotoView src={item.url}>

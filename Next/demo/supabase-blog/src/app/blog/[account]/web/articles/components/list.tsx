@@ -1,73 +1,76 @@
-// import React, { useEffect, useState } from 'react'
-// import {Post} from '@/lib/supabase';
-// import Link from 'next/link'
-// type Props = {
-//   listData: Array<Post>,
-//   bloggerData:{
-//     full_name:string,
-//     username:string,
-//   }
-// }
-
-// const List = (props: Props) => {
-//   const {listData,bloggerData} = props;
-//   console.log('CMPT LIST',listData,bloggerData);
-//   return (
-//     <div className='blog-list-box flex-1'>
-//       {listData.map((item,index) => (
-//         <article key={item.id} className="mb-5 bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-//           <div className="flex items-center mb-4">
-//             <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-//               {bloggerData?.full_name || ''}
-//             </div>
-//             <div className="ml-3">
-//               <p className="text-sm font-medium text-gray-900">
-//                 {bloggerData?.username || ''}
-//               </p>
-//               <p className="text-sm text-gray-500">
-//                 {new Date(item.created_at).toLocaleDateString('zh-CN')}
-//               </p>
-//             </div>
-//           </div>
-          
-//           <h3 className="text-xl font-semibold text-gray-900 mb-3">
-//             <Link href={`/post/${item.id}`} className="hover:text-blue-600">
-//               {item.title}
-//             </Link>
-//           </h3>
-          
-//           {item.excerpt && (
-//             <p className="text-gray-600 mb-4 line-clamp-3">
-//               {item.excerpt}
-//             </p>
-//           )}
-          
-//           {/* <Link 
-//             href={`/blog/${account}/web/articles/${item.id||0}`}
-//             className="text-blue-600 hover:text-blue-800 font-medium"
-//           >
-//             查看详情 →
-//           </Link> */}
-//         </article>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default List;
-
-
-
-import React from 'react'
+import React, { useEffect, useCallback, useRef } from 'react'
 import {article} from '@/lib/supabase';
 import {useJumpAction} from "@/lib/use-helper/base-mixin"
 
 type Props = {
   listData: Array<article>,
+  onScrollEnd?: () => void; // 滚动到底部的回调函数
 }
+
 const List = (props: Props) => {
-  const {listData} = props;
+  const {listData, onScrollEnd} = props;
   const {jumpAction} = useJumpAction();
+
+  // 创建节流函数
+  const throttle = useCallback((func: Function, delay: number) => {
+    let inThrottle: boolean = false;
+    return function(this: any, ...args: any[]) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => {
+          func.apply(this, args);
+          inThrottle = false;
+        }, delay);
+      }
+    };
+  }, []);
+
+  // 监听页面滚动触底
+  useEffect(() => {
+    let inBottom = false;
+    // 定义滚动处理函数
+    const handleScroll = () => {
+      // 获取当前滚动位置
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      // 获取窗口高度
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      // 获取文档总高度
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // 设置触底阈值（这里设置为距离底部50px时触发）
+      const threshold = 50;
+      // console.log('滚动 滚动位置 window.pageYOffset',window.pageYOffset);
+      // console.log('滚动 视口高度 window.innerHeight',windowHeight);
+      // console.log('滚动 文档总高度 document.documentElement.scrollHeight',documentHeight);
+      // 判断是否触底
+      if ((scrollTop + windowHeight >= documentHeight - threshold)) {
+        if(!inBottom){ // 避免重复触发触底
+          console.log('触底',window,document.documentElement);
+          inBottom = true;
+          // 触发回调函数（如果有）
+          if (onScrollEnd) {
+            onScrollEnd();
+          }
+        }
+      }else{
+        // console.log('未触底');
+        inBottom = false;
+      }
+    };
+
+    // 创建节流后的滚动处理函数（200ms触发一次）
+    const throttledHandleScroll = throttle(handleScroll, 50);
+
+    // 添加滚动事件监听
+    window.addEventListener('scroll', throttledHandleScroll);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll);
+    };
+  }, [onScrollEnd, throttle]);
+
   return (
     <div className='w-full anim-op-y'>
       {listData.map(item =>(

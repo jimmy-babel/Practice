@@ -4,12 +4,17 @@
   --background: #ffffff;
   --foreground: #171717;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color-reverse: rgba(0, 0, 0, 0.1);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --nav-bar-height: 75px;
 }
 
 html.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
   --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-color-reverse: rgba(255, 255, 255, 0.1);
+  --border-color: rgba(0, 0, 0, 0.4);
 }
 
 body {
@@ -22,6 +27,7 @@ body {
   --background: #ffffff;
   --foreground: #171717;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --border-color: rgba(0, 0, 0, 0.4);
   background: var(--background);
   color: var(--foreground);
 }
@@ -32,8 +38,16 @@ body {
 .main-bg-color-op-5 {
   background-color: rgb(from var(--background) r g b / 50%); 
 }
+
 .box-shadow{
   box-shadow: 0 0 20px 1px var(--shadow-color);
+}
+.box-shadow-reverse{
+  box-shadow: 0 0 20px 1px var(--shadow-color-reverse);
+}
+
+.border-color{
+  border-color: var(--border-color);
 }
 
 /* @theme inline {
@@ -124,8 +138,8 @@ body {
 }
 .blog-background-bottom{
   background: #6366f1;
-  top: 40px;
-  left: 45%;
+  top: 0px;
+  left: 50%;
   transform: translate(-50%);
   opacity: .25;
 }

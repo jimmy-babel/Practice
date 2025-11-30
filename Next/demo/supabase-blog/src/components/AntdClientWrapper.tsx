@@ -18,6 +18,9 @@ const customTheme = {
       bodyPadding: 0,
       borderRadius: 0,
     },
+    Cascader:{
+      controlWidth: 150,
+    }
   },
 };
 

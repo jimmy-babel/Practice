@@ -19,7 +19,8 @@ export interface article {
   sort:number
   user_id: string
   created_at: string
-  updated_at: string
+  updated_at: string,
+  labels?: article_groups[]
 }
 
 export interface Profile {
@@ -88,4 +89,11 @@ export interface life_styles_sub_label {
 export interface life_styles_label_relation { 
   label_id:number,
   sub_label_id:number,
+}
+
+export interface article_groups {
+  id: number
+  name: string
+  description?:string,
+  userId:string  
 }

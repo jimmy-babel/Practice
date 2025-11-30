@@ -29,8 +29,8 @@ type Props = {
   // apiParams?: Record<string, any>,
   idKey?: string;
   nameKey?: string;
-  selectData?: number[];
-  setSelectData?: (data: number[]) => void;
+  selectData?: number[] | number;
+  setSelectData?: (data: (number[] | number)) => void;
   mode?: "multiple" | "tags" | undefined;
   optionFilterProp?: string;
   extraClass?: string;

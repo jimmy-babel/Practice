@@ -40,11 +40,26 @@ export async function GET(req: Request) {
       return NextResponse.json({ msg: '获取文章详情时出错', error:articlesError }, { status: 500 });
     }
 
-    if (!articlesData) {
-      return NextResponse.json({ data: null, bloggerData:{avatar_url,full_name,username} }, { status: 200 });
-    }
+    // 获取文章标签
+    const { data: labelsData, error: labelsError } = await supabase
+      .from('articles_groups_relation')
+      .select('group_id')
+      .eq('article_id', id)
 
-    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username} }, { status: 200 });
+    if (labelsError) {
+      return NextResponse.json({ msg: '获取文章标签时出错', error:labelsError }, { status: 500 });
+    }
+    // 获取文章标签名称
+    const { data: article_groups, error: article_groupsError } = await supabase
+      .from('article_groups')
+      .select('name')
+      .in('id', labelsData?.map((item) => item.group_id))
+
+    if (article_groupsError) {
+      return NextResponse.json({ msg: '获取文章标签名称时出错', error:article_groupsError }, { status: 500 });
+    }
+    
+    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username},labels:article_groups?.map((item) => item.name) }, { status: 200 });
 
   } catch (error) {
     console.error('获取文章详情时出错:', error);

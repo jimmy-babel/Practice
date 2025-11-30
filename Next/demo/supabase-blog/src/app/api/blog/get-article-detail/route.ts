@@ -30,24 +30,39 @@ export async function GET(req: Request) {
     const { data: articlesData, error: articlesError } = await supabase
       .from('articles')
       .select('*')
-      .eq('published', true)
+      // .eq('published', true)
       .eq('id',id)
       .eq('user_id', bloggerData?.id)
       .order('created_at', { ascending: false })
       .single()
     // console.log('supabase select from articles then:',articlesData,articlesError);
     if (articlesError) {
-      return NextResponse.json({ msg: '获取文章详情时出错', error:articlesError }, { status: 500 });
+      return NextResponse.json({ msg: '获取文章详情时出错1', error:articlesError }, { status: 500 });
     }
 
-    if (!articlesData) {
-      return NextResponse.json({ data: null, bloggerData:{avatar_url,full_name,username} }, { status: 200 });
-    }
+    // 获取文章标签
+    const { data: labelsData, error: labelsError } = await supabase
+      .from('article_groups_relation')
+      .select('group_id')
+      .eq('article_id', id)
 
-    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username} }, { status: 200 });
+    if (labelsError) {
+      return NextResponse.json({ msg: '获取文章标签时出错', error:labelsError }, { status: 500 });
+    }
+    // 获取文章标签名称
+    const { data: article_groups, error: article_groupsError } = await supabase
+      .from('article_groups')
+      .select('id,name')
+      .in('id', labelsData?.map((item) => item.group_id))
+
+    if (article_groupsError) {
+      return NextResponse.json({ msg: '获取文章标签名称时出错', error:article_groupsError }, { status: 500 });
+    }
+    
+    return NextResponse.json({ data:{...articlesData,labels:article_groups},bloggerData:{avatar_url,full_name,username}, }, { status: 200 });
 
   } catch (error) {
-    console.error('获取文章详情时出错:', error);
+    console.error('获取文章详情时出错2:', error);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
   }
 }
