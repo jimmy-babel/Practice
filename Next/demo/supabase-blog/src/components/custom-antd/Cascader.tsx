@@ -30,7 +30,8 @@ type Props = {
   searchValue?: string;
   selectData?: number[];
   setSelectData?: (data: number[]) => void;
-  changeOnSelect?:boolean
+  changeOnSelect?:boolean,
+  expandTrigger?: 'click' | 'hover',
 }
 const App: React.FC<Props> = (props:Props) => {
   const {
@@ -47,11 +48,13 @@ const App: React.FC<Props> = (props:Props) => {
     selectData,
     setSelectData,
     changeOnSelect,
+    expandTrigger,
   } = props;
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true); // 新增加载状态
   useEffect(() => {
-    init();
+    console.log('setType',setType);
+    setType && init();
   }, [setType]);
   
   const init = async () => {
@@ -130,7 +133,7 @@ const App: React.FC<Props> = (props:Props) => {
   };
 
   return (
-    <Cascader style={{ width: "100%" }} placeholder="请选择" value={loading?[]:selectData} options={options} onChange={onChange} changeOnSelect={changeOnSelect} />
+    <Cascader style={{ width: "100%" }} placeholder="请选择" value={loading?[]:selectData} options={options} onChange={onChange} changeOnSelect={changeOnSelect} expandTrigger={expandTrigger} />
   );
 }
 

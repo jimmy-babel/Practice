@@ -56,6 +56,7 @@ export async function GET(req: Request) {
     // 4. 执行筛选逻辑（eq、ilike 等，需在 select 之后）
     query = query
       .eq('user_id', userId) // 筛选博主的文章
+      .eq('published', true) // 筛选已发布的文章
       .ilike('title', `%${search || ''}%`); // 搜索关键词
 
     // 6. 排序（最后执行排序）

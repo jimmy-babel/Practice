@@ -6,6 +6,20 @@ export async function GET(req: Request) {
     const url = new URL(req.url); //GET请求获取URL
     const blogger = url.searchParams.get('blogger'); // GET获取查询参数中的blogger
     const id = url.searchParams.get('id'); // GET获取查询参数中的id
+    // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
+    if (!blogger || !id) {
+      return NextResponse.json({ error: '缺少传参' }, { status: 400 });
+    }
+    // 获取博主信息
+    const { data: bloggerData, error: bloggerError } = await supabase
+      .from('profiles')
+      .select('*')
+      .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
+      .single()
+
+    if (bloggerError) {
+      return NextResponse.json({ msg: '获取博主信息出错', error:bloggerError }, { status: 500 });
+    }
 
     // 获取生活手记数据
     const { data: lifeStylesData, error: lifeStylesError } = await supabase
@@ -53,23 +67,24 @@ export async function GET(req: Request) {
     // return NextResponse.json({ data:{...lifeStylesData,groupsId} }, { status: 200 });
     const  {data:life_styles_to_label,error:life_styles_to_label_error} = await supabase
       .from('life_styles_to_label')
-      .select('label_id')
+      // .select('*,label:life_styles_label(id,name)')
+      .select('life_styles_label(id,name)')
       .eq('life_styles_id',id)
     if (life_styles_to_label_error) {
       return NextResponse.json({ msg: '获取生活手记标签时出错', error:life_styles_to_label_error }, { status: 500 });
     }
 
     const  {data:life_styles_to_sub_label,error:life_styles_to_sub_label_error} = await supabase
-      .from('life_styles_to_label')
-      .select('label_id')
+      .from('life_styles_to_sub_label')
+      .select('life_styles_sub_label(id,name)')
       .eq('life_styles_id',id)
     if (life_styles_to_sub_label_error) {
       return NextResponse.json({ msg: '获取生活手记子标签时出错', error:life_styles_to_sub_label_error }, { status: 500 });
     }
       console.log('life_styles_to_label',life_styles_to_label);
       console.log('life_styles_to_sub_label',life_styles_to_sub_label);
-    let labelIds = (life_styles_to_label?.[0] && life_styles_to_sub_label?.[0]) ? [life_styles_to_label[0].label_id,life_styles_to_sub_label[0].label_id] : []
-    return NextResponse.json({ data:{...lifeStylesData,labelIds} }, { status: 200 });
+    let labelIds = (life_styles_to_label?.[0] && life_styles_to_sub_label?.[0]) ? [life_styles_to_label[0]?.life_styles_label,life_styles_to_sub_label[0]?.life_styles_sub_label] : []
+    return NextResponse.json({ data:{...lifeStylesData,labelIds},bloggerData }, { status: 200 });
 
   } catch (error) {
     console.error('获取生活手记详情时出错:', error);

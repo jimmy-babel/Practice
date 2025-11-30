@@ -16,7 +16,7 @@ const LifeStyles = (props: Props) => {
   const { account, id } = React.use(params);
   const [lifeStyles, setLifeStyles] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const { jumpAction } = useJumpAction();
   const { checkUser } = useCheckUser({ loginJump: true });
   useEffect(() => {
@@ -53,6 +53,7 @@ const LifeStyles = (props: Props) => {
       console.log("api: /blog/get-lifestyles-detail then", result, response);
       if (response.ok) {
         setLifeStyles(result.data);
+        setUserInfo(result.bloggerData);
       } else {
         console.error("获取文章时出错:", result.error);
       }
@@ -87,17 +88,22 @@ const LifeStyles = (props: Props) => {
   return (
     <div className="container w-[50%] m-auto">
       <div className="label-box anim-op-y">
-        <div className="blogger-msg-box text-gray-400 gap-4 flex justify-center items-center">
-          <div className="flex items-center gap-2 leading-15 pb-5">
+        <div className="blogger-msg-box text-gray-400 gap-4 flex justify-center items-center pb-5">
+          <div className="flex items-center gap-2 leading-15">
             <UserOutlined />
-            <div>{"JIMMY"}</div>
+            <div>{userInfo?.full_name}</div>
           </div>
-          <div className="flex items-center gap-2 leading-15 pb-5">
+          <div className="flex items-center gap-2 leading-15">
             <CalendarOutlined />
             <div>{lifeStyles.created_at}</div>
           </div>
-          {/* <div className='flex items-center gap-2 leading-15 pb-5'>
+          {/* <div className='flex items-center gap-2 leading-15'>
           </div> */}
+          {lifeStyles.labelIds?.map((item) => (
+            <div className='flex items-center leading-15' key={item.id}>
+              <div className='text-xs px-2 rounded-full'>#{item.name}</div>
+            </div>
+          ))}
         </div>
       </div>
       <div className="pl-20">

@@ -1,87 +1,61 @@
-import { supabase } from '@/lib/supabase';
-import { NextResponse } from 'next/server';
-import dayjs from 'dayjs';
+import { supabase } from "@/lib/supabase";
+import { NextResponse } from "next/server";
+import dayjs from "dayjs";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const blogger = url.searchParams.get('blogger');
-    const userId = url.searchParams.get('userId');
-    const search = url.searchParams.get('search');
-    const groupsIdStr = url.searchParams.get('groupsId');
-
-    // if (!blogger) {
-    //   return NextResponse.json({ error: '缺少 blogger 参数' }, { status: 400 });
-    // }
-
-    // 处理 groupsId 数组
-    // let groupsIdArray: number[] = [];
-    // if (groupsIdStr) {
-    //   groupsIdArray = groupsIdStr
-    //     .split(',')
-    //     .map(id => parseInt(id.trim(), 10))
-    //     .filter(id => !isNaN(id) && id > 0);
-    // }
-
-    // 1. 初始化基础查询（PostgrestQueryBuilder 类型）
-    // 根据是否按分组筛选，使用 PostgREST 的关系选择器（!inner）而不是不存在的 join 方法
-    // let query;
-
-    // if (groupsIdArray.length > 0) {
-    //   // 使用关系选择并指定 inner 以实现等价的内连接行为（要求在数据库中定义了 articles -> article_groups_relation 的关系）
-    //   // 这里选取 articles 的全部字段，并通过 article_groups_relation 的 group_id 进行筛选
-    //   query = supabase
-    //     .from('articles')
-    //     .select('*, article_groups_relation!inner(group_id)', { count: 'exact' })
-    //     .in('article_groups_relation.group_id', groupsIdArray);
-    // } else {
-    //   query = supabase
-    //     .from('articles')
-    //     .select('*', { count: 'exact' });
-    // }
-
-    // // 4. 执行筛选逻辑（eq、ilike 等，需在 select 之后）
-    // query = query
-    //   .eq('user_id', userId) // 筛选博主的文章
-    //   .ilike('title', `%${search || ''}%`); // 搜索关键词
-
-    // // 6. 排序（最后执行排序）
-    // query = query.order('created_at', { ascending: false });
-
-    // 执行查询
-    // const { data: articlesData, error: articlesError, count } = await query;
-    
-    // if (articlesError) {
-    //   return NextResponse.json({ msg: '获取文章时出错', error: articlesError }, { status: 500 });
-    // }
-
-    // // 提取纯文章数据（过滤关联表的冗余字段）
-    // const pureArticles = articlesData?.map((article:any) => {
-    //   // 删除关联表的嵌套字段，只保留文章本身的字段
-    //   const { article_groups_relation, ...rest } = article;
-    //   return rest;
-    // }) || [];
-    
+    const blogger = url.searchParams.get("blogger");
+    let userId = url.searchParams.get("userId");
+    const search = url.searchParams.get("search");
+    const labelIdStr = url.searchParams.get("labelId");
+    let labelIdArray: number[] = [];
+    if (labelIdStr) {
+      labelIdArray = labelIdStr
+        .split(",")
+        .map((id) => parseInt(id.trim(), 10))
+        .filter((id) => !isNaN(id) && id > 0);
+    }
     let query;
     query = supabase
-      .from('life_styles')
-      .select('*', { count: 'exact' })
+      .from("life_styles")
+    if (labelIdArray.length > 1) {
+      query = query
+        .select('*,life_styles_to_label!inner(label_id),life_styles_to_sub_label!inner(sub_label_id)',{ count: "exact" })
+        .eq('life_styles_to_label.label_id',labelIdArray[0])
+        .eq('life_styles_to_sub_label.sub_label_id',labelIdArray[1])
+    } else if (labelIdArray.length > 0) {
+      query = query
+      .select("*,life_styles_to_label!inner(label_id)", { count: "exact" })
+      .eq('life_styles_to_label.label_id',labelIdArray[0])
+    }else{
+      query = query.select("*", { count: "exact" });
+    }
+    query = query
+      .eq('user_id', userId) // 筛选博主的文章
       .ilike('title', `%${search || ''}%`)
       .order('created_at', { ascending: false })
+
     const { data: lifeStylesData, error: lifeStylesError, count } = await query;
     if (lifeStylesError) {
-      return NextResponse.json({ msg: '获取生活手记时出错', error: lifeStylesError }, { status: 500 });
+      return NextResponse.json(
+        { msg: "获取生活手记时出错", error: lifeStylesError },
+        { status: 500 }
+      );
     }
-    const result = lifeStylesData.map(item=>({...item,created_at:dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss'),updated_at:dayjs(item.updated_at).format('YYYY-MM-DD HH:mm:ss'),}))
+    const result = lifeStylesData.map((item) => ({
+      ...item,
+      created_at: dayjs(item.created_at).format("YYYY-MM-DD HH:mm:ss"),
+      updated_at: dayjs(item.updated_at).format("YYYY-MM-DD HH:mm:ss"),
+    }));
     return NextResponse.json(
       {
-        data: [].concat([],result as any,result as any,result as any,result as any,result as any,result as any,result as any) || [],
-        count: count || 0 // 使用 select 返回的精确 count
+        data: result || [],
+        count: count || 0, // 使用 select 返回的精确 count
       },
       { status: 200 }
     );
-
   } catch (error) {
-    console.error('获取文章时出错:', error);
-    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+    console.error("获取文章时出错:", error);
+    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
   }
 }

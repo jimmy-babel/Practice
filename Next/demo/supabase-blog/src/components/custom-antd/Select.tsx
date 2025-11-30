@@ -73,7 +73,7 @@ const App: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    init();
+    filterType && init();
   }, [filterType]);
   
   const init = async () => {

@@ -20,8 +20,9 @@ export default function Articles({params}:Props){
   const [loading, setLoading] = useState(true)
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser({loginJump:true});
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [searchText,setSearchText] = useState<string>("");
-  const [selectData, setSelectData] = useState<number[]>([0]);
+  const [selectData, setSelectData] = useState<number>(0);
   const [apiParams, setApiParams] = useState<any>(null);
   const [filterType, setFilterType] = useState<"articles" | undefined>(
     undefined
@@ -42,6 +43,12 @@ export default function Articles({params}:Props){
   };
 
   const columns: TableColumnsType<article> = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key:'id',
+      align:'center'
+    },
     {
       title: '封面',
       key: 'id',
@@ -111,6 +118,9 @@ export default function Articles({params}:Props){
     };
   }, []);
 
+  useEffect(() => {
+    fetchArticleList();
+  }, [selectData]);
   // 数据加载完成后更新高度
   useEffect(() => {
     if (!loading && articles.length > 0) {
@@ -129,13 +139,13 @@ export default function Articles({params}:Props){
       try {
         const res = await checkUser();
         if(!mounted)return;
-        console.log('checkuser then',res);
-        setApiParams(`?userId=${res?.data?.id}&search=`);
-        setFilterType("articles");
-        await fetchArticleList()
+        setUserInfo(res?.data);
+        // console.log('checkuser then',res);
+        // setApiParams(`?userId=${res?.data?.id}&search=`);
+        // setFilterType("articles");
+        // await fetchArticleList()
       } catch (error) {
         console.error('初始化时出错:', error)
-      } finally {
         setLoading(false)
       }
     }
@@ -145,12 +155,23 @@ export default function Articles({params}:Props){
     }
   }, [])
   
+  useEffect(() => {
+    if (!userInfo) return;
+    setApiParams(`?userId=${userInfo?.id}&search=${searchText}`);
+    setFilterType("articles");
+    const loadData = async () => {
+      await fetchArticleList();
+    };
+    loadData();
+  }, [userInfo]);
+  
   // 获取文章数据并关联作者信息
   const fetchArticleList = async () => {
+    if(!userInfo?.id) return;
     try {
       console.log('api: get-article-list',searchText);
-      let groupsId = selectData?.join(',') || "";
-      const response = await fetch(`/api/admin/get-article-list?blogger=${account}&search=${searchText}&groupsId=${groupsId}`);
+      // let groupsId = selectData?.join(',') || "";
+      const response = await fetch(`/api/admin/get-article-list?userId=${userInfo?.id}&search=${searchText}&groupsId=${selectData}`);
       const result = await response.json();
       console.log('api: /blog/get-article-list then',result,response);
       if (response.ok) {
@@ -183,12 +204,11 @@ export default function Articles({params}:Props){
               filterType={filterType}
               isRowSetAllAuto
               isApiAuto
-              mode="multiple"
               apiName="/api/admin/get-article-groups"
               apiMethods="GET"
               apiParams={apiParams}
               selectData={selectData}
-              setSelectData={setSelectData}
+              setSelectData={(data: number | number[]) => setSelectData(data as number)}
             ></AntdSelect>
           </Space>
         </div>
@@ -201,12 +221,12 @@ export default function Articles({params}:Props){
           className="h-full"
           scroll={{y: tableHeight}}
           rowKey="id"
-          rowSelection={{ 
-            type: 'checkbox', 
-            getCheckboxProps: (row: article) => ({
-              name: row.title,
-            }),
-          }}
+          // rowSelection={{ 
+          //   type: 'checkbox', 
+          //   getCheckboxProps: (row: article) => ({
+          //     name: row.title,
+          //   }),
+          // }}
           columns={columns}
           dataSource={articles}
         />

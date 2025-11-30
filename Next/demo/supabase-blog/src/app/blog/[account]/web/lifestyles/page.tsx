@@ -52,7 +52,7 @@ const LifeStyles = (props: Props) => {
     try {
       console.log("api: get-lifestyles-list");
       const response = await fetch(
-        `/api/blog/get-lifestyles-list?blogger=${account}`
+        `/api/blog/get-lifestyles-list?blogger=${account}&labelId=${selectData.join(',')}`
       );
       const result = await response.json();
       console.log("api: /blog/get-lifestyles-list then", result, response);
@@ -70,13 +70,6 @@ const LifeStyles = (props: Props) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log('selectData onchange',selectData);
-  //   if (!isNaN(selectData)) {
-  //     fetchArticleList();
-  //   }
-  // }, [selectData]);
-
   const cloudinaryLoader = ({
     src = "",
     width = 110,
@@ -93,6 +86,9 @@ const LifeStyles = (props: Props) => {
     // 生成最终URL
     return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
   };
+  useEffect(() => {
+    loadData();
+  }, [selectData]);
 
   if (loading) {
     return <Loading></Loading>;
@@ -104,9 +100,11 @@ const LifeStyles = (props: Props) => {
         <div className="w-35">
           <Cascader 
             isApiAuto
+            changeOnSelect
             setType={setType}
             apiName="/api/common/get-lifestyles-label"
             apiMethods="GET"
+            expandTrigger="hover"
             apiParams={apiParams}
             selectData={selectData}
             setSelectData={setSelectData}

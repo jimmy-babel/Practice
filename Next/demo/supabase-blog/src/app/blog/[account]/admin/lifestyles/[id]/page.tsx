@@ -149,7 +149,7 @@ export default function LifeStylesEdit({ params }: Props) {
   }
 
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50 h-full overflow-y-scroll">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
@@ -211,15 +211,18 @@ export default function LifeStylesEdit({ params }: Props) {
               >
                 手记分组
               </label>
-              <Cascader 
-                isApiAuto
-                setType={setType}
-                apiName="/api/common/get-lifestyles-label"
-                apiMethods="GET"
-                apiParams={apiParams}
-                selectData={selectData}
-                setSelectData={setSelectData}
-              ></Cascader>
+              <div className="w-35">
+                <Cascader 
+                  isApiAuto
+                  expandTrigger="hover"
+                  setType={setType}
+                  apiName="/api/common/get-lifestyles-label"
+                  apiMethods="GET"
+                  apiParams={apiParams}
+                  selectData={selectData}
+                  setSelectData={setSelectData}
+                ></Cascader>
+              </div>
             </div>
             {/* 封面 */}
             <div>

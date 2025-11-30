@@ -61,7 +61,8 @@ export interface life_styles {
   user_id: string
   created_at: string
   updated_at: string
-  photos?: life_styles_photos[]; 
+  photos?: life_styles_photos[]
+  labelIds?: (life_styles_label|life_styles_sub_label)[]
 }
 
 export interface life_styles_photos {

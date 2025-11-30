@@ -167,7 +167,7 @@ export default function ArticleEdit({ params }: Props) {
   }
 
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50 h-full overflow-y-scroll">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
@@ -239,7 +239,7 @@ export default function ArticleEdit({ params }: Props) {
                 apiMethods="GET"
                 apiParams={apiParams}
                 selectData={selectData}
-                setSelectData={setSelectData}
+                setSelectData={(data: number | number[]) => setSelectData(data as number[])}
               ></AntdSelect>
             </div>
             {/* 封面 */}
