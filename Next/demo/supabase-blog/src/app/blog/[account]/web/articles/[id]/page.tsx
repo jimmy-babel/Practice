@@ -93,7 +93,7 @@ export default function Article({params}:Props){
               </div>
               {article.labels?.map((item) => (
                 <div className='flex items-center gap-2 leading-15 pb-5' key={item.id}>
-                  <div className='text-xs px-2 rounded-full'>#{item.name}</div>
+                  <div className='px-2 rounded-full'>#{item.name}</div>
                 </div>
               ))}
             </div>

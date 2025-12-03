@@ -101,18 +101,21 @@ const LifeStyles = (props: Props) => {
           </div> */}
           {lifeStyles.labelIds?.map((item) => (
             <div className='flex items-center leading-15' key={item.id}>
-              <div className='text-xs px-2 rounded-full'>#{item.name}</div>
+              <div className='px-2 rounded-full'>#{item.name}</div>
             </div>
           ))}
         </div>
       </div>
-      <div className="pl-20">
+      <div className="m-auto">
         <div className="title text-xl text-bold anim-op-y">{lifeStyles.title}</div>
         <div className="excerpt text-gray-400 pt-4 pb-8 anim-op-y">
           {lifeStyles.excerpt}
         </div>
         <div className="album-box">
-          <div className="grid grid-cols-3 gap-3 w-full min-w-[400px] max-w-[500px]">
+          {/* <div className="grid grid-cols-3 gap-3 w-full min-w-[400px] max-w-[500px]"> */}
+          {/* <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 w-full min-w-[400px] max-w-[500px]"> */}
+          {/* <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 w-full"> */}
+          <div className="grid grid-cols-[repeat(3,minmax(0,160px))] gap-3 w-full">
             <PhotoProvider
               loop={true}
               maskOpacity={0.9}

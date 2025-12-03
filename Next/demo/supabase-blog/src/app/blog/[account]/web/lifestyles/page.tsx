@@ -111,25 +111,26 @@ const LifeStyles = (props: Props) => {
           ></Cascader>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-15 w-full pt-8">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-15 gap-y-12 w-full pt-8 pb-8">
         {lifeStyles.map((item) => (
           <div className="anim-op-y" key={item.id}>
-            {/* <div className="list anim-hover-scale-sm rounded-2xl shadow-[0px_3px_15px_transparent] shadow-gray-700 text-2xs min-w-[150px] max-w-[220px] cursor-pointer" > */}
-            <div className="list anim-hover-scale-sm rounded-2xl text-2xs min-w-[150px] max-w-[220px] cursor-pointer box-shadow">
+            {/* <div className="list anim-hover-scale-sm rounded-2xl text-2xs min-w-[150px] max-w-[220px] cursor-pointer box-shadow"> */}
+            <div className="list anim-hover-scale-sm rounded-2xl text-2xs w-full cursor-pointer box-shadow">
               <div
                 className="album-box"
                 onClick={() => jumpAction(`web/lifestyles/${item.id}`)}
               >
                 <div className="cover-box aspect-square relative">
-                  <Image
-                    loader={cloudinaryLoader}
-                    src={item.cover_img || ""}
-                    alt=""
-                    fill
-                    className="w-full h-full object-fill"
-                  />
+                  {item.cover_img && (
+                    <Image
+                      loader={cloudinaryLoader}
+                      src={item.cover_img || ""}
+                      alt=""
+                      fill
+                      className="w-full h-full object-fill"
+                    />
+                  )}
                 </div>
-                {/* <div className="p-4 border-t-gray-800 border-t"> */}
                 <div className="p-4 border-t border-color">
                   <div>{item.title}</div>
                   <div className="text-xs text-gray-400 pt-1">
