@@ -65,8 +65,8 @@ export async function GET(req: Request) {
     }
     const result = lifeStylesData.map((item) => ({
       ...item,
-      created_at: dayjs(item.created_at).format("YYYY-MM-DD HH:mm:ss"),
-      updated_at: dayjs(item.updated_at).format("YYYY-MM-DD HH:mm:ss"),
+      created_at: item.created_at && dayjs(item.created_at).format("YYYY-MM-DD HH:mm:ss") || "",
+      updated_at: item.updated_at && dayjs(item.updated_at).format("YYYY-MM-DD HH:mm:ss") || "",
     }));
     return NextResponse.json(
       {

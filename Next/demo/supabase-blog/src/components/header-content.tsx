@@ -10,7 +10,7 @@ const HeaderContent = (props: Props) => {
     return (
       <>
         {<>
-          <div className='w-full h-[30vh]'></div>
+          <div className='w-full h-[calc(30vh-75px)]'></div>
           <div className='w-full absolute h-[30vh] left-0 top-0 z-[-1] header-box'>
             <div className="w-full h-full relative">
               <Image

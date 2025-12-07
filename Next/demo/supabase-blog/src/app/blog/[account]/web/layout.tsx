@@ -9,7 +9,8 @@ export default function WebLayout({
 }>) {
   // const imgBg = '/blog-bg.webp';
   // const extraClass = `md:w-[70%] max-md:w-[82%] max-md:min-w-[500px]`;
-  const extraClass = `w-full max-md:min-w-[500px]`;
+  // const extraClass = `w-full max-md:min-w-[500px]`;
+  const extraClass = `w-full`;
   return (
     <>
       <SetLayout extraClass={extraClass} pageScroll safeArea>

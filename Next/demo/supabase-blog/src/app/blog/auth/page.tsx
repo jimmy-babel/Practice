@@ -102,7 +102,8 @@ export default function Auth() {
       <HeaderContent imgBg={imgBg}></HeaderContent>
       {
         inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博主信息已丢失，请重新访问</div> :
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        // <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="min-h-[calc(100vh-30vh)] bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <div className="text-center">
               <h2 className="mt-6 text-3xl font-bold text-gray-900">
