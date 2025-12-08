@@ -32,7 +32,8 @@ CREATE TABLE bloggers (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 强制自增，不允许手动插入id
   user_id INT REFERENCES users(id) ON DELETE CASCADE,
   domain TEXT UNIQUE,
-  avatar_url TEXT,
+  avatar_url TEXT DEFAULT '',
+  user_name TEXT DEFAULT '',
   
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
   updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
