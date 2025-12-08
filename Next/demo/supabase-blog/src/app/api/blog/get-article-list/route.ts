@@ -48,12 +48,18 @@ export async function GET(req: Request) {
       // 这里选取 articles 的全部字段，并通过 article_groups_relation 的 group_id 进行筛选
       query = supabase
         .from('articles')
-        .select('*, article_groups_relation!inner(group_id)', { count: 'exact' })
+        .select(`*, 
+          article_groups_relation!inner(group_id,article_groups(id, name))`, { count: 'exact' })
         .in('article_groups_relation.group_id', groupsIdArray);
     } else {
       query = supabase
         .from('articles')
-        .select('*', { count: 'exact' });
+        .select(`
+          *,
+          article_groups_relation (
+            group_id,
+            article_groups(id, name)
+          )`, { count: 'exact' });
     }
 
     // 4. 执行筛选逻辑（eq、ilike 等，需在 select 之后）
@@ -76,7 +82,7 @@ export async function GET(req: Request) {
     const result = articlesData?.map((article:any) => {
       // 删除关联表的嵌套字段，只保留文章本身的字段
       const { article_groups_relation, ...rest } = article;
-      return {...rest,created_at:dayjs(rest.created_at).format('YYYY-MM-DD HH:mm:ss'),updated_at:dayjs(rest.updated_at).format('YYYY-MM-DD HH:mm:ss'),};
+      return {...rest,article_groups_relation,created_at:dayjs(rest.created_at).format('YYYY-MM-DD HH:mm:ss'),updated_at:dayjs(rest.updated_at).format('YYYY-MM-DD HH:mm:ss'),};
     }) || [];
     
     

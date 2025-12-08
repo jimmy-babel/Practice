@@ -20,7 +20,8 @@ export interface article {
   user_id: string
   created_at: string
   updated_at: string,
-  labels?: article_groups[]
+  labels?: article_groups[],
+  article_groups_relation?: article_groups_relation[]
 }
 
 export interface Profile {
@@ -69,7 +70,8 @@ export interface Comment {
 
 export interface article_groups_relation {
   group_id: number,
-  article_id:number
+  article_id:number,
+  article_groups?: article_groups
 }
 
 export interface life_styles {

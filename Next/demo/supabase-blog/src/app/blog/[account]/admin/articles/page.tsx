@@ -28,9 +28,11 @@ export default function Articles({params}:Props){
     undefined
   );
   console.log('PAGE ADMIN Articles',account,articles,searchText);
-  const onChange = (checked: boolean) => {
+  const onChange = (id: number,checked: boolean) => {
     console.log(`switch to ${checked}`);
+    updateInfo(id,checked);
   };
+  
   // 自定义Cloudinary Loader
   const cloudinaryLoader = ({ src="", width=110, quality=100 }:{src:string,width:number,quality?:number}) => {
     
@@ -42,6 +44,27 @@ export default function Articles({params}:Props){
     return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
   };
 
+  async function updateInfo(id:number,published:boolean){
+    try{
+      const res = await fetch(
+        `/api/admin/article-publish-edit`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            id,
+            published,
+          }),
+        }
+      );
+      const data = await res.json();
+      if(data?.data){
+        console.log('更新成功:', data);
+        fetchArticleList();
+      }
+    }catch(error){
+      console.error('更新状态时出错:', error);
+    }
+  }
   const columns: TableColumnsType<article> = [
     {
       title: 'ID',
@@ -70,7 +93,7 @@ export default function Articles({params}:Props){
       title: '发布状态',
       key:'published',
       align:'center',
-      render:(row: article)=><Switch checkedChildren="开" unCheckedChildren="关" checked={!!row.published} onChange={onChange} />
+      render:(row: article)=><Switch checkedChildren="开" unCheckedChildren="关" checked={!!row.published} onChange={(checked)=>onChange(row.id,checked)} />
     },
     {
       title: '创建时间',

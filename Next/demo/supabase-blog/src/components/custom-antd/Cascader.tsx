@@ -133,7 +133,7 @@ const App: React.FC<Props> = (props:Props) => {
   };
 
   return (
-    <Cascader style={{ width: "100%" }} placeholder="请选择" value={loading?[]:selectData} options={options} onChange={onChange} changeOnSelect={changeOnSelect} expandTrigger={expandTrigger} />
+    <Cascader style={{ width: "100%" }} placeholder="全部" value={loading?[]:selectData} options={options} onChange={onChange} changeOnSelect={changeOnSelect} expandTrigger={expandTrigger} />
   );
 }
 

@@ -30,8 +30,9 @@ export default function LifeStyles({ params }: Props) {
   const [tableHeight, setTableHeight] = useState(400);
 
   console.log("PAGE ADMIN LifeStyles", account, lifestyles, searchText);
-  const onChange = (checked: boolean) => {
+  const onChange = (id:number,checked: boolean) => {
     console.log(`switch to ${checked}`);
+    updateInfo(id,checked);
   };
   // 自定义Cloudinary Loader
   const cloudinaryLoader = ({
@@ -50,6 +51,28 @@ export default function LifeStyles({ params }: Props) {
     // 生成最终URL
     return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
   };
+  
+  async function updateInfo(id:number,published:boolean){
+    try{
+      const res = await fetch(
+        `/api/admin/lifestyles-publish-edit`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            id,
+            published,
+          }),
+        }
+      );
+      const data = await res.json();
+      if(data?.data){
+        console.log('更新成功:', data);
+        fetchlifeStylesList();
+      }
+    }catch(error){
+      console.error('更新状态时出错:', error);
+    }
+  }
 
   const columns: TableColumnsType<life_styles> = [
     {
@@ -95,7 +118,7 @@ export default function LifeStyles({ params }: Props) {
           checkedChildren="开"
           unCheckedChildren="关"
           checked={!!row.published}
-          onChange={onChange}
+          onChange={(checked)=>onChange(row.id,checked)}
         />
       ),
     },

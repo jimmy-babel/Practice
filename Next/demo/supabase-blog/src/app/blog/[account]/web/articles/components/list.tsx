@@ -77,9 +77,11 @@ const List = (props: Props) => {
         <div onClick={()=>jumpAction(`web/articles/${item.id}`)} key={item.id} className='pt-7 pb-7 anim-hover-x cursor-pointer anim-hover-a border-b border-b-[rgba(127,127,127,0.1)]'>
           <div className='text-xl font-bold'>{item.title}</div>
           <div className='pt-4 pb-4 text-gray-400'>{item.excerpt||""}</div>
-          <div className='flex text-gray-400'>
-            <div>#技术学习</div>
-            <div className='pl-4'>{item.created_at}</div>
+          <div className='flex text-gray-400 gap-2'>
+            <div className=''>{item.created_at}</div>
+            {item.article_groups_relation?.map(group=>(
+              <div key={group.group_id} className='pr-2'>#{group.article_groups?.name}</div>
+            ))}
           </div>
         </div>
       ))}
