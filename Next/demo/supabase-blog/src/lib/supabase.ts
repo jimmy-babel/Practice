@@ -33,6 +33,27 @@ export interface Profile {
   updated_at: string
 }
 
+export interface User {
+  id: number
+  user_id: string
+  user_token: string
+  username: string
+  email: string
+  password: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Blogger {
+  id: number
+  user_id: number
+  domain: string
+  avatar_url?: string
+  created_at: string
+  updated_at: string
+}
+
+
 export interface Comment {
   id: string
   post_id: string

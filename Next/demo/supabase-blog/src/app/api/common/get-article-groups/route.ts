@@ -9,16 +9,22 @@ export async function GET(req: Request) {
     let userId = url.searchParams.get('userId');
     const search = url.searchParams.get('search'); // GET获取查询参数中的search
     if(blogger && !userId){
-        // 获取博主信息
+      // 获取userId
       const { data: bloggerData, error: bloggerError } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
-        .single()
+        .from('bloggers')
+        .select('users(id)')
+        .eq('domain', blogger)
+        .limit(1)
+
       if (bloggerError) {
         return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
       }
-      userId = bloggerData.id;
+      console.log('bloggerData',bloggerData);
+      let users : any = bloggerData?.[0]?.users||{};
+      userId = users?.id || "";
+      if(!userId){
+        return NextResponse.json({ error: '博主不存在' }, { status: 400 });
+      }
     }
     const { data: articleGroupsData, error: articleGroupsError } = await supabase
       .from('article_groups')

@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const blogger = url.searchParams.get("blogger");
+    // const blogger = url.searchParams.get("blogger");
     let userId = url.searchParams.get("userId");
     const search = url.searchParams.get("search");
     const labelIdStr = url.searchParams.get("labelId");

@@ -12,22 +12,27 @@ export async function GET(req: Request) {
     if (!blogger) {
       return NextResponse.json({ error: '缺少 blogger 参数' }, { status: 400 });
     }
-    
-    // 获取博主信息
+   // 获取userId
     const { data: bloggerData, error: bloggerError } = await supabase
-      .from('profiles')
-      .select('*')
-      .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
-      .single()
+      .from('bloggers')
+      .select('users(id)')
+      .eq('domain', blogger)
+      .limit(1)
 
     if (bloggerError) {
-      return NextResponse.json({ msg: '获取博主信息出错', error:bloggerError }, { status: 500 });
+      return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
+    }
+    console.log('bloggerData',bloggerData);
+    let users : any = bloggerData?.[0]?.users||{};
+    const userId = users?.id || "";
+    if(!userId){
+      return NextResponse.json({ error: '博主不存在' }, { status: 400 });
     }
 
     const { data: articleGroupsData, error: articleGroupsError } = await supabase
       .from('article_groups')
       .select('id, name, sort')
-      .eq('user_id', bloggerData?.id)
+      .eq('user_id', userId)
       .ilike('name', `%${search||""}%`)
       .order('sort');
     

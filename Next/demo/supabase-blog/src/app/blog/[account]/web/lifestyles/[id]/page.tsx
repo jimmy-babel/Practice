@@ -2,7 +2,7 @@
 // import  from 'react';
 import React, { useEffect, useState } from "react";
 import { life_styles } from "@/lib/supabase";
-import { useCheckUser, useJumpAction } from "@/lib/use-helper/base-mixin";
+import { useJumpAction } from "@/lib/use-helper/base-mixin";
 import Image from "next/image";
 import { UserOutlined, CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import { PhotoView, PhotoProvider } from "react-photo-view";
@@ -17,16 +17,12 @@ const LifeStyles = (props: Props) => {
   const [lifeStyles, setLifeStyles] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>(null);
-  const { jumpAction } = useJumpAction();
-  const { checkUser } = useCheckUser({ loginJump: true });
   useEffect(() => {
     let mounted = true;
 
     // 初始化应用，检查用户状态 -> 获取文章数据
     const init = async () => {
       try {
-        // 先检查用户状态
-        await checkUser();
         if (!mounted) return;
         // 然后获取文章数据
         await loadData();

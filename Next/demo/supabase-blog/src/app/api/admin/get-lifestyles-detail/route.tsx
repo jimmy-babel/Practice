@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url); //GET请求获取URL
-    const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
+    // const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
     const userId = url.searchParams.get("userId");
     const id = url.searchParams.get("id"); // GET获取查询参数中的id
 

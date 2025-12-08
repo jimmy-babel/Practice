@@ -5,28 +5,12 @@ import dayjs from "dayjs";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url); //GET请求获取URL
-    const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
+    // const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
     const id = url.searchParams.get("id"); // GET获取查询参数中的id
     // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
-    if (!blogger || !id) {
+    if (!id) {
       return NextResponse.json({ error: "缺少传参" }, { status: 400 });
     }
-    // 获取博主信息
-    const { data: bloggerData, error: bloggerError } = await supabase
-      .from("profiles")
-      .select("*")
-      .or(
-        `full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`
-      )
-      .single();
-
-    if (bloggerError) {
-      return NextResponse.json(
-        { msg: "获取博主信息出错", error: bloggerError },
-        { status: 500 }
-      );
-    }
-
     // 获取生活手记数据
     const { data: lifeStylesData, error: lifeStylesError } = await supabase
       .from("life_styles")
@@ -132,7 +116,7 @@ export async function GET(req: Request) {
             "",
           labelIds,
         },
-        bloggerData,
+        // bloggerData,
       },
       { status: 200 }
     );

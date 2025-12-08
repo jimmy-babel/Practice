@@ -26,7 +26,7 @@ export default function LifeStylesEdit({ params }: Props) {
   const { checkUser } = useCheckUser({ loginJump: true });
   const [lifestyles, setLifeStyles] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [defaultFileList, setDefaultFileList] = useState<listItem[]>([]);
   const [defaultPhotosList, setDefaultPhotosList] = useState<listItem[]>([]);
@@ -46,7 +46,7 @@ export default function LifeStylesEdit({ params }: Props) {
         try {
           const res = await checkUser();
           if(!mounted)return;
-          setUserProfile(res.data);
+          setUserInfo(res.data?.userInfo);
           console.log('checkuser then',res);
         } catch (error) {
           console.error('初始化时出错:', error)
@@ -60,14 +60,14 @@ export default function LifeStylesEdit({ params }: Props) {
     }, [])
   
     useEffect(()=>{
-      if(!userProfile)return
-      setApiParams(`?userId=${userProfile?.id}`);
+      if(!userInfo)return
+      setApiParams(`?userId=${userInfo?.id}`);
       setSetType("lifestyles");
       const loadData = async ()=>{
         await getDetail();
       };
       loadData();
-    },[userProfile])
+    },[userInfo])
 
   // 加载手记
   const getDetail = async () => {
@@ -75,7 +75,7 @@ export default function LifeStylesEdit({ params }: Props) {
       if (id == "0") return;
       console.log("api: get-lifestyles-detail");
       const response = await fetch(
-        `/api/admin/get-lifestyles-detail?blogger=${account}&userId=${userProfile?.id}&id=${Number(id)}`
+        `/api/admin/get-lifestyles-detail?blogger=${account}&userId=${userInfo?.id}&id=${Number(id)}`
       );
       const result = await response.json();
       console.log("api: /blog/get-lifestyles-detail then", result);
@@ -107,7 +107,7 @@ export default function LifeStylesEdit({ params }: Props) {
     const uploadPhotos = await uploadPhotosRef.current?.uploadPendingFiles();
     console.log("uploadCover", uploadCover);
     console.log("uploadPhotos", uploadPhotos);
-    if (!userProfile?.isLogin) return;
+    if (!userInfo?.id) return;
     setMessage("");
     try {
       let { title = "", excerpt = "", published = false } = lifestyles;
@@ -116,7 +116,7 @@ export default function LifeStylesEdit({ params }: Props) {
         title,
         excerpt: excerpt || "",
         published,
-        user_id: userProfile?.id,
+        user_id: userInfo?.id,
         cover_img: uploadCover?.[0]?.url || lifestyles.cover_img || "",
         photos: uploadPhotos || [],
         labelIds: selectData || [],

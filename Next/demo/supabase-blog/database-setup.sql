@@ -1,13 +1,43 @@
 -- 创建用户配置表
 CREATE TABLE profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  -- id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 强制自增，不允许手动插入id
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   username TEXT UNIQUE,
-  full_name TEXT,
   avatar_url TEXT,
-  bio TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  domain TEXT UNIQUE,
 );
+
+-- 创建用户表 (NEW)
+CREATE TABLE users (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 强制自增，不允许手动插入id
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_token TEXT UNIQUE,
+  user_name TEXT UNIQUE,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
+);
+
+-- 创建博主表
+CREATE TABLE bloggers (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 强制自增，不允许手动插入id
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  domain TEXT UNIQUE,
+  avatar_url TEXT,
+  
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
+);
+
 
 -- 创建评论表
 CREATE TABLE comments (

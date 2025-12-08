@@ -139,8 +139,8 @@ export default function Articles({params}:Props){
       try {
         const res = await checkUser();
         if(!mounted)return;
-        setUserInfo(res?.data);
-        // console.log('checkuser then',res);
+        console.log('checkuser then2',res);
+        setUserInfo(res?.data?.userInfo);
         // setApiParams(`?userId=${res?.data?.id}&search=`);
         // setFilterType("articles");
         // await fetchArticleList()

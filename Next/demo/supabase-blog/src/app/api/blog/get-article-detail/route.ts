@@ -13,24 +13,22 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "缺少传参" }, { status: 400 });
     }
 
-    // 获取博主信息
+   // 获取userId
     const { data: bloggerData, error: bloggerError } = await supabase
-      .from("profiles")
-      .select("*")
-      .or(
-        `full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`
-      )
-      .single();
+      .from('bloggers')
+      .select('users(*)')
+      .eq('domain', blogger)
+      .limit(1)
 
     if (bloggerError) {
-      return NextResponse.json(
-        { msg: "获取博主信息出错", error: bloggerError },
-        { status: 500 }
-      );
+      return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
     }
-
-    const { avatar_url, full_name, username } = bloggerData;
-
+    console.log('bloggerData',bloggerData);
+    let users : any = bloggerData?.[0]?.users||{};
+    const userId = users?.id || "";
+    if(!userId){
+      return NextResponse.json({ error: '博主不存在' }, { status: 400 });
+    }
     // 获取文章数据
     // console.log('supabase select from articles');
     const { data: articlesData, error: articlesError } = await supabase
@@ -38,7 +36,7 @@ export async function GET(req: Request) {
       .select("*")
       .eq("published", true)
       .eq("id", id)
-      .eq("user_id", bloggerData?.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .single();
     // console.log('supabase select from articles then:',articlesData,articlesError);
@@ -91,7 +89,7 @@ export async function GET(req: Request) {
             "",
           labels: article_groups,
         },
-        bloggerData: { avatar_url, full_name, username },
+        bloggerData:users,
       },
       { status: 200 }
     );

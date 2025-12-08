@@ -16,7 +16,7 @@ type Props = {}
 type MenuItem = Required<MenuProps>['items'][number];
 
 const items: MenuItem[] = [
-  { key: 'userInfoEdit', icon: <UserOutlined style={{ fontSize: '18px'}}  />, label: '我的信息管理' },
+  { key: 'admin/userInfo', icon: <UserOutlined style={{ fontSize: '18px'}}  />, label: '我的信息管理' },
   { key: 'admin/articles', icon: <ReadOutlined style={{ fontSize: '18px'}} />, label: '博客文章管理' },
   { key: 'admin/lifestyles', icon: <SunOutlined style={{ fontSize: '18px'}} />, label: '生活手记管理' },
 ];

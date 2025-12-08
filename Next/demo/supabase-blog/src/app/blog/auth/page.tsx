@@ -9,7 +9,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [username, setUserName] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('');
   const [account, setAccount] = useState("");
@@ -21,69 +21,85 @@ export default function Auth() {
     setAccount(window.__NEXT_ACCOUNT__ || localStorage.getItem('account') || "");
     setInited(true);
   },[])
-  console.log('PAGE Auth',isLogin,account,email,fullName,password,message);
+  console.log('PAGE Auth',isLogin,account,email,username,password,message);
 
   // 处理登录或注册
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
-
-    try {
-      if (isLogin) {
-        console.log('登录');
-        console.log('supabase.auth.signInWithPassword',email,password);
-        const { data,error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-        console.log('supabase.auth.signInWithPassword then:',data,error?.message);
-        if (error) {
-          setMessage(`登录失败: ${error.message}`)
-        } else {
-          setMessage('登录成功！');
-          console.log('登录成功',data,data?.session);
-          router.push(`${fromPath}`||`/blog/${account}/web`)
-        }
-      } else {
-        console.log('注册');
-        console.log('supabase.auth.signUp',email,password);
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        })
-        console.log('supabase.auth.signUp then',data,error?.message);
-        if (error) {
-          setMessage(`注册失败: ${error.message}`)
-        } else if (data.user) {
-          console.log('注册成功 创建用户配置');
-          let insertParams = {
-            id: data.user.id,
-            full_name: fullName, //用户填写的name
-            username: email.split('@')[0], // 使用邮箱前缀作为用户名
+    const signIn = async ()=>{
+        try {
+          let params = {
+            email,
+            password,
           };
-          console.log('supabase insert profiles',insertParams);
-          // 创建用户配置
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert(insertParams)
-          
-          console.log('supabase insert profiles then:',profileError);
-          if (profileError) {
-            console.error('创建用户配置失败:', profileError)
+          console.log("api: login/sign-in", params);
+          const response = await fetch(`/api/login/register/sign-in`, {
+            body: JSON.stringify(params),
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const { data, msg, error } = await response.json();
+          console.log("api: login/sign-in then", data, msg, error);
+          if (error) {
+            setMessage(`登录失败: ${msg}`);
+            setLoading(false);
+          } else {
+            setMessage('登录成功！');
+            console.log('登录成功',data);
+            router.push(`${fromPath}`||`/blog/${account}/web`)
           }
-          
-          setMessage('注册成功！请前往邮箱验证链接点击后再次登录')
-
+        } 
+        catch (error) {
+          setMessage(`登录失败${error}`);
+          setLoading(false);
         }
-      }
-    } catch (error) {
-      setMessage(`操作失败: ${error}`)
-    } finally {
-      setLoading(false)
     }
-  }
-
+    const signUp = async ()=>{
+      try {
+        let params = {
+          email,
+          password,
+          username
+        };
+        console.log("api: login/register/sign-up", params);
+        const response = await fetch(`/api/login/register/sign-up`, {
+          body: JSON.stringify(params),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const { data, msg, error, code } = await response.json();
+        console.log("api: login/register/sign-up then", data, msg, error);
+        if (error) {
+          setMessage(`注册失败: ${msg}`)
+          setLoading(false);
+        }
+        else if(code==='email_exists'){
+          setMessage(msg);
+          setIsLogin(true);
+          setLoading(false);
+        }
+        else {
+          setMessage('注册成功！还需前往邮箱验证授权后再登录');
+          setIsLogin(true);
+          setLoading(false);
+          console.log('注册成功',data);
+        }
+      } catch (error) {
+        setMessage(`注册失败: ${error}`)
+        setLoading(false);
+      }
+    }
+    if(isLogin){
+      signIn()
+    }else{
+      signUp()
+    }
   //处理 GitHub 登录
   // const handleGitHubLogin = async () => {
   //   const { error } = await supabase.auth.signInWithOAuth({
@@ -94,6 +110,7 @@ export default function Auth() {
   //   });
   //   if (error) console.error('GitHub 登录失败:', error);
   // };
+  }
 
   const imgBg = '/blog-bg.webp';
   
@@ -101,7 +118,7 @@ export default function Auth() {
     <>
       <HeaderContent imgBg={imgBg}></HeaderContent>
       {
-        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博主信息已丢失，请重新访问</div> :
+        inited && !account ? <div className='h-[50vh] flex justify-center items-center'>博主信息已丢失，请重新访问新网址</div> :
         // <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="min-h-[calc(100vh-30vh)] bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -129,17 +146,17 @@ export default function Auth() {
               <form className="space-y-6" onSubmit={handleAuth}>
                 {!isLogin && (
                   <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                       姓名
                     </label>
                     <div className="mt-1">
                       <input
-                        id="fullName"
-                        name="fullName"
+                        id="username"
+                        name="username"
                         type="text"
                         required={!isLogin}
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        value={username}
+                        onChange={(e) => setUserName(e.target.value)}
                         className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         placeholder="请输入您的姓名"
                       />

@@ -3,7 +3,7 @@
 import React, { useState,useEffect, useRef } from "react";
 import { useParams, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import {useJumpAction} from "@/lib/use-helper/base-mixin";
+import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin";
 import Avatar from "@/components/custom-antd/Avatar";
 import { useTheme } from 'next-themes';
 import { MoonOutlined,SunOutlined } from '@ant-design/icons';
@@ -17,14 +17,43 @@ type Props = {
 const Nav = ({navList,isPlace,account}: Props) => {
   // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
+  const [list , setList] = useState<NavItem[]>(navList||[]);
   const showBgRef = useRef(showBg);
   const {jumpAction} = useJumpAction();
+  const {checkUser} = useCheckUser();
   const { resolvedTheme, setTheme } = useTheme();
   
   // 给scroll闭包函数使用showBgRef.current
   useEffect(() => {
     showBgRef.current = showBg;
   }, [showBg]);
+
+  useEffect(() => {
+    const checkUserLogin = async () => {
+      // console.log('checkUserLogin',account||window.__NEXT_ACCOUNT__||'');
+      let extra = [];
+      try{
+        const {data} = await checkUser(account||window.__NEXT_ACCOUNT__||'');
+        console.log('checkUser',data);
+        if(!data?.isLogin){
+          extra.push({ name: "登录", url: `/blog/auth`, type: "from" });
+        }
+        if(data?.isBlogger){
+          extra.push({ name: "后台管理", url: `admin` });
+        }
+        setList([...(navList || []),...extra]);
+      }catch(err){
+        extra.push({ name: "登录", url: `/blog/auth`, type: "from" });
+        setList([...(navList || []),...extra]);
+        console.log('checkUserLogin',err);
+      }
+    }
+    checkUserLogin();
+  }, [navList]);
+
+  // useEffect(() => {
+  //   navList && setList(navList || []);
+  // }, [navList]);
 
   
   useEffect(() => {
@@ -57,7 +86,7 @@ const Nav = ({navList,isPlace,account}: Props) => {
             {userProfile?.full_name.toUpperCase() != curAccount.toUpperCase() ? <div>WELCOME {curAccount.toUpperCase()} BLOG</div> : <div>Hello,{userProfile.full_name}</div>}
           </div>:null} */}
           <div className="flex-1 flex items-center justify-center">
-            {navList?.map((item, index) => (
+            {list?.map((item, index) => (
               <div key={index} className="px-2 flex items-center">
                 <div className="cursor-pointer anim-hover-scale" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
               </div>

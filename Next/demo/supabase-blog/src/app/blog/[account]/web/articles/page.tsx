@@ -3,7 +3,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import List from "@/app/blog/[account]/web/articles/components/list";
 import { article } from "@/lib/supabase";
-import { useCheckUser } from "@/lib/use-helper/base-mixin";
 import Loading from "@/components/loading-css/loading";
 import AntdSelect from "@/components/custom-antd/Select";
 
@@ -19,8 +18,6 @@ export default function Articles({ params }: Props) {
     undefined
   );
   const [loading, setLoading] = useState(true);
-  const { checkUser } = useCheckUser({ loginJump: true });
-
   console.log("PAGE BLOG Articles", account);
 
   useEffect(() => {
@@ -32,7 +29,6 @@ export default function Articles({ params }: Props) {
         setApiParams(`?blogger=${account}`);
         setFilterType("articles");
         // 先检查用户状态
-        const res = await checkUser();
         if (!mounted) return;
         // 然后获取文章数据
         await fetchArticleList();

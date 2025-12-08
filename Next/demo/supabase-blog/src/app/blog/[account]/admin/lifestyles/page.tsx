@@ -7,7 +7,6 @@ import type { TableColumnsType, TableProps } from "antd";
 import Image from "next/image";
 import { Table, Switch, Button, Space } from "antd";
 import SearchBox from "@/components/SearchBox";
-import AntdSelect from "@/components/custom-antd/Select";
 import Loading from "@/components/loading-css/loading";
 import Cascader from "@/components/custom-antd/Cascader";
 
@@ -26,7 +25,7 @@ export default function LifeStyles({ params }: Props) {
   const [apiParams, setApiParams] = useState<any>(null);
   const [setType, setSetType] = useState<"lifestyles" | undefined>(undefined);
   const [selectData, setSelectData] = useState<number[]>([]);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [tableHeight, setTableHeight] = useState(400);
 
@@ -139,8 +138,7 @@ export default function LifeStyles({ params }: Props) {
       try {
         const res = await checkUser();
         if (!mounted) return;
-        setUserProfile(res.data);
-        console.log("checkuser then", res);
+        setUserInfo(res.data?.userInfo);
       } catch (error) {
         console.error("初始化时出错:", error);
       }
@@ -153,14 +151,14 @@ export default function LifeStyles({ params }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!userProfile) return;
-    setApiParams(`?userId=${userProfile?.id}&search=${searchText}`);
+    if (!userInfo) return;
+    setApiParams(`?userId=${userInfo?.id}&search=${searchText}`);
     setSetType("lifestyles");
     const loadData = async () => {
       await fetchlifeStylesList();
     };
     loadData();
-  }, [userProfile]);
+  }, [userInfo]);
 
   // 监听容器高度变化，更新表格高度
   const updateTableHeight = () => {
@@ -201,12 +199,12 @@ export default function LifeStyles({ params }: Props) {
 
   // 获取生活手记数据并关联作者信息
   const fetchlifeStylesList = async () => {
-    if(!userProfile?.id) return;
+    if(!userInfo?.id) return;
     try {
-      console.log("api: get-life_styles-list", searchText, userProfile.id);
+      console.log("api: get-life_styles-list", searchText, userInfo.id);
       const response = await fetch(
         `/api/admin/get-lifestyles-list?blogger=${account}&userId=${
-          userProfile.id
+          userInfo.id
         }&search=${searchText}&labelId=${selectData.join(",")}`
       );
 

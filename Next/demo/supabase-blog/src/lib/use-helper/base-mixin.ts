@@ -25,11 +25,11 @@ export function useJumpAction(){
   return {jumpAction,backAction}
 }
 
-export function useCheckUser({loginJump}:{loginJump:Boolean}){
+export function useCheckUser({loginJump=false}:{loginJump?:boolean} = {}){
   const {jumpAction} = useJumpAction();
-  const checkUser = async () => {
+  const checkUser = async (blogger?:string) => {
     try{
-      const response = await fetch(`/api/login/check`);
+      const response = await fetch(`/api/login/check?blogger=${blogger||''}`);
       const {data,msg,error} = await response.json();
       if (response.ok) {
         if(data?.isLogin){

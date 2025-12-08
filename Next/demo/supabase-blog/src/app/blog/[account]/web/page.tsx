@@ -2,7 +2,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { supabase, article } from "@/lib/supabase";
-import { useCheckUser } from "@/lib/use-helper/base-mixin";
 import Banner from "@/components/branner/banner";
 import Loading from "@/components/loading-css/loading";
 
@@ -14,17 +13,13 @@ export default function Blog({ params }: Props) {
   const { account } = React.use(params);
   const [articles, setArticles] = useState<article[]>([] as article[]);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const { checkUser } = useCheckUser({ loginJump: true });
-
-  console.log("PAGE Blog 首页", articles, loading, userProfile);
+  console.log("PAGE Blog 首页", articles, loading);
 
   useEffect(() => {
     let mounted = true;
     // 初始化应用，检查用户状态 -> 获取文章数据
     const init = async () => {
       try {
-        await checkUser();
         if (!mounted) return;
         await fetchArticleList();
       } catch (error) {
@@ -47,25 +42,25 @@ export default function Blog({ params }: Props) {
     });
 
     // 监听认证状态变化
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(
-        "supabase.auth.onAuthStateChange 监听认证状态变化",
-        event,
-        session
-      );
-      if (!mounted) return;
+    // const {
+    //   data: { subscription },
+    // } = supabase.auth.onAuthStateChange(async (event, session) => {
+    //   console.log(
+    //     "supabase.auth.onAuthStateChange 监听认证状态变化",
+    //     event,
+    //     session
+    //   );
+    //   if (!mounted) return;
 
-      if (event === "SIGNED_IN" && session) {
-      } else if (event === "SIGNED_OUT") {
-        setUserProfile(null);
-      }
-    });
+    //   if (event === "SIGNED_IN" && session) {
+    //   } else if (event === "SIGNED_OUT") {
+    //     setUserProfile(null);
+    //   }
+    // });
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      // subscription.unsubscribe();
     };
   }, []);
 

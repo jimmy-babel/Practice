@@ -2,7 +2,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
 import {article,Profile} from '@/lib/supabase';
-import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin"
 import {UserOutlined,CalendarOutlined,EyeOutlined} from '@ant-design/icons';
 import RichTextRenderer from "@/components/richTextRenderer/richTextRenderer";
 import Loading from "@/components/loading-css/loading";
@@ -16,7 +15,6 @@ export default function Article({params}:Props){
   const [article, setArticle] = useState<article>({} as article)
   const [userInfo, setUserInfo] = useState<Profile>({} as Profile)
   const [loading, setLoading] = useState(true)
-  const {checkUser} = useCheckUser({loginJump:true});
 
   console.log('PAGE BLOG Article DETAIL',account);
   
@@ -27,8 +25,6 @@ export default function Article({params}:Props){
     const init = async () => {
       console.log('init');
       try {
-        // 先检查用户状态
-        await checkUser()
         if (!mounted)return
         // 然后获取文章数据
         await fetchArticleDetail()

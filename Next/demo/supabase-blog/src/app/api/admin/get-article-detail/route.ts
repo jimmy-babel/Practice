@@ -5,31 +5,9 @@ import dayjs from "dayjs";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url); //GET请求获取URL
-    const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
+    // const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
     const id = url.searchParams.get("id"); // GET获取查询参数中的id
-
-    // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
-    if (!blogger || !id) {
-      return NextResponse.json({ error: "缺少传参" }, { status: 400 });
-    }
-
-    // 获取博主信息
-    const { data: bloggerData, error: bloggerError } = await supabase
-      .from("profiles")
-      .select("*")
-      .or(
-        `full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`
-      )
-      .single();
-
-    if (bloggerError) {
-      return NextResponse.json(
-        { msg: "获取博主信息出错", error: bloggerError },
-        { status: 500 }
-      );
-    }
-
-    const { avatar_url, full_name, username } = bloggerData;
+    let userId = url.searchParams.get("userId");
 
     // 获取文章数据
     // console.log('supabase select from articles');
@@ -38,7 +16,7 @@ export async function GET(req: Request) {
       .select("*")
       // .eq('published', true)
       .eq("id", id)
-      .eq("user_id", bloggerData?.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .single();
     // console.log('supabase select from articles then:',articlesData,articlesError);
@@ -51,7 +29,7 @@ export async function GET(req: Request) {
 
     if (!articlesData) {
       return NextResponse.json(
-        { data: null, bloggerData: { avatar_url, full_name, username } },
+        { data: null, },
         { status: 200 }
       );
     }
@@ -86,7 +64,6 @@ export async function GET(req: Request) {
             "",
           groupsId,
         },
-        bloggerData: { avatar_url, full_name, username },
       },
       { status: 200 }
     );

@@ -12,20 +12,23 @@ export async function GET(req: Request) {
     if (!blogger) {
       return NextResponse.json({ error: '缺少 blogger 参数' }, { status: 400 });
     }
-
-    // 获取博主信息
+    
+   // 获取userId
     const { data: bloggerData, error: bloggerError } = await supabase
-      .from('profiles')
-      .select('*')
-      .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
-      .single();
+      .from('bloggers')
+      .select('users(id)')
+      .eq('domain', blogger)
+      .limit(1)
 
     if (bloggerError) {
       return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
     }
-
-    const { avatar_url, full_name, username } = bloggerData;
-    const userId = bloggerData.id;
+    console.log('bloggerData',bloggerData);
+    let users : any = bloggerData?.[0]?.users||{};
+    const userId = users?.id || "";
+    if(!userId){
+      return NextResponse.json({ error: '博主不存在' }, { status: 400 });
+    }
 
     // 处理 groupsId 数组
     let groupsIdArray: number[] = [];
@@ -80,7 +83,6 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         data: result || [],
-        bloggerData: { avatar_url, full_name, username },
         count: count || 0 // 使用 select 返回的精确 count
       },
       { status: 200 }

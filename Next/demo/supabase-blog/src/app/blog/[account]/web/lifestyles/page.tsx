@@ -2,7 +2,7 @@
 // import  from 'react';
 import React, { useEffect, useState } from "react";
 import { life_styles } from "@/lib/supabase";
-import { useCheckUser, useJumpAction } from "@/lib/use-helper/base-mixin";
+import { useJumpAction } from "@/lib/use-helper/base-mixin";
 import Image from "next/image";
 import Loading from "@/components/loading-css/loading";
 import Cascader from "@/components/custom-antd/Cascader";
@@ -18,7 +18,6 @@ const LifeStyles = (props: Props) => {
   );
   const [loading, setLoading] = useState(true);
   const { jumpAction } = useJumpAction();
-  const { checkUser } = useCheckUser({ loginJump: true });
   const [apiParams, setApiParams] = useState<any>(null);
   const [setType, setSetType] = useState<"lifestyles" | undefined>(undefined);
   const [selectData, setSelectData] = useState<number[]>([]);
@@ -30,8 +29,6 @@ const LifeStyles = (props: Props) => {
       try {
         setApiParams(`?blogger=${account}`);
         setSetType("lifestyles");
-        // 先检查用户状态
-        await checkUser();
         if (!mounted) return;
         // 然后获取文章数据
         await loadData();

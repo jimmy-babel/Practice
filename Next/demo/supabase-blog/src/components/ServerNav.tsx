@@ -9,8 +9,9 @@ const staticNavList = [
   // { name: "音画手记", url: `web/muvie` },
   // { name: "问AI", url: `web/askai` },
   // { name: "留言", url: `web/message` },
-  { name: "登录", url: `/blog/auth`, type: "from" },
-  { name: "后台管理", url: `admin` },
+  
+  // { name: "登录", url: `/blog/auth`, type: "from" },
+  // { name: "后台管理", url: `admin` },
 ];
 
 type Props = {

@@ -37,6 +37,7 @@ export default function ArticleEdit({ params }: Props) {
   const [article, setArticle] = useState<article>({} as article);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [message, setMessage] = useState("");
   const router = useRouter();
   const editorRef = useRef<QuillEditorRef>(null);
@@ -66,10 +67,7 @@ export default function ArticleEdit({ params }: Props) {
         loadQuillEditor();
         const res = await checkUser();
         if (!mounted) return;
-        setUserProfile(res?.data);
-        setApiParams(`?userId=${res?.data?.id}&search=`);
-        setFilterType("articles");
-        await loadData();
+        setUserInfo(res?.data?.userInfo);
       } catch (error) {
         console.error("初始化时出错:", error);
       } finally {
@@ -82,13 +80,24 @@ export default function ArticleEdit({ params }: Props) {
     };
   }, []);
 
+    
+  useEffect(() => {
+    if (!userInfo) return;
+    setApiParams(`?userId=${userInfo?.id}&search=`);
+    setFilterType("articles");
+    const init = async () => {
+      await loadData();
+    };
+    init();
+  }, [userInfo]);
+
   // 加载文章
   const loadData = async () => {
     try {
       if (id == "0") return;
       console.log("api: get-article-detail");
       const response = await fetch(
-        `/api/admin/get-article-detail?blogger=${account}&id=${Number(id)}`
+        `/api/admin/get-article-detail?userId=${userInfo?.id}&id=${Number(id)}`
       );
       const result = await response.json();
       console.log("api: /blog/get-article-detail then", result);
@@ -119,7 +128,7 @@ export default function ArticleEdit({ params }: Props) {
     console.log("uploadCover", uploadCover);
     console.log("deltaContent", deltaContent);
     console.log("handleSubmit", htmlContent);
-    if (!userProfile?.isLogin) return;
+    if (!userInfo?.id) return;
     setMessage("");
     try {
       let { title = "", excerpt = "", published = false } = article;
@@ -130,7 +139,7 @@ export default function ArticleEdit({ params }: Props) {
         published,
         content: htmlContent || "",
         delta_data: (deltaContent && JSON.stringify(deltaContent)) || "",
-        user_id: userProfile?.id,
+        user_id: userInfo?.id,
         cover_img: uploadCover?.[0]?.url || article.cover_img || "",
         groupsId: selectData || [],
       };
