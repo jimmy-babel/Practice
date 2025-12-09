@@ -1,7 +1,7 @@
 "use client";
 // import  from 'react';
 import React, { useEffect, useState } from "react";
-import { life_styles } from "@/lib/supabase";
+import { life_styles, Blogger } from "@/lib/supabase";
 import { useJumpAction } from "@/lib/use-helper/base-mixin";
 import Image from "next/image";
 import { UserOutlined, CalendarOutlined, EyeOutlined } from "@ant-design/icons";
@@ -16,7 +16,7 @@ const LifeStyles = (props: Props) => {
   const { account, id } = React.use(params);
   const [lifeStyles, setLifeStyles] = useState<life_styles>({} as life_styles);
   const [loading, setLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<Blogger>({} as Blogger);
   useEffect(() => {
     let mounted = true;
 
@@ -49,7 +49,7 @@ const LifeStyles = (props: Props) => {
       console.log("api: /blog/get-lifestyles-detail then", result, response);
       if (response.ok) {
         setLifeStyles(result.data);
-        setUserInfo(result.bloggerData);
+        setUserInfo(result.bloggerInfo);
       } else {
         console.error("获取文章时出错:", result.error);
       }
@@ -87,7 +87,7 @@ const LifeStyles = (props: Props) => {
         <div className="blogger-msg-box text-gray-400 gap-4 flex justify-center items-center pb-5">
           <div className="flex items-center gap-2 leading-15">
             <UserOutlined />
-            <div>{userInfo?.full_name}</div>
+            <div>{userInfo?.user_name}</div>
           </div>
           <div className="flex items-center gap-2 leading-15">
             <CalendarOutlined />
@@ -97,7 +97,7 @@ const LifeStyles = (props: Props) => {
           </div> */}
           {lifeStyles.labelIds?.map((item) => (
             <div className='flex items-center leading-15' key={item.id}>
-              <div className='px-2 rounded-full'>#{item.name}</div>
+              <div className=''>#{item.name}</div>
             </div>
           ))}
         </div>

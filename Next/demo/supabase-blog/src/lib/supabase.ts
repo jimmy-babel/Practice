@@ -50,6 +50,11 @@ export interface Blogger {
   user_id: number
   domain: string
   avatar_url?: string
+  user_name?: string
+  introduce1?: string
+  introduce2?: string
+  motto1?: string
+  motto2?: string
   created_at: string
   updated_at: string
 }

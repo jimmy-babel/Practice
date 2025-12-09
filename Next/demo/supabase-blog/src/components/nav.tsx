@@ -1,14 +1,13 @@
 //ClientNav
 'use client';
 import React, { useState,useEffect, useRef } from "react";
-import { useParams, usePathname } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { usePathname } from 'next/navigation';
 import {useJumpAction,useCheckUser} from "@/lib/use-helper/base-mixin";
 import Avatar from "@/components/custom-antd/Avatar";
 import { useTheme } from 'next-themes';
 import { MoonOutlined,SunOutlined } from '@ant-design/icons';
 import './nav.css';
-type NavItem = { name: string; url?: string; type?: string };
+type NavItem = { name: string; key: string; url?: string; type?: string };
 type Props = {
   isPlace?:boolean,
   account?:string,
@@ -22,7 +21,25 @@ const Nav = ({navList,isPlace,account}: Props) => {
   const {jumpAction} = useJumpAction();
   const {checkUser} = useCheckUser();
   const { resolvedTheme, setTheme } = useTheme();
-  
+  const [selectedKeys, setSelectedKeys] = useState<string>(""); 
+  const pathname = usePathname();
+  useEffect(() => {
+    console.log(pathname,'pathname');
+    if (!pathname) return;
+    const matchedKey = (list.find((item:NavItem) => 
+      {
+        let index = pathname.indexOf((item && item.url) as string);
+        if(item.key == 'home' && pathname?.slice(index) == 'web'){
+          return true;
+        }else if(item.key != 'home' &&index > -1){
+          return true;
+        }else{
+          return false;
+        }
+      }
+    )?.key) as string | undefined;
+    setSelectedKeys(matchedKey || "");
+  }, [pathname,list]);
   // 给scroll闭包函数使用showBgRef.current
   useEffect(() => {
     showBgRef.current = showBg;
@@ -36,14 +53,14 @@ const Nav = ({navList,isPlace,account}: Props) => {
         const {data} = await checkUser(account||window.__NEXT_ACCOUNT__||'');
         console.log('checkUser',data);
         if(!data?.isLogin){
-          extra.push({ name: "登录", url: `/blog/auth`, type: "from" });
+          extra.push({ key: "login", name: "登录", url: `/blog/auth`, type: "from" });
         }
         if(data?.isBlogger){
-          extra.push({ name: "后台管理", url: `admin` });
+          extra.push({ key: "admin", name: "后台管理", url: `admin` });
         }
         setList([...(navList || []),...extra]);
       }catch(err){
-        extra.push({ name: "登录", url: `/blog/auth`, type: "from" });
+        extra.push({ key: "login", name: "登录", url: `/blog/auth`, type: "from" });
         setList([...(navList || []),...extra]);
         console.log('checkUserLogin',err);
       }
@@ -87,8 +104,10 @@ const Nav = ({navList,isPlace,account}: Props) => {
           </div>:null} */}
           <div className="flex-1 flex items-center justify-center">
             {list?.map((item, index) => (
-              <div key={index} className="px-2 flex items-center">
-                <div className="cursor-pointer anim-hover-scale" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
+              <div className="px-2.5" key={index}>
+                <div className={`transition-all duration-300 ${selectedKeys == item.key?'scale-[1.2]':''}`}>
+                  <div className="cursor-pointer anim-hover-y" onClick={()=>jumpAction(item.url||"",{type:item.type||"blog_auto"})}>{item.name}</div>
+                </div>
               </div>
             ))}
           </div>

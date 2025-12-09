@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     }
     
     // 获取userId
-    const { data: bloggerData, error: bloggerError } = await supabase
+    const { data: bloggerInfo, error: bloggerError } = await supabase
       .from('bloggers')
       .select('users(id)')
       .eq('domain', blogger)
@@ -22,8 +22,8 @@ export async function GET(req: Request) {
     if (bloggerError) {
       return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
     }
-    console.log('bloggerData',bloggerData);
-    let users : any = bloggerData?.[0]?.users||{};
+    console.log('bloggerInfo',bloggerInfo);
+    let users : any = bloggerInfo?.[0]?.users||{};
     const userId = users?.id || "";
     if(!userId){
       return NextResponse.json({ error: '博主不存在' }, { status: 400 });

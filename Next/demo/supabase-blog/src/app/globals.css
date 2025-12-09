@@ -104,6 +104,13 @@ body {
 .anim-hover-scale-sm:hover{
   transform: scale(1.03);
 }
+.anim-hover-y{
+  transform: translateY(0);
+  transition: all 0.3s;
+}
+.anim-hover-y:hover{
+  transform: translateY(-3px);
+}
 .anim-hover-x{
   transform: translateX(0);
   transition: all 0.3s;

@@ -74,7 +74,9 @@ export default function Articles({ params }: Props) {
       setLoading(false);
     }
   };
-
+  const onScrollEnd = () => {
+    console.log('onScrollEnd');
+  }
   if (loading) {
     return <Loading></Loading>;
   }
@@ -97,7 +99,7 @@ export default function Articles({ params }: Props) {
         </div>
       </div>
       <div className="pl-1">
-        <List listData={articles}></List>
+        <List listData={articles} onScrollEnd={onScrollEnd}></List>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { useEffect, useState } from 'react'
-import {article,Profile} from '@/lib/supabase';
+import {article,Blogger} from '@/lib/supabase';
 import {UserOutlined,CalendarOutlined,EyeOutlined} from '@ant-design/icons';
 import RichTextRenderer from "@/components/richTextRenderer/richTextRenderer";
 import Loading from "@/components/loading-css/loading";
@@ -13,7 +13,7 @@ export default function Article({params}:Props){
   
   const { account,id } = React.use(params);
   const [article, setArticle] = useState<article>({} as article)
-  const [userInfo, setUserInfo] = useState<Profile>({} as Profile)
+  const [userInfo, setUserInfo] = useState<Blogger>({} as Blogger)
   const [loading, setLoading] = useState(true)
 
   console.log('PAGE BLOG Article DETAIL',account);
@@ -49,7 +49,7 @@ export default function Article({params}:Props){
       console.log('api: /blog/get-article-detail then',result,response);
       if (response.ok) {
         setArticle(result.data);
-        setUserInfo(result.bloggerData);
+        setUserInfo(result.bloggerInfo);
       } else {
         console.error('获取文章时出错:', result.error);
         setArticle([] as any);
@@ -77,7 +77,7 @@ export default function Article({params}:Props){
             <div className='blogger-msg-box text-gray-400 gap-4 flex justify-center items-center'>
               <div className='flex items-center gap-2 leading-15 pb-5'>
                 <UserOutlined />
-                <div>{userInfo.full_name}</div>
+                <div>{userInfo.user_name}</div>
               </div>
               <div className='flex items-center gap-2 leading-15 pb-5'>
                 <CalendarOutlined />
@@ -89,7 +89,7 @@ export default function Article({params}:Props){
               </div>
               {article.labels?.map((item) => (
                 <div className='flex items-center gap-2 leading-15 pb-5' key={item.id}>
-                  <div className='px-2 rounded-full'>#{item.name}</div>
+                  <div className=''>#{item.name}</div>
                 </div>
               ))}
             </div>

@@ -6,12 +6,12 @@ CREATE TABLE profiles (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   username TEXT UNIQUE,
   avatar_url TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-  
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   domain TEXT UNIQUE,
+  
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 -- 创建用户表 (NEW)
@@ -34,20 +34,23 @@ CREATE TABLE bloggers (
   domain TEXT UNIQUE,
   avatar_url TEXT DEFAULT '',
   user_name TEXT DEFAULT '',
-  
+  introduce1 TEXT DEFAULT '',
+  introduce2 TEXT DEFAULT '',
+  motto1 TEXT DEFAULT '',
+  motto2 TEXT DEFAULT '',
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
   updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 
--- 创建评论表
-CREATE TABLE comments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
+-- -- 创建评论表
+-- CREATE TABLE comments (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+--   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+--   content TEXT NOT NULL,
+--   created_at TIMESTAMP DEFAULT NOW()
+-- );
 
 --文章表
 CREATE TABLE articles (
@@ -58,8 +61,9 @@ CREATE TABLE articles (
   published BOOLEAN DEFAULT false,
   sort INT default 0,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 --文章内容表
@@ -68,9 +72,9 @@ CREATE TABLE articles_content (
   content_id INT references articles(id) ON DELETE CASCADE,
   content TEXT NOT NULL DEFAULT '',
   delta_data TEXT NOT NULL DEFAULT '',
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP default NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 )
 
 --文章分组表
@@ -97,8 +101,9 @@ CREATE TABLE life_styles (
   cover_img TEXT NOT NULL DEFAULT '',
   published boolean default false,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP default NOW(),
-  updated_at TIMESTAMP default NOW()
+
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 )
 
 --生活手记图片表
@@ -109,7 +114,8 @@ CREATE TABLE life_styles_photos (
   excerpt TEXT NOT NULL DEFAULT '',
   sort INT default 0,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP default NOW()
+  
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 )
 
 --生活手记<标签>表

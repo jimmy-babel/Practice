@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     }
     
     // 获取博主信息
-    const { data: bloggerData, error: bloggerError } = await supabase
+    const { data: bloggerInfo, error: bloggerError } = await supabase
       .from('profiles')
       .select('*')
       .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
@@ -27,7 +27,7 @@ export async function GET(req: Request) {
     const { data: articleGroupsData, error: articleGroupsError } = await supabase
       .from('article_groups')
       .select('id, name, sort')
-      .eq('user_id', bloggerData?.id)
+      .eq('user_id', bloggerInfo?.id)
       .ilike('name', `%${search||""}%`)
       .order('sort');
     

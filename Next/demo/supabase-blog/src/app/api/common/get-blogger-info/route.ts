@@ -10,7 +10,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ msg: '缺少传参' }, { status: 400 });
     }
     // 获取userId
-    const { data: bloggerData, error: bloggerError } = await supabase
+    const { data: bloggerInfo, error: bloggerError } = await supabase
       .from('bloggers')
       .select('*')
       .eq('domain', blogger)
@@ -19,10 +19,10 @@ export async function GET(req: Request) {
     if (bloggerError) {
       return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
     }
-    if(!bloggerData?.[0]){
+    if(!bloggerInfo?.[0]){
       return NextResponse.json({ msg: '博主不存在' }, { status: 400 });
     }
-    return NextResponse.json({ data: bloggerData?.[0] || {} }, { status: 200 });
+    return NextResponse.json({ data: bloggerInfo?.[0] || {} }, { status: 200 });
   } catch (error) {
     console.error('获取文章时出错:', error);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });

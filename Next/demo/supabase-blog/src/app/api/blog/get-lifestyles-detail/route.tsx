@@ -5,16 +5,33 @@ import dayjs from "dayjs";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url); //GET请求获取URL
-    // const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
+    const blogger = url.searchParams.get("blogger"); // GET获取查询参数中的blogger
     const id = url.searchParams.get("id"); // GET获取查询参数中的id
     // 检查 blogger 是否存在（避免后续调用 toUpperCase/toLowerCase 时报错）
-    if (!id) {
+    if (!blogger || !id) {
       return NextResponse.json({ error: "缺少传参" }, { status: 400 });
+    }
+
+   // 获取userId
+    const { data: bloggerInfo, error: bloggerError } = await supabase
+      .from('bloggers')
+      .select('users(*)')
+      .eq('domain', blogger)
+      .limit(1)
+
+    if (bloggerError) {
+      return NextResponse.json({ msg: '获取博主信息出错', error: bloggerError }, { status: 500 });
+    }
+    let users : any = bloggerInfo?.[0]?.users||{};
+    const userId = users?.id || "";
+    if(!userId){
+      return NextResponse.json({ error: '博主不存在' }, { status: 400 });
     }
     // 获取生活手记数据
     const { data: lifeStylesData, error: lifeStylesError } = await supabase
       .from("life_styles")
       .select("*,photos:life_styles_photos(id,url,excerpt,sort,created_at)")
+      .eq("user_id", userId)
       .eq("id", id)
       .single();
     // 等价于:
@@ -87,8 +104,8 @@ export async function GET(req: Request) {
         { status: 500 }
       );
     }
-    console.log("life_styles_to_label", life_styles_to_label);
-    console.log("life_styles_to_sub_label", life_styles_to_sub_label);
+    // console.log("life_styles_to_label", life_styles_to_label);
+    // console.log("life_styles_to_sub_label", life_styles_to_sub_label);
     let labelIds =
       life_styles_to_label?.[0] && life_styles_to_sub_label?.[0]
         ? [
@@ -96,13 +113,13 @@ export async function GET(req: Request) {
             life_styles_to_sub_label[0]?.life_styles_sub_label,
           ]
         : [];
-    console.log("lifeStylesData", lifeStylesData);
+    // console.log("lifeStylesData", lifeStylesData);
 
     return NextResponse.json(
       {
         data: {
           ...lifeStylesData,
-          create_at:
+          created_at:
             (lifeStylesData?.created_at &&
               dayjs(lifeStylesData?.created_at).format(
                 "YYYY-MM-DD HH:mm:ss"
@@ -116,12 +133,12 @@ export async function GET(req: Request) {
             "",
           labelIds,
         },
-        // bloggerData,
+        bloggerInfo:users,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("获取生活手记详情时出错:", error);
+    // console.error("获取生活手记详情时出错:", error);
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
   }
 }

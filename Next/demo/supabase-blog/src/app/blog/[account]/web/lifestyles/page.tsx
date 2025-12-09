@@ -1,12 +1,9 @@
 "use client";
-// import  from 'react';
 import React, { useEffect, useState } from "react";
 import { life_styles } from "@/lib/supabase";
-import { useJumpAction } from "@/lib/use-helper/base-mixin";
-import Image from "next/image";
 import Loading from "@/components/loading-css/loading";
 import Cascader from "@/components/custom-antd/Cascader";
-
+import List from "@/app/blog/[account]/web/lifestyles/components/list";
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 };
@@ -17,7 +14,6 @@ const LifeStyles = (props: Props) => {
     [] as life_styles[]
   );
   const [loading, setLoading] = useState(true);
-  const { jumpAction } = useJumpAction();
   const [apiParams, setApiParams] = useState<any>(null);
   const [setType, setSetType] = useState<"lifestyles" | undefined>(undefined);
   const [selectData, setSelectData] = useState<number[]>([]);
@@ -66,26 +62,14 @@ const LifeStyles = (props: Props) => {
       setLoading(false);
     }
   };
-
-  const cloudinaryLoader = ({
-    src = "",
-    width = 110,
-    quality = 100,
-  }: {
-    src: string;
-    width: number;
-    quality?: number;
-  }) => {
-    // 提取Cloudinary图片的public_id（即路径中最后的文件名部分）
-    const publicId = src.split("/").pop();
-    // 拼接Cloudinary支持的变换参数（路径格式）
-    const transformations = ["f_auto", `w_${width}`, `q_${quality}`].join(",");
-    // 生成最终URL
-    return `https://res.cloudinary.com/dhfjn2vxf/image/upload/${transformations}/${publicId}`;
-  };
+  
   useEffect(() => {
     loadData();
   }, [selectData]);
+
+  const onScrollEnd = () => {
+    console.log("onScrollEnd");
+  };
 
   if (loading) {
     return <Loading></Loading>;
@@ -108,38 +92,11 @@ const LifeStyles = (props: Props) => {
           ></Cascader>
         </div>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-15 gap-y-12 w-full pt-8 pb-8">
-        {lifeStyles.map((item) => (
-          <div className="anim-op-y" key={item.id}>
-            {/* <div className="list anim-hover-scale-sm rounded-2xl text-2xs min-w-[150px] max-w-[220px] cursor-pointer box-shadow"> */}
-            <div className="list anim-hover-scale-sm rounded-2xl text-2xs w-full cursor-pointer box-shadow">
-              <div
-                className="album-box"
-                onClick={() => jumpAction(`web/lifestyles/${item.id}`)}
-              >
-                <div className="cover-box aspect-square relative">
-                  {item.cover_img && (
-                    <Image
-                      loader={cloudinaryLoader}
-                      src={item.cover_img || ""}
-                      alt=""
-                      fill
-                      className="w-full h-full object-fill"
-                    />
-                  )}
-                </div>
-                <div className="p-4 border-t border-color">
-                  <div>{item.title}</div>
-                  <div className="text-xs text-gray-400 pt-1">
-                    {item.created_at}
-                  </div>
-                  <div className="text-[15px] pt-2">查看相册</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+
+      <List
+        listData={lifeStyles}
+        onScrollEnd={onScrollEnd}
+      ></List>
     </div>
   );
 };

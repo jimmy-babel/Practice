@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     }
     
     // 获取博主信息
-    const { data: bloggerData, error: bloggerError } = await supabase
+    const { data: bloggerInfo, error: bloggerError } = await supabase
       .from('profiles')
       .select('*')
       .or(`full_name.eq.${blogger.toUpperCase()},full_name.eq.${blogger.toLowerCase()}`)
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ msg: '获取博主信息出错', error:bloggerError }, { status: 500 });
     }
 
-    const { avatar_url,full_name,username }=bloggerData;
+    const { avatar_url,full_name,username }=bloggerInfo;
 
     // 获取文章数据
     // console.log('supabase select from articles');
@@ -32,7 +32,7 @@ export async function GET(req: Request) {
       .select('*')
       .eq('published', true)
       .eq('id',id)
-      .eq('user_id', bloggerData?.id)
+      .eq('user_id', bloggerInfo?.id)
       .order('created_at', { ascending: false })
       .single()
     // console.log('supabase select from articles then:',articlesData,articlesError);
@@ -59,7 +59,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ msg: '获取文章标签名称时出错', error:article_groupsError }, { status: 500 });
     }
     
-    return NextResponse.json({ data:articlesData,bloggerData:{avatar_url,full_name,username},labels:article_groups?.map((item) => item.name) }, { status: 200 });
+    return NextResponse.json({ data:articlesData,bloggerInfo:{avatar_url,full_name,username},labels:article_groups?.map((item) => item.name) }, { status: 200 });
 
   } catch (error) {
     console.error('获取文章详情时出错:', error);

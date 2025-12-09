@@ -32,9 +32,9 @@ const Banner = (props: Props) => {
     <>
       <div className='flex min-h-[60vh] w-full pl-20 pr-20'>
         <div className='flex-1 flex-col flex justify-center h-[inherit] anim-op-y text-center'>
-          <div className='text-5xl'>{bloggerInfo?.user_name+"'s Blog" || "Jimmy's Blog"}</div>
-          <div className='text-2xl pl-6 pt-5 italic'>{bloggerInfo?.motto1 || "what doesn't kill you make you stronger"}</div>
-          <div className='pl-6 pt-3 text-gray-400'>{bloggerInfo?.motto2 || "在坚持不下去的时候，坚持下去"}</div>
+          <div className='text-5xl'>{bloggerInfo?.user_name+"'s Blog"}</div>
+          <div className='text-2xl pl-6 pt-5 italic'>{bloggerInfo?.motto1 || ""}</div>
+          <div className='pl-6 pt-3 text-gray-400'>{bloggerInfo?.motto2 || ""}</div>
         </div>
         <div className='flex-1 anim-op-y h-[inherit] flex-col flex justify-center pl-10'>
           <div className='anim-hover-scale-sm w-full'>
@@ -43,11 +43,11 @@ const Banner = (props: Props) => {
                 <div className='flex items-center '>
                   <Avatar size={50} shape="square"></Avatar>
                   <div className='pl-4'>
-                    <div className='text-2xl bold pb-1'>{bloggerInfo?.user_name || "Jimmy_Luo_441"}</div>
-                    <div className='pb-2 text-gray-400'>{bloggerInfo?.introduce1 || "激情全运会，活力大湾区"}</div>
+                    <div className='text-2xl bold pb-1'>{bloggerInfo?.user_name || "--"}</div>
+                    <div className='pb-2 text-gray-400'>{bloggerInfo?.introduce1 || ""}</div>
                   </div>
                 </div>
-                <div className='text-[18px] text-gray-400 pt-4'>🔥{bloggerInfo?.introduce2 || "记录生活"}</div>
+                <div className='text-[18px] text-gray-400 pt-4'>🔥{bloggerInfo?.introduce2 || ""}</div>
               </div>
             </div>
           </div>
