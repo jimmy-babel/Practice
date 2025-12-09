@@ -36,12 +36,10 @@ export default function ArticleEdit({ params }: Props) {
   const { checkUser } = useCheckUser({ loginJump: true });
   const [article, setArticle] = useState<article>({} as article);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
   const [message, setMessage] = useState("");
   const router = useRouter();
   const editorRef = useRef<QuillEditorRef>(null);
-  const [fileList, setFileList] = useState<listItem[]>([]);
   const [defaultFileList, setDefaultFileList] = useState<listItem[]>([]);
   const [QuillEditor, setQuillEditor] =
     useState<React.ComponentType<any> | null>(null);
@@ -164,11 +162,6 @@ export default function ArticleEdit({ params }: Props) {
     }
   };
 
-  const onFinish = (arr: any) => {
-    console.log("外面 onFinish", arr);
-    // setFileList(arr);
-  };
-
   if(loading){
     return (
       <Loading></Loading>
@@ -276,7 +269,7 @@ export default function ArticleEdit({ params }: Props) {
               {QuillEditor ? (
                 <QuillEditor
                   ref={editorRef}
-                  initialContent={article?.delta_data || ""}
+                  initialContent={article?.articles_content?.delta_data || ""}
                 ></QuillEditor>
               ) : null}
             </div>

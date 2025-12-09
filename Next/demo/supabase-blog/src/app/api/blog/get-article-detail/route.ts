@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     // console.log('supabase select from articles');
     const { data: articlesData, error: articlesError } = await supabase
       .from("articles")
-      .select("*")
+      .select("*,articles_content(*)")
       .eq("published", true)
       .eq("id", id)
       .eq("user_id", userId)

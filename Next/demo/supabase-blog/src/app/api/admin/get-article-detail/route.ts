@@ -10,16 +10,14 @@ export async function GET(req: Request) {
     let userId = url.searchParams.get("userId");
 
     // 获取文章数据
-    // console.log('supabase select from articles');
-    const { data: articlesData, error: articlesError } = await supabase
+    const { data, error: articlesError } = await supabase
       .from("articles")
-      .select("*")
-      // .eq('published', true)
+      .select("*,articles_content(*)")
+      .eq('published', true)
       .eq("id", id)
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .single();
-    // console.log('supabase select from articles then:',articlesData,articlesError);
+      .limit(1);
     if (articlesError) {
       return NextResponse.json(
         { msg: "获取文章详情时出错", error: articlesError },
@@ -27,6 +25,7 @@ export async function GET(req: Request) {
       );
     }
 
+    const articlesData = data?.[0] || null;
     if (!articlesData) {
       return NextResponse.json(
         { data: null, },

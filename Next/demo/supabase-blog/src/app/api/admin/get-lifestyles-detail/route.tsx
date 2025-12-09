@@ -10,12 +10,12 @@ export async function GET(req: Request) {
     const id = url.searchParams.get("id"); // GET获取查询参数中的id
 
     // 获取生活手记数据
-    const { data: lifeStylesData, error: lifeStylesError } = await supabase
+    const { data, error: lifeStylesError } = await supabase
       .from("life_styles")
       .select("*,photos:life_styles_photos(id,url,excerpt,sort,created_at)")
       .eq("id", id)
       .eq("user_id", userId)
-      .single();
+      .limit(1);
     // 等价于:
     // SELECT
     //   life_styles.id,
@@ -36,13 +36,15 @@ export async function GET(req: Request) {
     // FROM life_styles
     // WHERE life_styles.id = id
 
+    
     if (lifeStylesError) {
       return NextResponse.json(
         { msg: "获取生活手记详情时出错", error: lifeStylesError },
         { status: 500 }
       );
     }
-
+    
+    const lifeStylesData = data?.[0] || null;
     if (!lifeStylesData) {
       return NextResponse.json({ data: null }, { status: 200 });
     }

@@ -70,7 +70,6 @@ export default function Article({params}:Props){
   return (
     <div className="article-detial-container pt-10 w-full">
       <div className='container flex w-full max-w-[1100px] m-auto'>
-        {/* <div className='nav-box'></div> */}
         <div className='article-container flex-1'>
           <div className='title-box w-full'>
             <div className='title text-3xl font-bold text-center'>{article.title}</div>
@@ -94,9 +93,8 @@ export default function Article({params}:Props){
               ))}
             </div>
           </div>
-          <div className='content-box w-full pl-12 pr-12'>
-            {/* {article.content||""} */}
-            <RichTextRenderer htmlContent={article.content||""}></RichTextRenderer>
+          <div className='content-box w-full pl-12 pr-12' style={{whiteSpace: 'pre-wrap' }}>
+            <RichTextRenderer htmlContent={article?.articles_content?.content||""}></RichTextRenderer>
           </div>
         </div>
       </div>

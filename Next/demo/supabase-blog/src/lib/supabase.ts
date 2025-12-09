@@ -19,19 +19,19 @@ export interface article {
   sort:number
   user_id: string
   created_at: string
-  updated_at: string,
-  labels?: article_groups[],
+  updated_at: string
+  labels?: article_groups[]
   article_groups_relation?: article_groups_relation[]
+  articles_content?: articles_content
 }
 
-export interface Profile {
-  id: string
-  username?: string
-  full_name?: string
-  avatar_url?: string
-  bio?: string
-  created_at: string
-  updated_at: string
+export interface articles_content {
+  id: number
+  content_id: number
+  content?: string
+  delta_data?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface User {
@@ -60,18 +60,18 @@ export interface Blogger {
 }
 
 
-export interface Comment {
-  id: string
-  post_id: string
-  user_id: string
-  content: string
-  created_at: string
-  profiles?: {
-    username: string
-    full_name: string
-    avatar_url?: string
-  }
-}
+// export interface Comment {
+//   id: string
+//   post_id: string
+//   user_id: string
+//   content: string
+//   created_at: string
+//   profiles?: {
+//     username: string
+//     full_name: string
+//     avatar_url?: string
+//   }
+// }
 
 export interface article_groups_relation {
   group_id: number,
