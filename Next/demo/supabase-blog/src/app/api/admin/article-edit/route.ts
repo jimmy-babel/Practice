@@ -10,10 +10,12 @@ export async function POST(req: Request) {
       group_id: groupId
     }));
     console.log('relations',relations);
+    let getExcerpt = excerpt || content?.substring(0, 200) || '';
+    getExcerpt?.length == 200 && (getExcerpt += '...')
     if(!id || id === 0){
       const { data, error } = await supabase
         .from('articles')
-        .insert({title, content,delta_data,excerpt, published, user_id, cover_img})
+        .insert({title,content,delta_data,excerpt:getExcerpt, published, user_id, cover_img})
         .select()
       if (error) {
         return NextResponse.json({ msg: '新增文章时出错',error }, { status: 500 });
@@ -37,11 +39,19 @@ export async function POST(req: Request) {
           );
         }
       }
+      if(content){
+        const { data, error } = await supabase
+          .from('articles_content')
+          .insert({content_id:newArticle?.id,content,delta_data})
+        if(error){
+          return NextResponse.json({ msg: '编辑文章内容时出错',error }, { status: 500 });
+        }
+      }
       return NextResponse.json({ data:newArticle?.id, msg:"文章新增成功"}, { status: 200 });
     }else{
       const { data, error } = await supabase
         .from('articles')
-        .update({title, content,delta_data,excerpt,published,cover_img})
+        .update({title, content,delta_data,excerpt:getExcerpt,published,cover_img})
         .eq('id', id)
         .select()
 
@@ -77,6 +87,18 @@ export async function POST(req: Request) {
           );
         }
       }
+
+      if(content){
+        const { data, error } = await supabase
+          .from('articles_content')
+          .update({content,delta_data})
+          .eq('content_id', id)
+        if(error){
+          return NextResponse.json({ msg: '编辑文章内容时出错',error }, { status: 500 });
+        }
+      }
+
+
       return NextResponse.json({ data:data?.[0]?.id, msg:"文章编辑成功" }, { status: 200 });
     }
 
