@@ -15,7 +15,7 @@ const MoodRecord = (props: Props) => {
         visible={visible}
         onVisibleChange={setVisible}
         onClose={onClose}
-        placement="bottom"
+        placement="center"
         children={
           <>
             <div className='flex justify-center items-center'>
