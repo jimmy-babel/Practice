@@ -14,7 +14,6 @@ type Props = {
   navList?:NavItem[],
 };
 const Nav = ({navList,isPlace,account}: Props) => {
-  // 1.首页、2.博客记录、3.生活、4.音画手记、5.问AI、6.留言、7.登录、8.后台管理
   const [showBg,setShowBg] = useState(false);
   const [list , setList] = useState<NavItem[]>(navList||[]);
   const showBgRef = useRef(showBg);

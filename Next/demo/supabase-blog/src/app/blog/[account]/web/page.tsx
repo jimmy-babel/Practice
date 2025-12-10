@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase, article } from "@/lib/supabase";
 import Banner from "@/components/branner/banner";
 import Loading from "@/components/loading-css/loading";
-
+import MoodRecord from "@/components/mood-record/MoodRecord";
 type Props = {
   params: Promise<{ account: string }>; //动态路由 [account] 对应的参数
 };
@@ -106,6 +106,7 @@ export default function Blog({ params }: Props) {
     <div className="content-box">
       <div className="flex justify-between flex-wrap">
         <Banner></Banner>
+        <MoodRecord></MoodRecord>
       </div>
     </div>
   );

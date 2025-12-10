@@ -6,7 +6,6 @@ const staticNavList = [
   { key: "home", name: "首页", url: `web` },
   { key: "articles", name: "文章", url: `web/articles` },
   { key: "lifestyles", name: "生活手记", url: `web/lifestyles` },
-  // { key: "muvie", name: "音画手记", url: `web/muvie` },
   // { key: "askai", name: "问AI", url: `web/askai` },
   // { key: "message", name: "留言", url: `web/message` },
   

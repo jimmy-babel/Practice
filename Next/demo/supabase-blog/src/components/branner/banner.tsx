@@ -53,7 +53,7 @@ const Banner = (props: Props) => {
           </div>
         </div>
       </div>
-      <div className='min-h-[200px]'></div>
+      {/* <div className='min-h-[200px]'></div> */}
     </>
   )
 }

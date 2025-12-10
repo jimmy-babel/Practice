@@ -1,20 +1,4 @@
--- 创建用户配置表
-CREATE TABLE profiles (
-  -- id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  
-  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 强制自增，不允许手动插入id
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  username TEXT UNIQUE,
-  avatar_url TEXT,
-  email TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL,
-  domain TEXT UNIQUE,
-  
-  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
-  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
-);
-
--- 创建用户表 (NEW)
+-- 创建用户表
 CREATE TABLE users (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 强制自增，不允许手动插入id
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -68,8 +52,7 @@ CREATE TABLE articles (
 
 --文章内容表
 CREATE TABLE articles_content (
-  id INT generated always as identity primary key,
-  content_id INT references articles(id) ON DELETE CASCADE,
+  id INT generated always as identity primary key,ETE CASCADE,
   content TEXT NOT NULL DEFAULT '',
   delta_data TEXT NOT NULL DEFAULT '',
   
@@ -114,7 +97,7 @@ CREATE TABLE life_styles_photos (
   excerpt TEXT NOT NULL DEFAULT '',
   sort INT default 0,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  
+
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 )
 
