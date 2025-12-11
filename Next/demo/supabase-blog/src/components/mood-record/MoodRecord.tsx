@@ -6,40 +6,42 @@ type Props = {}
 // 心情类型定义
 type MoodType = {
   emoji: string;
-  label: string;
+  label?: string;
+  note?: string;
 };
 
 // 心情记录类型定义
 type MoodRecordType = {
   date: string; // YYYY-MM-DD 格式
-  mood: MoodType;
+  // mood: MoodType;
   note?: string;
+  emoji?: string;
 };
 
 // 预定义心情列表
-const MOODS: MoodType[] = [
-  { emoji: '😄', label: '开心' },
-  { emoji: '😐', label: '平静' },
-  { emoji: '😎', label: '酷' },
-  { emoji: '😊', label: '愉快' },
-  { emoji: '😢', label: '难过' },
-  { emoji: '😡', label: '生气' },
-  { emoji: '🤔', label: '思考' },
-  { emoji: '🎉', label: '兴奋' },
+const MOODS: MoodType[] = [ //emoji列表
+  { emoji: '😄', label: '开心', note: '我很开心' },
+  { emoji: '😐', label: '平静', note: '我很平静' },
+  { emoji: '😎', label: '酷', note: '我很酷' },
+  { emoji: '😊', label: '愉快', note: '我很愉快' },
+  { emoji: '😢', label: '难过', note: '我很难过' },
+  { emoji: '😡', label: '生气', note: '我很生气' },
+  { emoji: '🤔', label: '思考', note: '我很思考' },
+  { emoji: '🎉', label: '兴奋', note: '我很兴奋' },
 ];
 
 // 示例心情记录数据
-const sampleMoodRecords: MoodRecordType[] = [
-  { date: '2025-12-01', mood: MOODS[1] },
-  { date: '2025-12-02', mood: MOODS[0] },
-  { date: '2025-12-03', mood: MOODS[2] },
-  { date: '2025-12-04', mood: MOODS[3] },
-  { date: '2025-12-05', mood: MOODS[0] },
-  { date: '2025-12-06', mood: MOODS[4] },
-  { date: '2025-12-07', mood: MOODS[7] },
-  { date: '2025-12-08', mood: MOODS[1] },
-  { date: '2025-12-09', mood: MOODS[4] },
-  { date: '2025-12-10', mood: MOODS[4] },
+const sampleMoodRecords: MoodRecordType[] = [ //模拟数据
+  { date: '2025-12-01', emoji: '😄' , note: '第一天是个好天气'},
+  { date: '2025-12-02', emoji: '😄' , note: '第二天是个好天气'},
+  { date: '2025-12-03', emoji: '😎' , note: '第三天是个好天气'},
+  { date: '2025-12-04', emoji: '😊' , note: '第四天是个好天气'},
+  { date: '2025-12-05', emoji: '😄' , note: '第五天是个好天气'},
+  { date: '2025-12-06', emoji: '😢' , note: '第六天是个好天气'},
+  { date: '2025-12-07', emoji: '🎉' , note: '第七天是个好天气'},
+  { date: '2025-12-08', emoji: '😄' , note: '第八天是个好天气'},
+  { date: '2025-12-09', emoji: '😢' , note: '第九天是个好天气'},
+  { date: '2025-12-10', emoji: '😢' , note: '第十天是个好天气'},
 ];
 
 const MoodRecord = (props: Props) => {
@@ -97,9 +99,11 @@ const MoodRecord = (props: Props) => {
   }, [currentDate]);
 
   // 获取某天的心情记录
-  const getMoodForDate = (date: string): MoodType | null => {
+  const getMoodForDate = (date: string): MoodRecordType | null => {
     const record = moodRecords.find(record => record.date === date);
-    return record ? record.mood : null;
+    return record || null;
+    // return record ? record : null;
+    // return record ? record.mood : null;
   };
 
   // 处理日期点击
@@ -121,10 +125,10 @@ const MoodRecord = (props: Props) => {
     if (existingIndex >= 0) {
       // 更新现有记录
       newRecords = [...moodRecords];
-      newRecords[existingIndex] = { ...newRecords[existingIndex], mood };
+      newRecords[existingIndex] = { ...newRecords[existingIndex], emoji: mood.emoji, note: mood.note };
     } else {
       // 添加新记录
-      newRecords = [...moodRecords, { date: selectedDate, mood }];
+      newRecords = [...moodRecords, { date: selectedDate, emoji: mood.emoji, note: mood.note }];
     }
     
     setMoodRecords(newRecords);
