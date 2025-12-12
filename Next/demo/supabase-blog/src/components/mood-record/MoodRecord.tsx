@@ -20,14 +20,14 @@ type MoodRecordType = {
 
 // 预定义心情列表
 const MOODS: MoodType[] = [ //emoji列表
-  { emoji: '😄', label: '开心', note: '我很开心' },
-  { emoji: '😐', label: '平静', note: '我很平静' },
-  { emoji: '😎', label: '酷', note: '我很酷' },
-  { emoji: '😊', label: '愉快', note: '我很愉快' },
-  { emoji: '😢', label: '难过', note: '我很难过' },
-  { emoji: '😡', label: '生气', note: '我很生气' },
-  { emoji: '🤔', label: '思考', note: '我很思考' },
-  { emoji: '🎉', label: '兴奋', note: '我很兴奋' },
+  { emoji: '😄', label: '开心', note: '开心' },
+  { emoji: '😐', label: '平静', note: '平静' },
+  { emoji: '😎', label: '酷', note: '酷' },
+  { emoji: '😊', label: '愉快', note: '愉快' },
+  { emoji: '😢', label: '难过', note: '难过' },
+  { emoji: '😡', label: '生气', note: '生气' },
+  { emoji: '🤔', label: '思考', note: '思考' },
+  { emoji: '🎉', label: '兴奋', note: '兴奋' },
 ];
 
 // 示例心情记录数据
