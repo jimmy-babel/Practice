@@ -9,7 +9,7 @@
       height: 100%;
       top: 0;
       left: 0;
-      z-index: 9999;
+      z-index: 997;
       opacity: 0;
     }
   
@@ -17,14 +17,14 @@
       position: fixed;
       bottom: 0;
       left: 0;
-      z-index: 9999;
+      z-index: 998;
       display: flex;
       flex-direction: column;
       width: 100%;
     }
   
     .popup-bg-color {
-      background-color: var(--popup-bg-color, #ffffff);
+      background-color: var(--popup-bg-color, transparent);
     }
   
     .popup-border {
@@ -38,8 +38,9 @@
       display: flex;
   
       .popup-cont-inner {
-        flex: 1;
-        width: 100%;
+        // flex: 1;
+        // width: 100%;
+        margin: 0 auto;
       }
   
       .popup-scroll {
@@ -126,11 +127,8 @@
     &.center-popup {
       width: 100%;
   
-      .popup-cont-inner {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+      // .popup-cont-inner {
+      // }
   
       .popup {
         margin-top: var(--popup-offset);

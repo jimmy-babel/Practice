@@ -29,7 +29,8 @@ export function useCheckUser({loginJump=false}:{loginJump?:boolean} = {}){
   const {jumpAction} = useJumpAction();
   const checkUser = async (blogger?:string) => {
     try{
-      const response = await fetch(`/api/login/check?blogger=${blogger||''}`);
+      const account = window.__NEXT_ACCOUNT__||localStorage.getItem('account') || ""
+      const response = await fetch(`/api/login/check?blogger=${blogger||account||''}`);
       const {data,msg,error} = await response.json();
       if (response.ok) {
         if(data?.isLogin){

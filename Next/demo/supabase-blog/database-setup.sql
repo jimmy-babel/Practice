@@ -145,6 +145,18 @@ CREATE TABLE life_styles_to_sub_label (
 CREATE INDEX idx_life_styles_to_sub_label_life_styles_id ON life_styles_to_sub_label(life_styles_id);
 CREATE INDEX idx_life_styles_to_sub_label_sub_label_id ON life_styles_to_sub_label(sub_label_id);
 
+--心情记录表
+CREATE TABLE mood_records (
+  id INT generated always as identity primary key,
+  date DATE NOT NULL; 
+  emoji TEXT NOT NULL DEFAULT '',
+  emoji_key TEXT NOT NULL DEFAULT '',
+  note TEXT NOT NULL DEFAULT '',
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
+  updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
+)
+
 
 -- -- ===============================================
 -- -- Supabase 博客系统数据库设置脚本

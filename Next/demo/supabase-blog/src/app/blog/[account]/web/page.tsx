@@ -104,7 +104,7 @@ export default function Blog({ params }: Props) {
 
   return (
     <div className="content-box">
-      <div className="flex justify-between flex-wrap">
+      <div className="flex justify-between flex-wrap pl-20 pr-20">
         <Banner></Banner>
         <MoodRecord></MoodRecord>
       </div>

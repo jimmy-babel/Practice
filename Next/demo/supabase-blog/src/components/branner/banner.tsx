@@ -30,7 +30,7 @@ const Banner = (props: Props) => {
   }
   return (
     <>
-      <div className='flex min-h-[60vh] w-full pl-20 pr-20'>
+      <div className='flex min-h-[60vh] w-full'>
         <div className='flex-1 flex-col flex justify-center h-[inherit] anim-op-y text-center'>
           <div className='text-5xl'>{bloggerInfo?.user_name+"'s Blog"}</div>
           <div className='text-2xl pl-6 pt-5 italic'>{bloggerInfo?.motto1 || ""}</div>
