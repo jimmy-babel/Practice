@@ -32,10 +32,11 @@ const List = (props: Props) => {
   const [listBox, setListBox] = useState<React.ReactNode>(null);
   useEffect(() => {
     setListBox(
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-15 gap-y-12 w-full pt-8 pb-8">
+      // <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-15 gap-y-12 w-full pt-8 pb-8">
+      <div className={`grid grid-cols-[repeat(auto-fit,minmax(180px,${listData.length >= 3 ? '1fr' : '200px'}))] gap-x-15 gap-y-12 w-full pt-8 pb-8`}>
         {listData.map((item) => (
           <div className="anim-op-y" key={item.id}>
-            <div className="list anim-hover-scale-sm rounded-2xl text-2xs w-full cursor-pointer box-shadow">
+            <div className="list anim-hover-scale-sm rounded-xl overflow-hidden text-2xs w-full cursor-pointer box-shadow">
               <div
                 className="album-box"
                 onClick={() => jumpAction(`web/lifestyles/${item.id}`)}
@@ -47,7 +48,7 @@ const List = (props: Props) => {
                       src={item.cover_img || ""}
                       alt=""
                       fill
-                      className="w-full h-full object-fill"
+                      className="w-full h-full object-cover"
                     />
                   )}
                 </div>

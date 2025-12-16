@@ -67,6 +67,7 @@ export async function GET(req: Request) {
         .from('users')
         .select('id, user_name, email, user_token,bloggerInfo:bloggers(id,user_id,domain,avatar_url)')
         .eq('user_id', user.id)
+        .eq('bloggers.domain', blogger)
         .limit(1);
       const userInfo = userInfoArr?.[0];
       let bloggerInfo = userInfo?.bloggerInfo?.[0] || {} as {id:string,user_id:string,domain:string,avatar_url:string};

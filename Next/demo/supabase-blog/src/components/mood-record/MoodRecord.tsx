@@ -100,7 +100,7 @@ const MoodRecord = (props: Props) => {
   let curMonth = moment().format("YYYY-MM");
   const [currentDate, setCurrentDate] = useState<Moment>(moment(curMonth));
   const [moodRecords, setMoodRecords] = useState<MoodRecordType[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(moment().format("YYYY-MM-DD"));
   const [showMoodPicker, setShowMoodPicker] = useState(false);
   const [curDayData, setCurDayData] = useState<any>({});
   const [moodData, setMoodData] = useState<MoodRecordType>({});
@@ -186,7 +186,8 @@ const MoodRecord = (props: Props) => {
     isCurrentMonth: boolean,
     item: any
   ) => {
-    if (!isCurrentMonth) return;
+    const today = moment().format("YYYY-MM-DD");
+    if (!isCurrentMonth || date > today) return;
 
     setSelectedDate(date);
     let moodRecord = getMoodForDate(date) || {}; //从记录中找到该日期的数据
@@ -316,7 +317,7 @@ const MoodRecord = (props: Props) => {
             <div className="flex justify-between items-center mb-4 bg-gray-800 text-white p-3 rounded-lg">
               <button
                 onClick={prevMonth}
-                className="text-xl hover:bg-gray-700 p-2 rounded-full transition-colors"
+                className="text-xl hover:bg-gray-700 cursor-pointer p-2 rounded-full transition-colors"
               >
                 &lt;
               </button>
@@ -325,7 +326,7 @@ const MoodRecord = (props: Props) => {
               </h3>
               <button
                 onClick={nextMonth}
-                className="text-xl hover:bg-gray-700 p-2 rounded-full transition-colors"
+                className="text-xl hover:bg-gray-700 cursor-pointer p-2 rounded-full transition-colors"
               >
                 &gt;
               </button>
@@ -349,6 +350,9 @@ const MoodRecord = (props: Props) => {
                 const mood = getMoodForDate(day.fullDate);
                 const isSelected = selectedDate === day.fullDate;
                 const isCurrentMonth = day.month === "current";
+                const today = moment().format("YYYY-MM-DD");
+                const isFutureDate = day.fullDate > today;
+                const isClickable = isCurrentMonth && !isFutureDate;
 
                 return (
                   <div
@@ -357,19 +361,19 @@ const MoodRecord = (props: Props) => {
                       handleDateClick(day.fullDate, isCurrentMonth, mood)
                     }
                     className={`
-                        aspect-square rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all duration-200
-                        ${
-                          isCurrentMonth
-                            ? "bg-gray-800 text-white hover:bg-gray-700"
-                            : "bg-gray-100 text-gray-400 cursor-default"
+                        aspect-square rounded-lg flex flex-col items-center justify-center transition-all duration-200
+                        ${isCurrentMonth
+                          ? "bg-gray-800 text-white hover:bg-gray-700"
+                          : "bg-gray-100 text-gray-400 cursor-default"
                         }
+                        ${isClickable ? "cursor-pointer" : ""}
                         ${isSelected ? "ring-2 ring-yellow-400 scale-105" : ""}
                       `}
                   >
                     <div className="text-sm">{day.date}</div>
                     {mood && <div className="text-2xl">{mood.emoji}</div>}
                     {/* 显示红点标记 */}
-                    {isCurrentMonth && !mood && (
+                    {isClickable && !mood && (
                       <div className="w-1 h-1 bg-red-500 rounded-full mt-1"></div>
                     )}
                   </div>
@@ -377,6 +381,8 @@ const MoodRecord = (props: Props) => {
               })}
             </div>
           </div>
+
+          {/* 显示选中日期的数据 */}
           {curDayData?.date && (
             <div className="recored-item bg-gray-800 rounded-3xl pl-4 pr-4 pt-4 pb-8 text-white flex-1 relative max-w-[448px]">
               <div className="text-2xl mb-3 text-center">
@@ -405,7 +411,8 @@ const MoodRecord = (props: Props) => {
       >
         {/* 心情选择器 */}
         {
-          <div className="bg-white rounded-lg shadow-lg p-4">
+          // <div className="bg-white text-gray-800 rounded-lg shadow-lg p-4">
+          <div className=" rounded-lg shadow-lg p-4">
             <h4 className="text-lg font-semibold mb-3">
               {moment(selectedDate).format("YYYY-MM-DD")} 的心情
             </h4>

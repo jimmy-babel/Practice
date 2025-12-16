@@ -122,8 +122,8 @@ export default function ArticleEdit({ params }: Props) {
     await editorRef.current?.tempUrlsUpload();
     const deltaContent = editorRef.current?.getDeltaContent();
     const htmlContent = editorRef.current?.getHtmlContent();
-    const uploadCover = await uploadCoverRef.current?.uploadPendingFiles();
-    console.log("uploadCover", uploadCover);
+    // const uploadCover = await uploadCoverRef.current?.uploadPendingFiles();
+    // console.log("uploadCover", uploadCover);
     console.log("deltaContent", deltaContent);
     console.log("handleSubmit", htmlContent);
     if (!userInfo?.id) return;
@@ -138,7 +138,8 @@ export default function ArticleEdit({ params }: Props) {
         content: htmlContent || "",
         delta_data: (deltaContent && JSON.stringify(deltaContent)) || "",
         user_id: userInfo?.id,
-        cover_img: uploadCover?.[0]?.url || article.cover_img || "",
+        cover_img: "",
+        // cover_img: uploadCover?.[0]?.url || article.cover_img || "",
         groupsId: selectData || [],
       };
       console.log("api: admin/article-edit", params);
@@ -245,7 +246,7 @@ export default function ArticleEdit({ params }: Props) {
               ></AntdSelect>
             </div>
             {/* 封面 */}
-            <div>
+            {/* <div>
               <label
                 htmlFor="cover_img"
                 className="block text-sm font-medium text-gray-700 mb-2"
@@ -257,7 +258,7 @@ export default function ArticleEdit({ params }: Props) {
                 defaultFileList={defaultFileList}
                 ref={uploadCoverRef}
               ></ImageUploader>
-            </div>
+            </div> */}
             {/* 正文 */}
             <div>
               <label

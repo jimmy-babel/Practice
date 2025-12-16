@@ -128,7 +128,7 @@ const LifeStyles = (props: Props) => {
                               src={item.url || ""}
                               alt=""
                               fill
-                              className="w-full h-full object-fill"
+                              className="w-full h-full object-cover rounded-xl"
                             />
                           </PhotoView>
                         </div>

@@ -72,11 +72,11 @@ export default function Articles({params}:Props){
       key:'id',
       align:'center'
     },
-    {
-      title: '封面',
-      key: 'id',
-      render: (row: article) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
-    },
+    // {
+    //   title: '封面',
+    //   key: 'id',
+    //   render: (row: article) => <div><Image loader={cloudinaryLoader} src={row.cover_img||''} alt="COVER" width={110} height={110} className='object-contain'/></div>,
+    // },
     {
       title: '标题',
       dataIndex: 'title',

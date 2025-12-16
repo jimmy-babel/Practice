@@ -44,8 +44,9 @@ CREATE TABLE articles (
   delta_data TEXT NOT NULL DEFAULT '',
   published BOOLEAN DEFAULT false,
   sort INT default 0,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
+  
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
   updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
@@ -65,7 +66,8 @@ CREATE TABLE article_groups (
   id SERIAL PRIMARY KEY,        -- 分组ID（自增主键）
   name TEXT NOT NULL UNIQUE,    -- 分组名称（唯一，不可重复）
   description TEXT DEFAULT ''   -- 分组描述（可选，默认空字符串）
-  userId UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
 );
 
 --文章分组关系表
@@ -83,7 +85,8 @@ CREATE TABLE life_styles (
   sort INT default 0,
   cover_img TEXT NOT NULL DEFAULT '',
   published boolean default false,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
 
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
   updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
@@ -96,7 +99,8 @@ CREATE TABLE life_styles_photos (
   life_styles_id INT references life_styles(id) ON DELETE CASCADE,
   excerpt TEXT NOT NULL DEFAULT '',
   sort INT default 0,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
 
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 )
@@ -106,7 +110,8 @@ CREATE TABLE life_styles_label (
   id INT generated always as identity primary key,
   name TEXT NOT NULL,
   sort INT default 0,
-  userId UUID REFERENCES auth.users(id) ON DELETE CASCADE
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
 )
 
 --生活手记<子标签>表
@@ -114,7 +119,8 @@ CREATE TABLE life_styles_sub_label (
   id INT generated always as identity primary key,
   name TEXT NOT NULL,
   sort INT default 0,
-  userId UUID REFERENCES auth.users(id) ON DELETE CASCADE
+  user_id INT REFERENCES users(id) ON DELETE CASCADE
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
 )
 
 --生活手记<标签与子标签>的关系表
@@ -153,6 +159,8 @@ CREATE TABLE mood_records (
   emoji_key TEXT NOT NULL DEFAULT '',
   note TEXT NOT NULL DEFAULT '',
   user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  blogger_id INT REFERENCES bloggers(id) ON DELETE CASCADE,
+
   created_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'),
   updated_at TIMESTAMP DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 )

@@ -24,7 +24,8 @@
     }
   
     .popup-bg-color {
-      background-color: var(--popup-bg-color, transparent);
+      background-color: var(--background,transparent);
+      color: var(--foreground,#000);
     }
   
     .popup-border {
@@ -134,9 +135,10 @@
         margin-top: var(--popup-offset);
         top: 50%;
         left: 50%;
-        max-width: 90%;
-        width: 100%;
+        // max-width: 90%;
+        // width: 100%;
         transform: translate(-50%, -50%);
+        width: auto;
         bottom: auto;
         right: auto;
         border-radius: 20px;
