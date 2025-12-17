@@ -1,5 +1,8 @@
 .filter-box{
 }
+.my-backdrop-filter{
+  backdrop-filter: blur(10px) saturate(180%);
+}
 .filter-box::after{
   content: "";
   position: absolute;

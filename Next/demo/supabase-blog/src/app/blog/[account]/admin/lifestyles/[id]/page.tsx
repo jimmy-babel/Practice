@@ -200,7 +200,7 @@ export default function LifeStylesEdit({ params }: Props) {
                 }
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入手记摘要，如果留空将自动从正文生成"
+                placeholder="请输入手记摘要"
               />
             </div>
             {/* 分组 */}

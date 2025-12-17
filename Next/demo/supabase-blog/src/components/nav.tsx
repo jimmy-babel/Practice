@@ -116,7 +116,7 @@ const Nav = ({navList,isPlace,account}: Props) => {
             </div>
           </div>
         </div>
-        <div className={`absolute z-[1] filter-box left-0 top-0 w-full h-full transition-all duration-300 ${showBg?'shadow-md box-shadow':''}`} style={{backdropFilter:'blur(10px) saturate(180%)'}}></div>
+        <div className={`absolute z-[1] filter-box left-0 top-0 w-full h-full transition-all duration-300 ${showBg?'shadow-md box-shadow my-backdrop-filter':''}`}></div>
       </div>
       {/* {place && <div className="place-box w-full h-[75px]"></div>} */}
     </>

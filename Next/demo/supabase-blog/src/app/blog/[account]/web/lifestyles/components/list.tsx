@@ -33,7 +33,8 @@ const List = (props: Props) => {
   useEffect(() => {
     setListBox(
       // <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-15 gap-y-12 w-full pt-8 pb-8">
-      <div className={`grid grid-cols-[repeat(auto-fit,minmax(180px,${listData.length >= 3 ? '1fr' : '200px'}))] gap-x-15 gap-y-12 w-full pt-8 pb-8`}>
+      // <div className={`grid grid-cols-[repeat(auto-fit,minmax(180px,${listData.length >= 3 ? '1fr' : '200px'}))] gap-x-15 gap-y-12 w-full pt-8 pb-8`}>
+      <div className={`grid ${listData.length>=4?'grid-cols-[repeat(auto-fit,minmax(180px,1fr))]':'grid-cols-[repeat(auto-fit,minmax(180px,200px))]'} gap-x-15 gap-y-12 w-full pt-8 pb-8`}>
         {listData.map((item) => (
           <div className="anim-op-y" key={item.id}>
             <div className="list anim-hover-scale-sm rounded-xl overflow-hidden text-2xs w-full cursor-pointer box-shadow">
