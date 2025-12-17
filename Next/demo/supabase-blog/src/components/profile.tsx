@@ -9,8 +9,7 @@ type Props = {
 const Profile = (props: Props) => {
   const {extraClass = ""} = props;
   // 名字、头像、简介
-  const avatarUrl = "/blog-bg.webp"
-  // const avatarUrl = "http://devimgtest.innourl.com/SAAS_IMAGE/images/INNOVATION/user/avatar/20251011/20251011174558588_1883131.jpeg"
+  const avatarUrl = ""
   const userName = "CURRY";
   const date = new Date();
   const tips = `2025-10-8 ~ ${date.getFullYear()}-${(date.getMonth()+1)}-${date.getDate()}`;

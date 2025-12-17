@@ -1,7 +1,7 @@
 'use client';
 import { Upload, Button, message, Image, GetProp, UploadFile, UploadProps } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useState, useRef, useImperativeHandle, forwardRef, memo } from 'react';
 
 type Props = {
   defaultFileList?: Array<UploadFile>;
@@ -371,4 +371,4 @@ const ImageUploader = forwardRef<ImageUploaderRef, Props>(
   }
 );
 
-export default ImageUploader;
+export default memo(ImageUploader);

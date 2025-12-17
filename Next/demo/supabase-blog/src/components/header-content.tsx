@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image';
 type Props = {
-  imgBg:string
+  imgBg?:string
 }
 
 const HeaderContent = (props: Props) => {
@@ -16,7 +16,7 @@ const HeaderContent = (props: Props) => {
               <Image
                 fill
                 className="w-full h-full object-cover"
-                src={imgBg}
+                src={imgBg || ""}
                 alt=""
               />
             </div>
