@@ -1,12 +1,13 @@
 package com.jimmy.demo;
 
+    // TODO 面向对象 - Extends - 继承
+    // 面向对象变成中有3个非常重要的特征：继承，封装，多态
+    // 类存在父子关系：子类可以直接获取到父类的成员属性和成员方法。
+    // 类的继承只能是单继承，一个类只能同时声明一个父类，子类也可以被继承为"孙子类", "孙子类"也可以被继承
+    // 一个父类可以有多个子类
+
 public class ClassExtends {
     public static void main(String[] args) {
-        // TODO 面向对象 - Extends - 继承
-        // 面向对象变成中有3个非常重要的特征：继承，封装，多态
-        // 类存在父子关系：子类可以直接获取到父类的成员属性和成员方法。
-        // 类的继承只能是单继承，一个类只能同时声明一个父类，子类可以被"孙子类"继承
-        // 一个父类可以有多个子类
 
         System.out.println("开始无参new Child1");
         Child child_none = new Child();

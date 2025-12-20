@@ -1,8 +1,9 @@
 package com.jimmy.demo;
 
+        //TODO 引用数据类型
+
 public class ReferenceDataType {
     public static void main(String[] args) {
-        //引用数据类型：
         //String
         String str_val = "";
         str_val = "JIMMY_LUO";
@@ -52,8 +53,12 @@ public class ReferenceDataType {
 }
 
 class Cooking {
-    // 属性会在构造对象的时候默认初始化:
-    // byte、short、int、long:0; float、double:0.0; boolean:false; char:空字符; 引用数据类型:null;
+    // TODO 成员属性会在构造对象的时候默认初始化:
+    // byte、short、int、long:0;
+    // float、double:0.0;
+    // boolean:false;
+    // char:空字符;
+    // 引用数据类型:null;
     String type;
     String food;
 
