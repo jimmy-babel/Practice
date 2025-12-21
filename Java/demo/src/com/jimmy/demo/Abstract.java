@@ -26,7 +26,7 @@ abstract class AbstractDemo1{
     public abstract void abstractMethod();
 }
 
-class AbstractDemo2 extends AbstractDemo1{
+class AbstractDemo2 extends AbstractDemo1{ //继承abstract抽象类
     public void abstractMethod(){
         System.out.println("AbstractDemo2 - abstractMethod");
     }
