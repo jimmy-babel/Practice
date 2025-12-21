@@ -1,4 +1,5 @@
 package com.jimmy.demo;
+import com.jimmy.demo.AccessPermission; //引用同包的类
 
     //TODO 基本数据类型：
     //1.数值类型 --整数类型:byte short int long; --浮点类型:float double;
@@ -118,6 +119,12 @@ public class BasicDataType {
             System.out.println("F会进来,而且前者++一次,后者也会++一次:"+int_val9); //10
         }
 
-
+        //同包访问权限:
+        AccessPermission accessPermission = new AccessPermission();
+        System.out.println(accessPermission.defaultName);
+        System.out.println(accessPermission.protectedName);
+        System.out.println(accessPermission.publicName);
+        System.out.println();
+        accessPermission.showMsg();
     }
 }
