@@ -1,27 +1,41 @@
 package com.jimmy.demo;
+import com.jimmy.demo.AccessPermission; //引用同包的类
+
+    //TODO 基本数据类型：
+    //1.数值类型 --整数类型:byte short int long; --浮点类型:float double;
+    //2.字符类型 char;
+    //3.布尔类型 boolean;
+
+    //示例：
+    //byte 8 ->short 16-> int 32-> long 64位;
+    //float 单精度->double 双精度;
+
+    //引用数据类型：
+    //String、类、接口、数组、枚举、特殊类型值null
 
 public class BasicDataType {
     public static void main(String[] args) {
+
         //1 int & String & +
         int a = 97;
         int b = 100;
         String str = "字符串String";
-        System.out.println(a);
-        System.out.println(b);
-        System.out.println(a+b);
-        System.out.println(a*b);
-        System.out.println(a/b);
-        System.out.println(b/a);
+        System.out.println(a); //97
+        System.out.println(b); //100
+        System.out.println(a+b); //197
+        System.out.println(a*b); //9700
+        System.out.println(a/b); //0
+        System.out.println(b/a); //1
 
-        System.out.println(a+b+str);
-        System.out.println(str+a+b);
+        System.out.println(a+b+str); //197字符串String
+        System.out.println(str+a+b); //字符串String97100
         System.out.println(a+"+"+str+"+"+b);
 
         //2 byte & short
         byte byte_val = 1;
         short short_val = 2;
-        System.out.println(byte_val);
-        System.out.println(short_val);
+        System.out.println(byte_val); //1
+        System.out.println(short_val); //2
 
         //3 double & float
         double double_val =3.1415926535;
@@ -45,7 +59,7 @@ public class BasicDataType {
         //5 boolean
         boolean boolean_val = true;
         if(boolean_val){
-            System.out.println("boolean_val是"+boolean_val);
+            System.out.println("boolean_val是"+boolean_val); //true
         }else{
             System.out.println("boolean_val是"+boolean_val);
         }
@@ -80,8 +94,7 @@ public class BasicDataType {
 
         System.out.println(10%3); // 1  //(10 - 3*3)
 
-        //9 逻辑运算+短路逻辑运算：& && | || ! ^
-
+        //9 非短路/短路逻辑运算：& && | || ! ^
         int int_val9 = 0;
         if(++int_val9 > 0 & ++int_val9 > 1){
             System.out.println("A会进来"+int_val9); //2
@@ -90,32 +103,28 @@ public class BasicDataType {
             System.out.println("B会进来"+int_val9); //4
         }
 
-        if(++int_val9 > 999 && ++int_val9 > 999){
-            System.out.println("C不会进来,而且只++一次,后者不会执行:"+int_val9); //5 //短路逻辑运算
+        if(++int_val9 > 999 && ++int_val9 > 999){ //短路逻辑运算 只会左边运算
+            System.out.println("C不会进来,而且只++一次,后者不会执行:"+int_val9); //5
         }
 
-        if(++int_val9 > 999 & ++int_val9 > 999){
-            System.out.println("D不会进来,但是前者++一次,后者也会++一次:"+int_val9); //7 //非短路
+        if(++int_val9 > 999 & ++int_val9 > 999){ //非短路 两边运算
+            System.out.println("D不会进来,但是前者++一次,后者也会++一次:"+int_val9); //7
         }
 
-        if(++int_val9 > 7 || ++int_val9 > 8){
-            System.out.println("E会进来,而且只++一次,后者不会执行:"+int_val9); //8 //短路逻辑运算
+        if(++int_val9 > 7 || ++int_val9 > 8){ //短路逻辑运算 只会左边运算
+            System.out.println("E会进来,而且只++一次,后者不会执行:"+int_val9); //8
         }
 
-        if(++int_val9 > 8 | ++int_val9 > 9){
-            System.out.println("F会进来,而且前者++一次,后者也会++一次:"+int_val9); //10 //非短路
+        if(++int_val9 > 8 | ++int_val9 > 9){ //非短路 两边运算
+            System.out.println("F会进来,而且前者++一次,后者也会++一次:"+int_val9); //10
         }
 
-        //基本数据类型：
-        //1.数值类型 --整数类型:byte short int long; --浮点类型:float double;
-        //2.字符类型 char;
-        //3.布尔类型 boolean;
-
-        //示例：
-        //byte 8 ->short 16-> int 32-> long 64位;
-        //float 单精度->double 双精度;
-
-        //引用数据类型：
-        //String、类、接口、数组、枚举、特殊类型值null
+        //同包访问权限:
+        AccessPermission accessPermission = new AccessPermission();
+        System.out.println(accessPermission.defaultName);
+        System.out.println(accessPermission.protectedName);
+        System.out.println(accessPermission.publicName);
+        System.out.println();
+        accessPermission.showMsg();
     }
 }

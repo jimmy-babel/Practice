@@ -1,10 +1,17 @@
 package com.jimmy.demo;
 
+        // TODO 引用数据类型
+        // 成员属性会在构造对象的时候默认初始化:
+        // byte、short、int、long:0;
+        // float、double:0.0;
+        // boolean:false;
+        // char:空字符;
+        // 引用数据类型:null;
+
 public class ReferenceDataType {
     public static void main(String[] args) {
-        //引用数据类型：
         //String
-        String str_val = "";
+        String str_val = ""; //变量 //作用域很小 只在当前main中有效 //变量使用前必须初始化(成员属性就不需要,JVM会自动初始化)
         str_val = "JIMMY_LUO";
         System.out.println(str_val);
 
@@ -46,14 +53,16 @@ public class ReferenceDataType {
         myCooking2.start();
         boolean isCooking = myCooking2.isCooking();
         System.out.println(isCooking);
-        int test;
+        int test; //变量
         //System.out.println(test); //变量使用前必须初始化，否则会报错 //反观类的属性可以不初始化，JVM会自动完成初始化
     }
 }
 
+//TODO 类
 class Cooking {
-    // 属性会在构造对象的时候默认初始化:
-    // byte、short、int、long:0; float、double:0.0; boolean:false; char:空字符; 引用数据类型:null;
+
+    //成员属性会自动初始化 (final除外)
+    //成员属性不仅仅在当前类中有效,随着对象可以在其他地方使用
     String type;
     String food;
 

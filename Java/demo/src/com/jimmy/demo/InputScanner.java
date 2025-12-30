@@ -1,16 +1,19 @@
 package com.jimmy.demo;
 
-import java.util.Scanner;
+    //TODO java.util.Scanner
 
-public class Input {
+import java.util.Scanner; //引用util.Scanner
+
+public class InputScanner {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in); //Scanner
-//        System.out.println("输入整数");
-//        int int_val = scanner.nextInt();
-//        System.out.println("你的输入"+int_val);
-//        System.out.println("输入小数");
-//        double double_val = scanner.nextDouble();
-//        System.out.println("你的输入"+double_val);
+        //TODO new Scanner
+        Scanner scanner = new Scanner(System.in); //new Scanner
+        //System.out.println("输入整数");
+        //int int_val = scanner.nextInt();
+        //System.out.println("你的输入"+int_val);
+        //System.out.println("输入小数");
+        //double double_val = scanner.nextDouble();
+        //System.out.println("你的输入"+double_val);
 
         System.out.println("输入成绩");
         double double_val_2 = scanner.nextDouble();
