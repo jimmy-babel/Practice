@@ -21,9 +21,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
-// 1. @Service 注解告诉 Spring，这是一个服务类，需要被 Spring 容器管理
-@Service
-public class FileServiceImpl implements FileService {
+    // 1. @Service 注解告诉 Spring，这是一个服务类，需要被 Spring 容器管理
+    @Service
+    public class FileServiceImpl implements FileService {
 
     private static final String UPLOAD_DIR = "uploads/";
 
