@@ -29,6 +29,12 @@ public class GlobalExceptionHandler {
 
         // 返回一个包含错误信息的 Map 和 400 Bad Request 状态码
         return new ResponseEntity<>(errors, HttpStatus.OK);
-//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        // return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    // 处理实体未找到的错误
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

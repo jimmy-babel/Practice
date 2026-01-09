@@ -22,6 +22,7 @@ public class User {
     //JPA要求至少一个无参构造函数
     public User(){}
 
+    //get & set
     public Long getId() {
         return id;
     }
