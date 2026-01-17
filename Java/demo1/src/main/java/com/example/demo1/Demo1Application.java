@@ -20,6 +20,7 @@ public class Demo1Application {
 		SpringApplication.run(Demo1Application.class, args);
 	}
 
+    // 接口简单示例1
     // GET接口
     // @GetMapping("/hello") 注解将 HTTP GET 请求的 "/hello" 路径映射到这个方法上。
     @GetMapping("/hello")
@@ -29,6 +30,7 @@ public class Demo1Application {
         return "Hello World!";
     }
 
+    // 接口简单示例2
     // 带参数的GET接口
     @GetMapping("/hello/{name}") // URL 中的 {name} 是一个占位符
     public String greetByName(@PathVariable String name) { // @PathVariable 将占位符的值赋给 name 变量
@@ -36,6 +38,7 @@ public class Demo1Application {
         return "你好, " + name + "!";
     }
 
+    // 接口简单示例3
     //  POST接口
     @PostMapping("/users/create") // 1. 使用 @PostMapping 注解
     public UserResponse createUser(@RequestBody UserRequest userRequest) { // 2. 使用 @RequestBody 注解
@@ -47,6 +50,7 @@ public class Demo1Application {
         return new UserResponse(welcomeMessage, userRequest);
     }
 
+    // 接口简单示例4
     // POST接口 V2
     @PostMapping("/users/my_create")
     public UserResponse myCreateUser(@RequestBody UserRequest userRequest){

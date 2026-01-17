@@ -9,9 +9,7 @@ public interface TodoService {
     TodoResponse createTodo(CreateTodoRequest request);
     List<TodoResponse> getAllTodos();
     TodoResponse getTodoById(Long id);
-
     TodoResponse updateTodo(Long id, CreateTodoRequest request);
-
     void deleteTodo(Long id);
 
 }

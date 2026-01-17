@@ -1,5 +1,5 @@
 package com.example.demo1.dto;
-
+// 接口简单示例3~4
 // 这是一个简单的 Java 类，用来接收前端传来的 JSON 数据
 public class UserRequest {
 

@@ -35,6 +35,6 @@ public class GlobalExceptionHandler {
     // 处理实体未找到的错误
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(ex.getMessage()+";ErrorType:EntityNotFoundException", HttpStatus.NOT_FOUND);
     }
 }

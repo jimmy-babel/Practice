@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor // Lombok: 自动生成包含所有 final 字段的构造函数，用于依赖注入
-//public class TodoServiceImpl {
 public class TodoServiceImpl implements TodoService {
     private final TodoRepository todoRepository;
     @Override
     public TodoResponse createTodo(CreateTodoRequest request) {
         Todo todo = new Todo();
         todo.setTitle(request.getTitle());
-        todo.setDescription(request.getTitle());
+        todo.setDescription(request.getDescription());
 
         Todo savedTodo = todoRepository.save(todo);
         return mapToResponse(savedTodo);
@@ -37,14 +36,14 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TodoResponse getTodoById(Long id){
         Todo todo = todoRepository.findById(id)
-                .orElseThrow(()->new EntityNotFoundException("Todo not found with id:" + id));
+                .orElseThrow(()->new EntityNotFoundException("by JIMMY: Todo not found with id:" + id));
         return mapToResponse(todo);
     }
 
     @Override
     public TodoResponse updateTodo(Long id, CreateTodoRequest request){
         Todo todo = todoRepository.findById(id)
-                .orElseThrow(()->new EntityNotFoundException("Todo not found with id:" + id));
+                .orElseThrow(()->new EntityNotFoundException("by JIMMY: Todo not found with id:" + id));
 
         todo.setTitle(request.getTitle());
         todo.setDescription(request.getDescription());
@@ -56,7 +55,7 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public void deleteTodo(Long id) {
         if (!todoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Todo not found with id: " + id);
+            throw new EntityNotFoundException("by JIMMY: Todo not found with id: " + id);
         }
         todoRepository.deleteById(id);
     }
@@ -67,7 +66,8 @@ public class TodoServiceImpl implements TodoService {
                 todo.getId(),
                 todo.getTitle(),
                 todo.getDescription(),
-                todo.isCompleted()
+                todo.isCompleted(),
+                "441"
         );
     }
 

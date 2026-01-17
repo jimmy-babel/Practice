@@ -1,5 +1,6 @@
 package com.example.demo1.dto;
-
+// 接口简单示例3~4
+// 定义返回结构message,user
 public class UserResponse {
     private String message;
     private UserRequest user;
