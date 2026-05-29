@@ -1,9 +1,12 @@
 package Demo4_Static;
-
+/*代码块*/
 import Demo3_Extend.Product;
 import Demo3_Extend.DigitalProduct;
 import Demo3_Extend.PhysicalProduct;
-public class StaticDemo {
+
+import java.sql.SQLOutput;
+
+public class StaticMain {
     private static int count;
     private int count2;
     public static Object obj;
@@ -13,7 +16,7 @@ public class StaticDemo {
         System.out.println(Product.staticNum);
         Product product = new Product() {
             @Override
-            public String sendProduct() {
+            public String sendProduct() { //方法重载
                 return "";
             }
         };
@@ -22,7 +25,7 @@ public class StaticDemo {
 
         Product p2 = new Product() {
             @Override
-            public String sendProduct() {
+            public String sendProduct() {  //方法重载
                 return "";
             }
         };
@@ -30,9 +33,11 @@ public class StaticDemo {
         System.out.println(p2.staticNum);
         System.out.println(Product.staticNum);
 
+        System.out.println("=================静态变量");
         System.out.println(MathUtil.toDegrees(360));
         System.out.println(MathUtil.toRadians(360));
 
+        System.out.println("=================静态工厂方法1");
         Result result = Result.ok(null);
         System.out.println(result.getData());
         Result result2 = Result.ok(obj);
@@ -40,20 +45,25 @@ public class StaticDemo {
         Result result3 = Result.ok(product);
         System.out.println(result3.getData());
 
-        DigitalProduct digitalProduct = DigitalProduct.createDigitalProduct("setname",441,"setkey");
-        PhysicalProduct physicalProduct = PhysicalProduct.createPhysicalProduct("setname",441,442);
+        System.out.println("=================createDigitalProduct,createPhysicalProduct实例:");
+        DigitalProduct digitalProduct = DigitalProduct.createDigitalProduct("setname",441,"setkey");//new DigitalProduct
+        PhysicalProduct physicalProduct = PhysicalProduct.createPhysicalProduct("setname",441,442); //new PhysicalProduct
         System.out.println(digitalProduct.displayInfo());
         System.out.println(physicalProduct.displayInfo());
 
+        System.out.println(TrafficLight.RED.getLabel()+"->"+TrafficLight.RED.getNextLight().getLabel());
+        System.out.println(TrafficLight.GREEN.getLabel()+"->"+TrafficLight.GREEN.getNextLight().getLabel());
+        System.out.println(TrafficLight.YELLOW.getLabel()+"->"+TrafficLight.YELLOW.getNextLight().getLabel());
     }
+
     public static int getCount(){
         //this.count2 = 1; //不能访问成员变量和成员方法
         //this.getCount2();
-        return StaticDemo.count;
+        return StaticMain.count;
     };
 
     public int getCount2(){
-        System.out.println(StaticDemo.count); //成员方法可以访问静态变量
-        return StaticDemo.count;
+        System.out.println(StaticMain.count); //成员方法可以访问静态变量
+        return StaticMain.count;
     }
 }

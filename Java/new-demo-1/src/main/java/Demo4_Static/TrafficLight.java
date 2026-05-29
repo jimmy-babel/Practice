@@ -1,5 +1,5 @@
 package Demo4_Static;
-
+/*代码块*/
 public class TrafficLight {
     private String label;
     private TrafficLight nextLight;

@@ -29,9 +29,7 @@ public abstract class Product extends Grandpa {
         return "商品名称: " + name + ", 商品价格: " + price;
     }
 
-    public abstract String sendProduct();
-
-
+    public abstract String sendProduct(); //抽象方法
 
     public void setName(String name) {
         this.name = name;
@@ -40,5 +38,14 @@ public abstract class Product extends Grandpa {
     public void setPrice(double price) {
         this.price = price;
     }
+
+    public double getPrice(){
+        return this.price;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
 }
 
